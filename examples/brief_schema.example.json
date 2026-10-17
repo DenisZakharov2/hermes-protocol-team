@@ -1,0 +1,15 @@
+{
+  "task_id": "SYNTH_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "document_type": "pitch_deck",
+  "output_format": "markdown_marp",
+  "target_audience": "executive",
+  "custom_branding": {
+    "primary_color": "#1E3A8A",
+    "accent_color": "#0D9488",
+    "font_family": "Inter, sans-serif"
+  },
+  "research_data": {
+    "ref": "research_output.json"
+  }
+}

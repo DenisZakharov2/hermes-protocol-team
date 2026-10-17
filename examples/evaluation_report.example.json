@@ -1,0 +1,26 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "target_worker": "business-analyst",
+  "overall_score": 78,
+  "quality_threshold": 85,
+  "passed": false,
+  "score_breakdown": {
+    "accuracy_and_grounding": 90,
+    "security": 70,
+    "cross_artifact_consistency": 80,
+    "structural_completeness": 85,
+    "practical_executability": 65
+  },
+  "critical_findings": [
+    {
+      "code": "REG_152_VIOLATION",
+      "severity": "CRITICAL",
+      "field": "classic_brd.data_flows[2].attributes",
+      "description": "В атрибутах потока передается открытый СНИЛС без маскирования.",
+      "remediation_instruction": "Добавить регулярное выражение маскирования по 152-ФЗ."
+    }
+  ],
+  "actionable_fixes": [
+    "Исправить маскирование ПДн в потоке №2."
+  ]
+}

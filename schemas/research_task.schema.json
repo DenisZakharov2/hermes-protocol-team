@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "research_task.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "query",
+    "research_objective",
+    "target_audience",
+    "depth_level",
+    "required_entities",
+    "out_of_scope"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "query": {
+      "type": "string"
+    },
+    "research_objective": {
+      "type": "string"
+    },
+    "target_audience": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "technical",
+        "general"
+      ]
+    },
+    "depth_level": {
+      "type": "string",
+      "enum": [
+        "fast_scan",
+        "standard_deep",
+        "exhaustive"
+      ]
+    },
+    "required_entities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

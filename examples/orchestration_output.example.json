@@ -1,0 +1,39 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "artifact_root": "/memory/cases/SAV_DEP_2026_01/artifacts/",
+  "execution_status": "PENDING_HUMAN",
+  "stage_gate_history": [
+    {
+      "stage": 1,
+      "approved_by_human": true,
+      "human_verdict": "APPROVED",
+      "timestamp": "2026-10-17T10:00:00Z"
+    },
+    {
+      "stage": 2,
+      "approved_by_human": true,
+      "human_verdict": "APPROVED",
+      "timestamp": "2026-10-17T14:30:00Z"
+    }
+  ],
+  "final_package": {
+    "product_strategy": {
+      "ref": "product_strategy.json"
+    },
+    "business_requirements": {
+      "ref": "business_requirements.json"
+    },
+    "legal_compliance_report": {
+      "ref": "legal_compliance_report.json"
+    },
+    "deliverable_presentation": {
+      "ref": "deliverable_presentation.json"
+    },
+    "quality_evaluation": {
+      "ref": "evaluation_report.json"
+    }
+  },
+  "project_aar": {
+    "ref": "project_aar.json"
+  }
+}

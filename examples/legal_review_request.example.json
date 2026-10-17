@@ -1,0 +1,11 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "product_concept": {
+    "ref": "product_strategy.json"
+  },
+  "business_requirements": {
+    "ref": "business_requirements.json"
+  },
+  "target_audience": "Physical Persons (Retail)",
+  "jurisdiction": "Russian Federation"
+}

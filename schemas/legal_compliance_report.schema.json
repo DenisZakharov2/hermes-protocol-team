@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "legal_compliance_report.json",
+  "type": "object",
+  "required": [
+    "legal_status",
+    "overall_risk_score",
+    "compliance_audit",
+    "contract_disclaimers_required"
+  ],
+  "properties": {
+    "legal_status": {
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "APPROVED_WITH_RESERVATIONS",
+        "REJECTED"
+      ]
+    },
+    "overall_risk_score": {
+      "type": "string",
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "compliance_audit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "regulation",
+          "status",
+          "risk_level",
+          "issue",
+          "required_mitigation"
+        ],
+        "properties": {
+          "regulation": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "WARNING",
+              "FAIL"
+            ]
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "CRITICAL",
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "issue": {
+            "type": "string"
+          },
+          "judicial_precedent": {
+            "type": "string"
+          },
+          "required_mitigation": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "contract_disclaimers_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

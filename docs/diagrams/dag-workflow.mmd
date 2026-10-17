@@ -1,0 +1,34 @@
+# DAG workflow — сценарий исполнения проекта Hermes Protocol
+
+flowchart TB
+    A[1. Запрос Заказчика<br/>execution_request.json] --> B[2. Stage-Gate 1<br/>утверждение execution_plan.json Человеком]
+    
+    B --> C[3. Исследование<br/>multi-source-researcher → research_output.json]
+    C --> D[4. Продуктовая стратегия<br/>product-manager → product_strategy.json]
+    D --> E[5. Legal Check-in №1 — Концепция<br/>legal-compliance-counsel]
+    
+    E --> F[6. Бизнес-требования BRD<br/>business-analyst → business_requirements.json]
+    F --> G[7. Legal Check-in №2 — BRD<br/>legal-compliance-counsel, max 3 итерации]
+    
+    G --> H[8. Синтез и верстка<br/>research-synthesist → презентация/отчет]
+    H --> H2[8.5. Legal Check-in №3 — Синтез<br/>legal-compliance-counsel]
+    
+    H2 --> I[9. Аудит качества<br/>quality-evaluator, 5 осей, порог ≥85]
+    
+    I -->|Score ≥ 85| J[10. Финальное одобрение Человеком<br/>Stage-Gate + передача пакета]
+    
+    I -->|Score < 85| K[Self-Healing<br/>доработка владельцем артефакта, max 3 цикла]
+    
+    K -->|Дефект REG_* / CRITICAL / HIGH| L[Повторный Legal Check-in<br/>шаг 5, 7 или 8.5]
+    L --> I
+    
+    K -->|Исчерпано 3 итерации без устранения| M[Эскаляция Заказчику<br/>execution_status = ESCALATED]
+    
+    J --> N[11. Постпроектная AAR<br/>project_aar.json, project_final_review.md, память]
+    
+    style A fill:#e1f5e1,stroke:#2e7d32
+    style B fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style J fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style N fill:#e1f5e1,stroke:#2e7d32
+    style M fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style K fill:#ffebee,stroke:#c62828

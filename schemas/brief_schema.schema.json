@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "brief_schema.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "document_type",
+    "output_format",
+    "target_audience",
+    "custom_branding",
+    "research_data"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "pitch_deck",
+        "executive_summary",
+        "analytical_memo",
+        "market_research_whitepaper"
+      ]
+    },
+    "output_format": {
+      "type": "string",
+      "enum": [
+        "markdown_marp",
+        "python_pptx_script",
+        "html_tailwind_deck",
+        "structured_slides_json",
+        "markdown_report",
+        "python_docx_script",
+        "typst_pdf_markup"
+      ]
+    },
+    "target_audience": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "investor",
+        "technical",
+        "general_business"
+      ]
+    },
+    "custom_branding": {
+      "type": "object",
+      "required": [
+        "primary_color",
+        "accent_color",
+        "font_family"
+      ],
+      "properties": {
+        "primary_color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "accent_color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "font_family": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "research_data": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

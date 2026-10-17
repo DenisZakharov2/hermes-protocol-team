@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "research_output.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "key_takeaways",
+    "quantifiable_metrics",
+    "conflicts_and_limitations",
+    "sources"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "key_takeaways": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "quantifiable_metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "metric_name",
+          "value",
+          "unit",
+          "source_id"
+        ],
+        "properties": {
+          "metric_name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string",
+            "pattern": "^SRC_\\d+$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "conflicts_and_limitations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue",
+          "source_a_claim",
+          "source_b_claim"
+        ],
+        "properties": {
+          "issue": {
+            "type": "string"
+          },
+          "source_a_claim": {
+            "type": "string"
+          },
+          "source_b_claim": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "url",
+          "tier_level",
+          "reliability_score"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^SRC_\\d+$"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "tier_level": {
+            "type": "string",
+            "enum": [
+              "TIER_1",
+              "TIER_2",
+              "TIER_3"
+            ]
+          },
+          "reliability_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

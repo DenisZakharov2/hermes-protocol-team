@@ -1,0 +1,14 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "user_prompt": "Разработать сберегательный вклад до востребования для физических лиц с приветственной ставкой: продуктовая концепция, финансовая модель, тарифы, нормативы ЦБ РФ, BRD, юридический аудит и презентация для правления банка",
+  "domain_context": "RETAIL_BANKING",
+  "output_requirements": {
+    "target_artifacts": [
+      "STRATEGY",
+      "BRD",
+      "PRESENTATION",
+      "LEGAL_REPORT"
+    ],
+    "quality_threshold": 85
+  }
+}

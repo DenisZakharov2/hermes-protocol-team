@@ -1,0 +1,38 @@
+{
+  "task_id": "BA_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "system_impact_matrix": [
+    {
+      "system_name": "Core Banking (АБС)",
+      "impact_type": "MODIFY",
+      "description": "Добавление типа продукта 'Вклад до востребования с приветственной ставкой' и учета МГС"
+    },
+    {
+      "system_name": "ДБО / онлайн-кабинет",
+      "impact_type": "MODIFY",
+      "description": "Карточка продукта с блоком МГС того же шрифта, что и приветственная ставка; отдельный чекбокс согласия на ПДн по 152-ФЗ"
+    }
+  ],
+  "classic_brd": {
+    "business_process_tobe": "Открытие сберегательного вклада до востребованияОнлайн через ДБО с идентификацией клиента и подписанием договора ЭП",
+    "functional_requirements": [
+      "Подбор тарифа с приветственной и базовой ставками",
+      "Раскрытие ПСК и МГС до заключения договора",
+      "Подписание договора электронной подписью",
+      "Зачисление средств и начисление процентов"
+    ]
+  },
+  "agile_backlog": [
+    {
+      "user_story": "As a Retail Client I want to see the MGS of my deposit next to the welcome rate so that I can understand the real yield",
+      "acceptance_criteria_gherkin": "GIVEN клиент открыл карточку продукта вклада до востребования WHEN загружена карточка THEN приветственная ставка и МГС отображаются шрифтом одинакового размера"
+    }
+  ],
+  "regulatory_nfr": {
+    "data_masking_152_fz": true,
+    "correlation_id_logging": true,
+    "sla_availability": "99.95%",
+    "rpo_minutes": 5,
+    "rto_minutes": 30
+  }
+}

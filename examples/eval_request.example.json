@@ -1,0 +1,13 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "target_worker": "business-analyst",
+  "artifact_type": "brd_document",
+  "artifact_data": {
+    "REF_TO_ARTIFACT": "business_requirements.json/open_unmasked_SNILS"
+  },
+  "context_artifacts": {
+    "ref": "PROJECT_CONTEXT"
+  },
+  "quality_threshold": 85
+}

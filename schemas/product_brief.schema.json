@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "product_brief.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "product_type",
+    "bank_context",
+    "market_data"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "DEPOSIT",
+        "SAVINGS_ACC",
+        "CONSUMER_LOAN",
+        "CREDIT_CARD",
+        "MORTGAGE"
+      ]
+    },
+    "bank_context": {
+      "type": "object",
+      "required": [
+        "license_type",
+        "business_model",
+        "liquidity_position"
+      ],
+      "properties": {
+        "license_type": {
+          "type": "string"
+        },
+        "business_model": {
+          "type": "string",
+          "enum": [
+            "AGGRESSIVE_GROWTH",
+            "NIM_MAXIMIZATION"
+          ]
+        },
+        "liquidity_position": {
+          "type": "string",
+          "enum": [
+            "SURPLUS",
+            "DEFICIT"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "market_data": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

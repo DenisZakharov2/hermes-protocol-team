@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "orchestration_output.json / final_synthesis_report.json",
+  "type": "object",
+  "required": [
+    "project_id",
+    "artifact_root",
+    "execution_status",
+    "stage_gate_history",
+    "final_package",
+    "project_aar"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "artifact_root": {
+      "type": "string",
+      "pattern": "^/memory/cases/[^/]+/artifacts/$"
+    },
+    "execution_status": {
+      "type": "string",
+      "enum": [
+        "COMPLETED_APPROVED",
+        "REJECTED",
+        "ESCALATED",
+        "STOPPED",
+        "PENDING_HUMAN"
+      ]
+    },
+    "stage_gate_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stage",
+          "approved_by_human",
+          "human_verdict",
+          "timestamp"
+        ],
+        "properties": {
+          "stage": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "approved_by_human": {
+            "type": "boolean"
+          },
+          "human_verdict": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "NEEDS_REWORK"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "final_package": {
+      "type": "object",
+      "required": [
+        "product_strategy",
+        "business_requirements",
+        "legal_compliance_report",
+        "deliverable_presentation",
+        "quality_evaluation"
+      ],
+      "properties": {
+        "product_strategy": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        },
+        "business_requirements": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        },
+        "legal_compliance_report": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        },
+        "deliverable_presentation": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        },
+        "quality_evaluation": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "project_aar": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

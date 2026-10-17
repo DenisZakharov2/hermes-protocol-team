@@ -1,0 +1,27 @@
+# Triple-Gate контроль качества Hermes Protocol
+
+flowchart TD
+    A[Артефакт готовлен воркером<br/>product_strategy / business_requirements / синтез и т.д.]
+    
+    A --> B[Гейт 1: Синтаксический контроль<br/>Валидация по JSON-схеме Draft-07<br/>до 3 попыток автоисправления]
+    
+    B -->|Ошибка схемы| B
+    B -->|Валидно| C[Гейт 2: Правовая экспертиза<br/>legal-compliance-counsel<br/>Контроль legislative РФ, акты ЦБ РФ, судебная практика<br/>Риски: CRITICAL 🔴 / HIGH 🟠 / MEDIUM 🟡 / LOW 🟢<br/>max 3 итерации]
+    
+    C -->|CRITICAL нельзя устранить| D[Эскаляция Заказчику на Stage-Gate]
+    C -->|Требуются правки| C
+    C -->|Принято| E[Гейт 3: Смысловой аудит<br/>quality-evaluator, 5 осей качества<br/>Accuracy 25% / Security 25% / Consistency 20%<br/>Completeness 15% / Executability 15%<br/>Порог Overall Score ≥ 85]
+    
+    E -->|Score ≥ 85| F[PASSED → передача Заказчику<br/>Финальный Stage-Gate одобрения]
+    
+    E -->|Score < 85| G[REJECTED → Self-Healing<br/>actionable_fixes → владелец артефакта<br/>max 3 цикла; дефекты REG_* → повторный Гейт 2]
+    
+    G -->|Исчерпано 3 цикла| D
+    
+    style A fill:#e3f2fd,stroke:#1565c0
+    style B fill:#fff3e0,stroke:#ef6c00
+    style C fill:#fff3e0,stroke:#ef6c00
+    style E fill:#fff3e0,stroke:#ef6c00
+    style F fill:#e1f5e1,stroke:#2e7d32,stroke-width:2px
+    style G fill:#ffebee,stroke:#c62828
+    style D fill:#ffebee,stroke:#c62828,stroke-width:2px

@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "product_strategy.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "product_concept",
+    "financial_model",
+    "regulatory_guardrails",
+    "prioritization_rice"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "product_concept": {
+      "type": "object",
+      "required": [
+        "value_proposition",
+        "target_segments",
+        "tariff_structure"
+      ],
+      "properties": {
+        "value_proposition": {
+          "type": "string"
+        },
+        "target_segments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tariff_structure": {
+          "type": "object",
+          "required": [
+            "base_rate",
+            "welcome_rate",
+            "mgs_rate"
+          ],
+          "properties": {
+            "base_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "welcome_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mgs_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "financial_model": {
+      "type": "object",
+      "required": [
+        "projected_nii",
+        "projected_nim",
+        "cof_cost_of_funds",
+        "ltv_cac_ratio"
+      ],
+      "properties": {
+        "projected_nii": {
+          "type": "number"
+        },
+        "projected_nim": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cof_cost_of_funds": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ltv_cac_ratio": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "regulatory_guardrails": {
+      "type": "object",
+      "required": [
+        "psk_limit_check",
+        "mpl_limit_check",
+        "cbr_mgs_compliance"
+      ],
+      "properties": {
+        "psk_limit_check": {
+          "type": "string",
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "WARNING"
+          ]
+        },
+        "mpl_limit_check": {
+          "type": "string",
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "WARNING"
+          ]
+        },
+        "cbr_mgs_compliance": {
+          "type": "string",
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "WARNING"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "prioritization_rice": {
+      "type": "object",
+      "required": [
+        "score"
+      ],
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

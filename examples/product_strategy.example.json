@@ -1,0 +1,31 @@
+{
+  "task_id": "PM_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "product_concept": {
+    "value_proposition": "Сберегательный вклад до востребования с приветственной стартовой ставкой и прозрачным раскрытием МГС для физических лиц",
+    "target_segments": [
+      "сегмент массового розничного рынка",
+      "молодые家族 18–35",
+      "цифровые клиенты ДБО"
+    ],
+    "tariff_structure": {
+      "base_rate": 0.1,
+      "welcome_rate": 0.18,
+      "mgs_rate": 0.1
+    }
+  },
+  "financial_model": {
+    "projected_nii": 150000000,
+    "projected_nim": 0.045,
+    "cof_cost_of_funds": 0.11,
+    "ltv_cac_ratio": 3.8
+  },
+  "regulatory_guardrails": {
+    "psk_limit_check": "PASSED",
+    "mpl_limit_check": "PASSED",
+    "cbr_mgs_compliance": "PASSED"
+  },
+  "prioritization_rice": {
+    "score": 84.5
+  }
+}

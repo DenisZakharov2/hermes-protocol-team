@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "execution_request.json",
+  "type": "object",
+  "required": [
+    "project_id",
+    "user_prompt",
+    "domain_context",
+    "output_requirements"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "user_prompt": {
+      "type": "string"
+    },
+    "domain_context": {
+      "type": "string",
+      "enum": [
+        "RETAIL_BANKING",
+        "INVESTMENT",
+        "PAYMENTS"
+      ]
+    },
+    "output_requirements": {
+      "type": "object",
+      "required": [
+        "target_artifacts",
+        "quality_threshold"
+      ],
+      "properties": {
+        "target_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "STRATEGY",
+              "BRD",
+              "PRESENTATION",
+              "LEGAL_REPORT"
+            ]
+          }
+        },
+        "quality_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

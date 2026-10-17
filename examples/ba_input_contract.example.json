@@ -1,0 +1,14 @@
+{
+  "task_id": "BA_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "product_strategy": {
+    "ref": "product_strategy.json"
+  },
+  "regulatory_checklist": {
+    "ref": "regulatory_checklist.json"
+  },
+  "it_landscape": {
+    "ref": "it_landscape.json"
+  },
+  "output_format": "HYBRID"
+}

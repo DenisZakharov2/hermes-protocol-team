@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "business_requirements.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "system_impact_matrix",
+    "classic_brd",
+    "agile_backlog",
+    "regulatory_nfr"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "system_impact_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "system_name",
+          "impact_type",
+          "description"
+        ],
+        "properties": {
+          "system_name": {
+            "type": "string"
+          },
+          "impact_type": {
+            "type": "string",
+            "enum": [
+              "MODIFY",
+              "CREATE",
+              "DELETE",
+              "NO_CHANGE"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "classic_brd": {
+      "type": "object",
+      "required": [
+        "business_process_tobe",
+        "functional_requirements"
+      ],
+      "properties": {
+        "business_process_tobe": {
+          "type": "string"
+        },
+        "functional_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "agile_backlog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "user_story",
+          "acceptance_criteria_gherkin"
+        ],
+        "properties": {
+          "user_story": {
+            "type": "string"
+          },
+          "acceptance_criteria_gherkin": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "regulatory_nfr": {
+      "type": "object",
+      "required": [
+        "data_masking_152_fz",
+        "correlation_id_logging",
+        "sla_availability",
+        "rpo_minutes",
+        "rto_minutes"
+      ],
+      "properties": {
+        "data_masking_152_fz": {
+          "type": "boolean"
+        },
+        "correlation_id_logging": {
+          "type": "boolean"
+        },
+        "sla_availability": {
+          "type": "string",
+          "pattern": "^99\\.9\\d+%$"
+        },
+        "rpo_minutes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rto_minutes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

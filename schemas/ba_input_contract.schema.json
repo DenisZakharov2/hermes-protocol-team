@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ba_input_contract.json",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "product_strategy",
+    "regulatory_checklist",
+    "it_landscape",
+    "output_format"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "product_strategy": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "regulatory_checklist": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "it_landscape": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "output_format": {
+      "type": "string",
+      "enum": [
+        "CLASSIC_BRD",
+        "AGILE_USER_STORIES",
+        "HYBRID"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

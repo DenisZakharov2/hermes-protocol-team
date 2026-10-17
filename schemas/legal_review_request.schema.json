@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "legal_review_request.json",
+  "type": "object",
+  "required": [
+    "project_id",
+    "product_concept",
+    "target_audience",
+    "jurisdiction"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "product_concept": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "business_requirements": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "target_audience": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

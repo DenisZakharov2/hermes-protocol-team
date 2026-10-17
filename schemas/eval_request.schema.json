@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "eval_request.json",
+  "type": "object",
+  "required": [
+    "eval_id",
+    "project_id",
+    "target_worker",
+    "artifact_type",
+    "artifact_data",
+    "context_artifacts",
+    "quality_threshold"
+  ],
+  "properties": {
+    "eval_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "target_worker": {
+      "type": "string",
+      "enum": [
+        "multi-source-researcher",
+        "research-synthesist",
+        "business-analyst",
+        "product-manager",
+        "legal-compliance-counsel"
+      ]
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "research_json",
+        "brief_json",
+        "brd_document",
+        "product_strategy_json",
+        "legal_compliance_report",
+        "synthesist_output",
+        "presentation",
+        "executive_summary",
+        "analytical_memo",
+        "market_research_whitepaper"
+      ]
+    },
+    "artifact_data": {
+      "type": "object"
+    },
+    "context_artifacts": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "quality_threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    }
+  },
+  "additionalProperties": false
+}

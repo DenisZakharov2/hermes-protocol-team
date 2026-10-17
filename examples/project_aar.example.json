@@ -1,0 +1,20 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "human_rating": 4,
+  "human_feedback": "Пакет принят, правки минорные; рекомендуется добавить пример расчета ПСК в презентацию",
+  "successful_patterns": [
+    "Исследование Tier 1–2 с фиксацией конфликтов",
+    "Триггер Self-Healing по 152-ФЗ сработал корректно"
+  ],
+  "problems_found": [
+    "Первый черновик BRD содержал_open персональные данные; требуется чек-лист маскирования перед сдачей"
+  ],
+  "skill_patches": [
+    {
+      "agent_id": "business-analyst",
+      "section": "Learned BA Guardrails",
+      "patch": "Добавить автоматическую проверку маскирования ПДн в финальной валидации business_requirements.json"
+    }
+  ],
+  "lessons_indexed_to": "/memory/cases/SAV_DEP_2026_01/"
+}
