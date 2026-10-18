@@ -1,16 +1,16 @@
-# Цикл Self-Healing (самовосстановления) Hermes Protocol
+%% Цикл Self-Healing (самовосстановления) Hermes Protocol
 
 flowchart TD
-    A[quality-evaluator: overall_score < 85]<br/>Статус REJECTED
+    A["quality-evaluator: overall_score < 85<br/>Статус REJECTED"]
     
-    A --> B[hermes-orchestrator возвращает артефакт<br/>владельцу артефакта — воркеру (шаги 3–8 DAG)<br/>Не напрямую к юристу]
+    A --> B["hermes-orchestrator возвращает артефакт<br/>владельцу артефакта — воркеру (шаги 3–8 DAG)<br/>Не напрямую к юристу"]
     
-    B --> C[Воркер вносит toчечные исправления<br/>по actionable_fixes]
+    B --> C[Воркер вносит точечные исправления<br/>по actionable_fixes]
     
     C --> D[Дефект регуляторный/юридический?<br/>код REG_* — риск CRITICAL/HIGH]
     
     D -->|Нет| E[Повторный аудит качества quality-evaluator]
-    D -->|Да| F[Повторный Legal Check-in<br/>legal-compliance-counsel (шаг 5, 7 или 8.5)]
+    D -->|Да| F["Повторный Legal Check-in<br/>legal-compliance-counsel (шаг 5, 7 или 8.5)"]
     
     F --> E
     

@@ -1,4 +1,4 @@
-# Трехуровневая память Hermes Protocol
+%% Трехуровневая память Hermes Protocol
 
 flowchart LR
     subgraph PM["1. Процедурная память (Procedural)"]
@@ -8,12 +8,12 @@ flowchart LR
     end
     
     subgraph EM["2. Эпизодическая && память прецедентов (Episodic & Case)"]
-        EM1[/memory/cases/{project_id}/ — история успешных проектов]
-        EM2[/memory/legal_precedents/ — библиотека судебной практики]
+        EM1["/memory/cases/{project_id}/ — история успешных проектов"]
+        EM2["/memory/legal_precedents/ — библиотека судебной практики"]
     end
     
     subgraph SM["3. Семантическая память (Semantic)"]
-        SM1[/memory/domain_knowledge/]
+        SM1["/memory/domain_knowledge/"]
         SM2[Нормативные чек-листы: ФЗ 395-I, 152, 115, 353; акты ЦБ РФ; ГОСТ Р 57580]
     end
     

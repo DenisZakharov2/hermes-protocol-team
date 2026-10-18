@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "task_id",
+    "project_id",
     "system_impact_matrix",
     "classic_brd",
     "agile_backlog",
@@ -11,6 +12,9 @@
   ],
   "properties": {
     "task_id": {
+      "type": "string"
+    },
+    "project_id": {
       "type": "string"
     },
     "system_impact_matrix": {
