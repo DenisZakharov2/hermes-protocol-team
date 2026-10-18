@@ -25,6 +25,10 @@
 
 Maintainers проекта отвечают за уточнение стандартов приемлемого поведения и будут принимать соответствующие корректирующие меры в ответ на любое поведение, которое они считают неподходящим, угрожающим, Offensive или вредным.
 
+## Сообщения о нарушениях
+
+О нарушениях сообщайте сопровождающему проекта через GitHub: [@DenisZakharov2](https://github.com/DenisZakharov2) — личным сообщением. Все обращения рассматриваются конфиденциально.
+
 ## Происхождение
 
-Этот Кодекс поведения адаптирован от [Covenant of Contributors](https://www.contributor-covenant.org), версия 2.1, доступная по адресу https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
+Этот Кодекс поведения адаптирован от [Contributor Covenant](https://www.contributor-covenant.org), версия 2.1, доступная по адресу https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.

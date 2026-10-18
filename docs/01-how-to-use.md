@@ -32,7 +32,7 @@
 
 ## 1. Введение
 
-Команда Hermes Protocol — это мультиагентная команда из 7 специализированных ИИ-агентов, которую координирует агент-оркестратор `hermes-orchestrator`. Функция оркестратора 취 auf себя берет **Hermes Agent**. Заказчик не管理ет каждого агента вручную: он ставит задачу, утверждает ключевые этапы (Stage-Gate) и принимает результат.
+Команда Hermes Protocol — это мультиагентная команда из 7 специализированных ИИ-агентов (оркестратор и 6 воркеров), работой которой руководит `hermes-orchestrator`. Функция оркестратора 취 auf себя берет **Hermes Agent**. Заказчик не管理ет каждого агента вручную: он ставит задачу, утверждает ключевые этапы (Stage-Gate) и принимает результат.
 
 Разработка ориентирована на финансовый сектор РФ (банки, ПФК, страховые, инвестиции), поэтому в команде есть встроенный юрисконсульт-комплаенсер и финансовый инженер с проверкой нормативов ЦБ РФ.
 
@@ -205,12 +205,17 @@
 | Файл | Содержимое |
 |---|---|
 | `execution_request.example.json` | Входной запрос Заказчика |
+| `research_task.example.json` | Задание исследователю: query, цель, глубина, сущности |
 | `research_output.example.json` | Исследование рынка вкладов с источниками Tier 1–3 |
+| `product_brief.example.json` | Бриф для продуктового стратега |
 | `product_strategy.example.json` | Продуктовая концепция, финмодель, нормативы ЦБ РФ |
-| `legal_compliance_report.example.json` | Юридическое заключение (риск HIGH, меры смягчения) |
+| `ba_input_contract.example.json` | Входной контракт бизнес-аналитика |
 | `business_requirements.example.json` | BRD, Gherkin-истории, NFR, матрица влияния |
+| `legal_review_request.example.json` | Запрос на правовую проверку |
+| `legal_compliance_report.example.json` | Юридическое заключение (риск HIGH, меры смягчения) |
 | `brief_schema.example.json` | Бриф на синтез презентации |
-| `evaluation_report.example.json` | Аудит качества (балл 78, REJECTED, `actionable_fixes`) |
+| `eval_request.example.json` | Запрос на аудит качества |
+| `evaluation_report.example.json` | Аудит качества (балл 78,5, REJECTED, `actionable_fixes`) |
 | `orchestration_output.example.json` | Итоговый отчет оркестратора, `PENDING_HUMAN` |
 | `project_aar.example.json` | Постпроектная рефлексия |
 

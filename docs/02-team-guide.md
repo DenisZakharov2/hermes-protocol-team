@@ -24,7 +24,7 @@
 
 ### Контракты
 - Вход: `execution_request.json` / User Prompt
-- Выход: `orchestration_output.json` / `final_synthesis_report.json`
+- Выход: `orchestration_output.json`
 - Журнал: `hermes_flight_log.json`
 
 ---
@@ -53,7 +53,7 @@
 Экономически обоснованные продукты, финансовые модели (NII, NIM, CoF, Fee Income, LTV, CAC, ARPU, ROI, ROE, ROA), юнит-экономика, тарифы, нормативы ЦБ РФ (ПСК, Н2, Н3, Н4, МПЛ, МГС).
 
 ### Контракты
-- Вход: `product_brief.json` (product_type, bank_context, market_data → research_output.json)
+- Вход: `product_brief.json` (task_id, project_id, product_type, bank_context, market_data → research_output.json)
 - Выход: `product_strategy.json` (product_concept, financial_model, regulatory_guardrails, prioritization_rice)
 - Журнал: `pm_flight_log.json`
 
@@ -71,7 +71,7 @@
 - NFR: доступность 99.9x %, маскирование ПДн, логирование с Correlation ID, RPO/RTO.
 
 ### Контракты
-- Вход: `ba_input_contract.json` (product_strategy, regulatory_checklist, it_landscape, output_format)
+- Вход: `ba_input_contract.json` (task_id, project_id, product_strategy, regulatory_checklist, it_landscape, output_format)
 - Выход: `business_requirements.json` (system_impact_matrix, classic_brd, agile_backlog с Gherkin, regulatory_nfr)
 - Журнал: `ba_flight_log.json`
 
@@ -108,8 +108,8 @@
 - Визуализация: Mermaid (`graph TD`, `sequenceDiagram`, `mindmap`), matplotlib/plotly
 
 ### Контракты
-- Вход: `brief_schema.json` (document_type, output_format, target_audience, custom_branding, research_data)
-- Выход: дайджест-код/разметка (markdown_marp, python_pptx_script, html_tailwind_deck, structured_slides_json, typst_pdf_markup и др.) с сносками и диаграммами
+- Вход: `brief_schema.json` (task_id, project_id, document_type, output_format, target_audience, custom_branding, research_data)
+- Выход: `synthesist_output.json` — дайджест-код/разметка (markdown_marp, python_pptx_script, html_tailwind_deck, structured_slides_json, typst_pdf_markup и др.) с сносками и диаграммами
 - Журнал: `synthesist_flight_log.json`
 
 ---

@@ -6,11 +6,22 @@
 
 ## 1. О репозитории
 
-Этот репозиторий содержит набор документации **команды ИИ-агентов Hermes Protocol**: 7 специализированных агентов-воркеров, которыми руководит агент-оркестратор `hermes-orchestrator` — функцию которого берет на себя **Hermes Agent**.
+Этот репозиторий содержит набор документации **команды ИИ-агентов Hermes Protocol**: 7 специализированных агентов — оркестратор и 6 воркеров; работой команды руководит `hermes-orchestrator`, функцию которого берет на себя **Hermes Agent**.
 
 Человек выступает в роли **Заказчика**: он поручает команде выполнение проекта, утверждает план на контрольных точках (Stage-Gate) и принимает итоговый пакет артефактов. Команда ведет проект от первичного запроса и исследования до финального отчета, аудита качества и постпроектного анализа (AAR).
 
 Все материалы подготовлены для публичного размещения на GitHub ([DenisZakharov2](https://github.com/DenisZakharov2)) под лицензией MIT.
+
+### Документация
+
+Полный индекс — [`docs/README.md`](docs/README.md).
+
+- [`docs/01-how-to-use.md`](docs/01-how-to-use.md) — пошаговое руководство Заказчика.
+- [`docs/02-team-guide.md`](docs/02-team-guide.md) — роли, границы и контракты агентов.
+- [`docs/03-artifacts.md`](docs/03-artifacts.md) — каталог артефактов и JSON-схем.
+- [`docs/04-quality.md`](docs/04-quality.md) — оценка качества и цикл Self-Healing.
+- [`docs/05-aar.md`](docs/05-aar.md) — постпроектная рефлексия.
+- [`docs/diagrams/`](docs/diagrams/) — Mermaid-диаграммы.
 
 ## 2. Состав команды (7 агентов)
 
@@ -112,13 +123,18 @@ AAR — project_aar.json, project_final_review.md, память
 
 Папка `examples/` содержит сквозной пример проекта «Сберегательный депозит до востребования для физических лиц с приветственной ставкой» (`project_id: SAV_DEP_2026_01`):
 
-- `execution_request.example.json` — входной запрос
+- `execution_request.example.json` — входной запрос Заказчика
+- `research_task.example.json` — задание исследователю
 - `research_output.example.json` — исследование рынка вкладов
+- `product_brief.example.json` — бриф для продуктового стратега
 - `product_strategy.example.json` — продуктовая стратегия и финмодель
-- `legal_compliance_report.example.json` — заключение юриста с риском HIGH и мерами по смягчению
+- `ba_input_contract.example.json` — входной контракт бизнес-аналитика
 - `business_requirements.example.json` — BRD, Gherkin-истории, NFR
+- `legal_review_request.example.json` — запрос на правовую проверку
+- `legal_compliance_report.example.json` — заключение юриста с риском HIGH и мерами по смягчению
 - `brief_schema.example.json` — бриф на презентацию
-- `evaluation_report.example.json` — отчет аудита с баллом 78 (REJECTED) и патчами
+- `eval_request.example.json` — запрос на аудит качества
+- `evaluation_report.example.json` — отчет аудита с баллом 78,5 (REJECTED) и патчами
 - `orchestration_output.example.json` — итоговый отчет оркестратора
 - `project_aar.example.json` — постпроектная рефлексия
 

@@ -1,7 +1,7 @@
 ---
 name: research-synthesist
 description: "Ведущий аналитик-синтетик и специалист по подготовке отчетов и презентаций"
-version: 1.0.0
+version: 2.0.0
 ---
 
 ### Presentation & Reporting Specialist Worker skill (research-synthesist)
