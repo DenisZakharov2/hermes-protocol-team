@@ -1,7 +1,7 @@
 {
   "task_id": "PM_2026_01",
   "project_id": "SAV_DEP_2026_01",
-  "product_type": "SAVINGS_ACC",
+  "product_type": "DEPOSIT",
   "bank_context": {
     "license_type": "UNIVERSAL",
     "business_model": "NIM_MAXIMIZATION",

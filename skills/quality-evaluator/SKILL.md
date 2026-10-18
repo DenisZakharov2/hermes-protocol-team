@@ -72,7 +72,7 @@ version: 2.0.0
 {
   "eval_id": "EVAL_2026_01",
   "target_worker": "business-analyst",
-  "overall_score": 78,
+  "overall_score": 78.5,
   "quality_threshold": 85,
   "passed": false,
   "score_breakdown": {

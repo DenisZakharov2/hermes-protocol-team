@@ -97,50 +97,55 @@
 
 ```text
 [1. User Request & Interview]
-              │
-              ▼
+              |
+              v
 [2. Stage-Gate 1: Execution Plan Approval]
-              │
-              ▼
+              |
+              v
 [3. Multi-Source Research (multi-source-researcher)]
-              │
-              ▼
+              |
+              v
 [4. Product Strategy & FinModel (product-manager)]
-              │
-              ▼
+              |
+              v
 [5. Legal Check-in Phase 1: Concept (legal-compliance-counsel)]
-              │
-              ▼
+              |
+              v
 [6. Business Requirements & NFR (business-analyst)]
-              │
-              ▼
-[7. Legal Check-in Phase 2: BRD (legal-compliance-counsel)] ──(max 3 loops)─┐
-              │                                                             │
-              ▼                                                             │
+              |
+              v
+[7. Legal Check-in Phase 2: BRD (legal-compliance-counsel)]  (max 3 iterations)
+              |
+              v
 [8. Presentation & Synthesis (research-synthesist)]
-              │
-              ▼
+              |
+              v
 [8.5. Legal Check-in Phase 3: Synthesis (legal-compliance-counsel)]
-              │
-              ▼
+              |
+              v
 [9. Quality Audit (quality-evaluator)]
-              │
-   Score >= 85│
-              ▼
-[10. Final Stage-Gate: Human Approval & Package Delivery]
-   Score < 85 │
-              ▼
-      ┌─ Дефект регул/юридический? ──(max 3 итерации)──► [5/7. Legal Check-in]
-      ├─ Иначе ──(max 3 итерации)──► [3-8. доработка владельцем артефакта]
-      └─ После 3 неудач ──► эскалация Человеку (Stage-Gate)
-              │
-              ▼
+              |
+      +-------+--------+
+      |                |
+ Score >= 85      Score < 85
+      |                |
+      v                v
+[10. Final       [Self-Healing: return to artifact owner (steps 3-8)]
+ Stage-Gate]           |
+      |                +-- REG_* / CRITICAL / HIGH --> [Legal Check-in 5, 7 or 8.5] --+
+      |                |                                                          |
+      |                +-- otherwise --> [Rework by owner, steps 3-8] -------------+
+      |                                                                           |
+      |                                                                           v
+      |                                                              [9. Quality Audit, repeat]
+      |
+      v
 [11. Post-Project AAR & Memory Refactoring]
 ```
 
 ### Цикл самовосстановления и возврат дефектов (Self-Healing loop):
 
-При `overall_score < 85` на шаге 9 (`quality-evaluator`) цикл Self-Healing возвращает артефакт **не в Legal Check-in автоматически, а к владельцу артефакта** — соответствующий работник (шаги 3–8.5 DAG), который его подготовил. Повторный Legal Check-in (шаг 5, 8.5 или 7) запускается только если дефект относится к регуляторному/юридическому контуру (`CRITICAL`/`HIGH` риск, код `REG_*`). При сохранении блокирующих дефектов после 3 итераций `hermes-orchestrator` останавливает цикл и эскалирует проблему Человеку на Stage-Gate.
+При `overall_score < 85` на шаге 9 (`quality-evaluator`) цикл Self-Healing возвращает артефакт **не в Legal Check-in автоматически, а к владельцу артефакта** — соответствующий воркер (шаги 3–8 DAG), который его подготовил. Повторный Legal Check-in (шаг 5, 7 или 8.5) запускается только если дефект относится к регуляторному/юридическому контуру (`CRITICAL`/`HIGH` риск, код `REG_*`). При сохранении блокирующих дефектов после 3 итераций `hermes-orchestrator` останавливает цикл и эскалирует проблему Человеку на Stage-Gate.
 
 ### Ключевые правила взаимодействия на этапах DAG:
 
