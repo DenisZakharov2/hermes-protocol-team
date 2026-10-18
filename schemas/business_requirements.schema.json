@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/business_requirements.schema.json",
   "title": "business_requirements.json",
+  "description": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт.",
   "type": "object",
   "required": [
     "task_id",

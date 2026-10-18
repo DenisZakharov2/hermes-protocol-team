@@ -1,0 +1,19 @@
+{
+  "task_id": "SYNTH_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "output_format": "markdown_marp",
+  "deliverable_content": "---\nmarp: true\ntheme: gaia\n---\n\n# Сберегательный вклад до востребования\n\n## Контекст\n\nСтавки TOP-10 банков: 9,5–11,5 % годовых.",
+  "generated_diagrams": [
+    "graph TD; A[Ставка] --> B[МГС]"
+  ],
+  "citations_index": [
+    "Сноска 1: cbr.ru — требования к раскрытию МГС"
+  ],
+  "visualization_specs": [
+    {
+      "type": "bar",
+      "title": "Ставки TOP-10 банков",
+      "source": "research_output.json"
+    }
+  ]
+}

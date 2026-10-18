@@ -198,7 +198,7 @@
 
 ## 7. JSON-контракты и примеры артефактов
 
-Полный набор JSON-схем — в папке `schemas/` (16 схем). Каждый контракт описан в файле `SKILL.md` соответствующего агента (папка `skills/`).
+Полный набор JSON-схем — в папке `schemas/` (21 схема). Каждый контракт описан в файле `SKILL.md` соответствующего агента (папка `skills/`).
 
 Пример сквозного проекта «Сберегательный депозит до востребования» (`project_id: SAV_DEP_2026_01`) лежит в папке `examples/`:
 
@@ -210,14 +210,21 @@
 | `product_brief.example.json` | Бриф для продуктового стратега |
 | `product_strategy.example.json` | Продуктовая концепция, финмодель, нормативы ЦБ РФ |
 | `ba_input_contract.example.json` | Входной контракт бизнес-аналитика |
+| `it_landscape.example.json` | IT-ландшафт и матрица влияния |
+| `regulatory_checklist.example.json` | Регуляторный чек-лист |
 | `business_requirements.example.json` | BRD, Gherkin-истории, NFR, матрица влияния |
 | `legal_review_request.example.json` | Запрос на правовую проверку |
 | `legal_compliance_report.example.json` | Юридическое заключение (риск HIGH, меры смягчения) |
 | `brief_schema.example.json` | Бриф на синтез презентации |
+| `synthesist_output.example.json` | Результат синтеза (Marp-разметка и сноски) |
 | `eval_request.example.json` | Запрос на аудит качества |
 | `evaluation_report.example.json` | Аудит качества (балл 78,5, REJECTED, `actionable_fixes`) |
 | `orchestration_output.example.json` | Итоговый отчет оркестратора, `PENDING_HUMAN` |
 | `project_aar.example.json` | Постпроектная рефлексия |
+| `execution_plan.example.json` | Утвержденный план исполнения проекта |
+| `research_plan.example.json` | План исследования: подзапросы и Tier |
+| `agent_tuning_log.example.json` | Журнал корректировок агентов |
+| `flight_log.example.json` | Пример бортового журнала |
 
 ---
 

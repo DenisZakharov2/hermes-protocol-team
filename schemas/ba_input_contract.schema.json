@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/ba_input_contract.schema.json",
   "title": "ba_input_contract.json",
+  "description": "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода.",
   "type": "object",
   "required": [
     "task_id",
@@ -26,7 +28,8 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "regulatory_checklist": {
       "type": "object",
@@ -37,7 +40,8 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "it_landscape": {
       "type": "object",
@@ -48,7 +52,8 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "output_format": {
       "type": "string",

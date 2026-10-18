@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/agent_tuning_log.schema.json",
+  "title": "agent_tuning_log.json",
+  "description": "Журнал оперативных корректировок агентов и предложенных патчей скиллов.",
+  "type": "object",
+  "required": [
+    "project_id",
+    "entries"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "agent_id",
+          "source",
+          "observation",
+          "proposed_patch"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "agent_id": {
+            "type": "string",
+            "enum": [
+              "hermes-orchestrator",
+              "multi-source-researcher",
+              "product-manager",
+              "business-analyst",
+              "legal-compliance-counsel",
+              "research-synthesist",
+              "quality-evaluator"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "HUMAN",
+              "QUALITY_EVALUATOR",
+              "LEGAL_COUNSEL"
+            ]
+          },
+          "observation": {
+            "type": "string"
+          },
+          "proposed_patch": {
+            "type": "string"
+          },
+          "applied": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

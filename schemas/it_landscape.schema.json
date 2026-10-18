@@ -1,1 +1,56 @@
-{"$schema": "http://json-schema.org/draft-07/schema#", "additionalProperties": false, "properties": {"project_id": {"type": "string"}, "systems": {"items": {"additionalProperties": false, "properties": {"impact_expected": {"enum": ["MODIFY", "CREATE", "DELETE", "NO_CHANGE"], "type": "string"}, "integration_points": {"items": {"type": "string"}, "type": "array"}, "notes": {"type": "string"}, "system_name": {"type": "string"}, "system_type": {"type": "string"}}, "required": ["system_name", "system_type", "impact_expected", "integration_points"], "type": "object"}, "type": "array"}}, "required": ["project_id", "systems"], "title": "it_landscape.json", "type": "object"}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/it_landscape.schema.json",
+  "title": "it_landscape.json",
+  "description": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).",
+  "additionalProperties": false,
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "systems": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "integration_points": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "system_name": {
+            "type": "string"
+          },
+          "system_type": {
+            "type": "string"
+          },
+          "impact_type": {
+            "enum": [
+              "MODIFY",
+              "CREATE",
+              "DELETE",
+              "NO_CHANGE"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "system_name",
+          "system_type",
+          "impact_type",
+          "integration_points"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "project_id",
+    "systems"
+  ],
+  "type": "object"
+}

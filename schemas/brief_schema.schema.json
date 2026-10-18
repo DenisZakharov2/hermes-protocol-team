@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/brief_schema.schema.json",
   "title": "brief_schema.json",
+  "description": "Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг.",
   "type": "object",
   "required": [
     "task_id",
@@ -79,7 +81,8 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

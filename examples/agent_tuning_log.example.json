@@ -1,0 +1,13 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "entries": [
+    {
+      "timestamp": "2026-10-17T15:00:00Z",
+      "agent_id": "business-analyst",
+      "source": "QUALITY_EVALUATOR",
+      "observation": "В BRD передавался открытый СНИЛС без маскирования",
+      "proposed_patch": "Добавить проверку маскирования ПДн в финальной валидации",
+      "applied": true
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/execution_request.schema.json",
   "title": "execution_request.json",
+  "description": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.",
   "type": "object",
   "required": [
     "project_id",

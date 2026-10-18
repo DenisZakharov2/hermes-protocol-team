@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/product_brief.schema.json",
   "title": "product_brief.json",
+  "description": "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование.",
   "type": "object",
   "required": [
     "task_id",

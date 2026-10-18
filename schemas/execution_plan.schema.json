@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/execution_plan.schema.json",
+  "title": "execution_plan.json",
+  "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
+  "type": "object",
+  "required": [
+    "project_id",
+    "plan_version",
+    "created_at",
+    "stages",
+    "approval"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "plan_version": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stage_id",
+          "name",
+          "owner_agent",
+          "inputs",
+          "outputs",
+          "approval_required"
+        ],
+        "properties": {
+          "stage_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner_agent": {
+            "type": "string",
+            "enum": [
+              "hermes-orchestrator",
+              "multi-source-researcher",
+              "product-manager",
+              "business-analyst",
+              "legal-compliance-counsel",
+              "research-synthesist",
+              "quality-evaluator"
+            ]
+          },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "approval_required": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "BLOCKED"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": [
+        "status",
+        "approved_by_human"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "approved_by_human": {
+          "type": "boolean"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "comments": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

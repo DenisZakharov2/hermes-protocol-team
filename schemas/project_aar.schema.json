@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/project_aar.schema.json",
+  "title": "project_aar.json",
+  "description": "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.",
+  "type": "object",
+  "required": [
+    "project_id",
+    "human_rating",
+    "human_feedback",
+    "successful_patterns",
+    "problems_found",
+    "skill_patches",
+    "lessons_indexed_to"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "human_rating": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "human_feedback": {
+      "type": "string"
+    },
+    "successful_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "problems_found": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skill_patches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent_id",
+          "section",
+          "patch"
+        ],
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "enum": [
+              "hermes-orchestrator",
+              "multi-source-researcher",
+              "product-manager",
+              "business-analyst",
+              "legal-compliance-counsel",
+              "research-synthesist",
+              "quality-evaluator"
+            ]
+          },
+          "section": {
+            "type": "string"
+          },
+          "patch": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "lessons_indexed_to": {
+      "type": "string",
+      "pattern": "^/memory/cases/[^/]+/$"
+    }
+  },
+  "additionalProperties": false
+}

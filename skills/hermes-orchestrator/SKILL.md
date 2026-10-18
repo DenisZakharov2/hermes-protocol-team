@@ -84,7 +84,7 @@ version: 2.0.0
     "product_strategy": { "ref": "product_strategy.json" },
     "business_requirements": { "ref": "business_requirements.json" },
     "legal_compliance_report": { "ref": "legal_compliance_report.json" },
-    "deliverable_presentation": { "ref": "deliverable_presentation.json" },
+    "synthesist_output": { "ref": "synthesist_output.json" },
     "quality_evaluation": { "ref": "evaluation_report.json" }
   },
   "project_aar": { "ref": "project_aar.json" }
