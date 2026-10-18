@@ -1,0 +1,23 @@
+{
+  "name": "hermes-protocol-team",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md",
+    "validate:json": "node scripts/validate-json.mjs",
+    "validate:mermaid": "node scripts/check-mermaid.mjs",
+    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"Hermes_Protocol_Constitution.md\" \"examples/README.md\" \"SECURITY.md\" \"CHANGELOG.md\""
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "jsdom": "30.1.3",
+    "markdownlint-cli2": "0.23.3",
+    "mermaid": "12.2.0"
+  }
+}

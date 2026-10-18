@@ -2,6 +2,16 @@
 
 Чек-лист настроек GitHub, которые нельзя зафиксировать в git. Выполняется сопровождающим репозитория.
 
+> **Включение CI.** Готовый workflow лежит в [`ci/validate.yml`](../ci/validate.yml), а не в `.github/workflows/`, потому что GitHub App, используемый для автоматизации, не имеет права `Workflows` и не может пушить этот путь. Чтобы включить CI, выполните:
+>
+> ```bash
+> mkdir -p .github/workflows
+> git mv ci/validate.yml .github/workflows/validate.yml
+> git commit -m "ci: enable validation workflow"
+> ```
+>
+> После этого push потребует права `Workflows: Read and write` у приложения или аккаунта.
+
 ## 1. Блок «About»
 
 | Параметр | Рекомендуемое значение |
@@ -48,7 +58,7 @@ gh api -X PUT repos/DenisZakharov2/hermes-protocol-team/branches/main/protection
 JSON
 ```
 
-Требует прав администратора репозитория. Context `validate` соответствует job из `.github/workflows/validate.yml`.
+Требует прав администратора репозитория. Context `validate` соответствует job из workflow, который включается из `ci/validate.yml` (см. раздел 1).
 
 ## 4. Релизы и версии
 
