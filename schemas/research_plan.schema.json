@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/research_plan.schema.json",
+  "title": "research_plan.json",
+  "description": "Внутренний план исследования: подзапросы, целевые Tier и статусы.",
+  "type": "object",
+  "required": [
+    "task_id",
+    "project_id",
+    "created_at",
+    "subqueries"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "subqueries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "query",
+          "target_tier",
+          "status"
+        ],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "target_tier": {
+            "type": "string",
+            "enum": [
+              "TIER_1",
+              "TIER_2",
+              "TIER_3"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PLANNED",
+              "IN_PROGRESS",
+              "DONE",
+              "BLOCKED"
+            ]
+          },
+          "blocked_reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

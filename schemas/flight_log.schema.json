@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/flight_log.schema.json",
+  "title": "flight_log.json",
+  "description": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.",
+  "type": "object",
+  "required": [
+    "project_id",
+    "agent_id",
+    "entries"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "enum": [
+        "hermes-orchestrator",
+        "multi-source-researcher",
+        "product-manager",
+        "business-analyst",
+        "legal-compliance-counsel",
+        "research-synthesist",
+        "quality-evaluator"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "phase",
+          "event_type",
+          "status",
+          "details"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "PHASE_START",
+              "PHASE_END",
+              "HANDOFF",
+              "STAGE_GATE",
+              "SELF_HEALING",
+              "ERROR"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "WARNING",
+              "ERROR",
+              "BLOCKED"
+            ]
+          },
+          "details": {
+            "type": "string"
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

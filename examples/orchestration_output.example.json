@@ -26,14 +26,11 @@
     "legal_compliance_report": {
       "ref": "legal_compliance_report.json"
     },
-    "deliverable_presentation": {
-      "ref": "deliverable_presentation.json"
-    },
     "quality_evaluation": {
       "ref": "evaluation_report.json"
+    },
+    "synthesist_output": {
+      "ref": "synthesist_output.json"
     }
-  },
-  "project_aar": {
-    "ref": "project_aar.json"
   }
 }

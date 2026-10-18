@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/legal_review_request.schema.json",
   "title": "legal_review_request.json",
+  "description": "Запрос на правовую проверку концепции или BRD.",
   "type": "object",
   "required": [
     "project_id",
@@ -33,7 +35,8 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "target_audience": {
       "type": "string"

@@ -18,6 +18,8 @@
 
 ## 3. Структура `project_aar.json`
 
+Схема: [`schemas/project_aar.schema.json`](../schemas/project_aar.schema.json).
+
 ```json
 {
   "project_id": "SAV_DEP_2026_01",

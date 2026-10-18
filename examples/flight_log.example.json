@@ -1,0 +1,26 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "agent_id": "hermes-orchestrator",
+  "entries": [
+    {
+      "timestamp": "2026-10-17T09:00:00Z",
+      "phase": "stage_gate_1",
+      "event_type": "STAGE_GATE",
+      "status": "OK",
+      "details": "Человек утвердил execution_plan.json",
+      "artifacts": [
+        "execution_plan.json"
+      ]
+    },
+    {
+      "timestamp": "2026-10-17T14:30:00Z",
+      "phase": "legal_checkin_2",
+      "event_type": "HANDOFF",
+      "status": "OK",
+      "details": "BRD передан юристу",
+      "artifacts": [
+        "business_requirements.json"
+      ]
+    }
+  ]
+}

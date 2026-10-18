@@ -1,14 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "orchestration_output.json / final_synthesis_report.json",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/orchestration_output.schema.json",
+  "title": "orchestration_output.json",
+  "description": "Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.",
   "type": "object",
   "required": [
     "project_id",
     "artifact_root",
     "execution_status",
     "stage_gate_history",
-    "final_package",
-    "project_aar"
+    "final_package"
   ],
   "properties": {
     "project_id": {
@@ -68,7 +69,7 @@
         "product_strategy",
         "business_requirements",
         "legal_compliance_report",
-        "deliverable_presentation",
+        "synthesist_output",
         "quality_evaluation"
       ],
       "properties": {
@@ -81,7 +82,8 @@
             "ref": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "business_requirements": {
           "type": "object",
@@ -92,7 +94,8 @@
             "ref": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "legal_compliance_report": {
           "type": "object",
@@ -103,18 +106,8 @@
             "ref": {
               "type": "string"
             }
-          }
-        },
-        "deliverable_presentation": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          }
+          },
+          "additionalProperties": false
         },
         "quality_evaluation": {
           "type": "object",
@@ -125,7 +118,20 @@
             "ref": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
+        },
+        "synthesist_output": {
+          "type": "object",
+          "required": [
+            "ref"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -139,8 +145,28 @@
         "ref": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "execution_status": {
+            "const": "COMPLETED_APPROVED"
+          }
+        },
+        "required": [
+          "execution_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "project_aar"
+        ]
+      }
+    }
+  ]
 }

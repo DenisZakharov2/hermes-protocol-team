@@ -1,0 +1,25 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "systems": [
+    {
+      "system_name": "Core Banking (АБС)",
+      "system_type": "CORE",
+      "impact_type": "MODIFY",
+      "integration_points": [
+        "product_catalog",
+        "interest_accrual"
+      ],
+      "notes": "Новый тип продукта и учет МГС"
+    },
+    {
+      "system_name": "ДБО / онлайн-кабинет",
+      "system_type": "CHANNEL",
+      "impact_type": "MODIFY",
+      "integration_points": [
+        "product_card",
+        "consent_form"
+      ],
+      "notes": "Равнозначное раскрытие ставки и МГС"
+    }
+  ]
+}

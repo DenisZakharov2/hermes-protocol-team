@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/research_task.schema.json",
   "title": "research_task.json",
+  "description": "Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности.",
   "type": "object",
   "required": [
     "task_id",

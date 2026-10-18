@@ -96,12 +96,14 @@ AAR — project_aar.json, project_final_review.md, память
 
 ## 6. JSON-контракты и схемы
 
-Все форматы обмена между агентами формализованы JSON-схемами в папке `schemas/`:
+Ключевые форматы обмена между агентами формализованы JSON-схемами Draft-07 в папке `schemas/`; служебные журналы используют общий `flight_log.schema.json`:
 
 | Схема | Описание | Используется агентом |
 |---|---|---|
-| `execution_request.schema.json` | Входной запрос Заказчика / орбитация проекта | `hermes-orchestrator` |
+| `execution_request.schema.json` | Входной запрос Заказчика / оркестрация проекта | `hermes-orchestrator` |
+| `execution_plan.schema.json` | План исполнения: этапы DAG, владельцы, Stage-Gate | `hermes-orchestrator` |
 | `research_task.schema.json` | Задание исследователю | `multi-source-researcher` |
+| `research_plan.schema.json` | Внутренний план исследования: подзапросы и Tier | `multi-source-researcher` |
 | `research_output.schema.json` | Выход исследования (метрики, источники, конфликты) | `multi-source-researcher` |
 | `product_brief.schema.json` | Бриф для продуктового стратега | `product-manager` |
 | `product_strategy.schema.json` | Продуктовая концепция и финмодель | `product-manager` |
@@ -113,6 +115,9 @@ AAR — project_aar.json, project_final_review.md, память
 | `eval_request.schema.json` | Запрос на аудит качества | `quality-evaluator` |
 | `evaluation_report.schema.json` | Отчет аудита по 5 осям | `quality-evaluator` |
 | `orchestration_output.schema.json` | Итоговый отчет оркестратора / пакет доставки | `hermes-orchestrator` |
+| `project_aar.schema.json` | Постпроектная рефлексия, уроки и патчи скиллов | `hermes-orchestrator` |
+| `agent_tuning_log.schema.json` | Журнал корректировок и предложенных патчей | все агенты |
+| `flight_log.schema.json` | Универсальный формат журналов `*_flight_log.json` | все агенты |
 | `it_landscape.schema.json` | Описание IT-ландшафта (АБС/ДБО) | `business-analyst` |
 | `regulatory_checklist.schema.json` | Регуляторный чек-лист | `business-analyst`, `legal-compliance-counsel` |
 | `synthesist_output.schema.json` | Выходной контракт синтеза | `research-synthesist` |
@@ -129,14 +134,21 @@ AAR — project_aar.json, project_final_review.md, память
 - `product_brief.example.json` — бриф для продуктового стратега
 - `product_strategy.example.json` — продуктовая стратегия и финмодель
 - `ba_input_contract.example.json` — входной контракт бизнес-аналитика
+- `it_landscape.example.json` — IT-ландшафт и матрица влияния
+- `regulatory_checklist.example.json` — регуляторный чек-лист
 - `business_requirements.example.json` — BRD, Gherkin-истории, NFR
 - `legal_review_request.example.json` — запрос на правовую проверку
 - `legal_compliance_report.example.json` — заключение юриста с риском HIGH и мерами по смягчению
 - `brief_schema.example.json` — бриф на презентацию
+- `synthesist_output.example.json` — результат синтеза (Marp-разметка)
 - `eval_request.example.json` — запрос на аудит качества
 - `evaluation_report.example.json` — отчет аудита с баллом 78,5 (REJECTED) и патчами
 - `orchestration_output.example.json` — итоговый отчет оркестратора
 - `project_aar.example.json` — постпроектная рефлексия
+- `execution_plan.example.json` — утвержденный план исполнения
+- `research_plan.example.json` — план исследования
+- `agent_tuning_log.example.json` — журнал корректировок
+- `flight_log.example.json` — пример бортового журнала
 
 ## 8. Требования к окружению
 
