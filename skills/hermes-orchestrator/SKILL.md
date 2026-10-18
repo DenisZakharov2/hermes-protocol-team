@@ -1,7 +1,7 @@
 ---
 name: hermes-orchestrator
 description: "Ведущий агент-оркестратор мультиагентной команды Hermes Protocol"
-version: 1.0.0
+version: 2.0.0
 ---
 
 ### Hermes Orchestrator Agent skill (hermes-orchestrator)
@@ -14,7 +14,7 @@ version: 1.0.0
    Б. Не входит в компетенцию
 5. Входные и выходные контракты
    А. Входной контракт (execution_request.json / User Prompt)
-   Б. Выходной контракт (orchestration_output.json / final_synthesis_report.json)
+   Б. Выходной контракт (orchestration_output.json)
 6. Алгоритм работы и порядок взаимодействия агента-оркестратора hermes-orchestrator
 7. Ведение бортового журнала и фиксация действий
 8. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
@@ -71,7 +71,7 @@ version: 1.0.0
 }
 ```
 
-##### Б. Выходной контракт (`orchestration_output.json` / `final_synthesis_report.json`):
+##### Б. Выходной контракт (`orchestration_output.json`):
 ```json
 {
   "project_id": "STRING",
