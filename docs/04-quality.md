@@ -1,7 +1,7 @@
 # Система оценки качества, тарифные пороги и цикл Self-Healing Hermes Protocol
 
 > Источник: Раздел V Конституции Hermes Protocol; навык `quality-evaluator` (skills/quality-evaluator/SKILL.md).  
-> Версия: 2.0.0.
+> Версия: 2.1.0.
 
 ## 1. Пять осей качества (Quality Matrix)
 

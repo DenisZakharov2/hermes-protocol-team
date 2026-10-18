@@ -28,7 +28,7 @@ assignees: ""
 ## Контекст
 
 - Затронутый файл (напр. `skills/hermes-orchestrator/SKILL.md`, `schemas/orchestration_output.schema.json`, `docs/01-how-to-use.md`);
-- Версия команды: 2.0.0;
+- Версия команды: 2.1.0;
 - Профиль Hermes Agent, если relevant.
 
 ## Дополнительно

@@ -62,7 +62,7 @@ JSON
 
 ## 4. Релизы и версии
 
-- Версия команды — `2.0.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `2.1.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v2.0.0 -m "Hermes Protocol 2.0.0" && git push origin v2.0.0`.
+- Тег: `git tag -a v2.1.0 -m "Hermes Protocol 2.1.0" && git push origin v2.1.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
