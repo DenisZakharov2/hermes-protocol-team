@@ -11,6 +11,7 @@
 | [`03-artifacts.md`](03-artifacts.md) | Каталог артефактов, JSON-схем и бортовых журналов |
 | [`04-quality.md`](04-quality.md) | Пять осей качества, пороги, Triple-Gate и Self-Healing |
 | [`05-aar.md`](05-aar.md) | Постпроектная рефлексия (After Action Review) |
+| [`MAINTAINERS.md`](MAINTAINERS.md) | Настройки GitHub, защита ветки, релизы и обслуживание репозитория |
 
 ## Диаграммы
 
