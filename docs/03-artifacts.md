@@ -8,7 +8,7 @@
 Каждый агент команды общается с оркестратором `hermes-orchestrator` и с Заказчиком строго через типизированные JSON-контракты. Перед передачей дальше каждый артефакт проходит **Трипл-Гейт**:
 
 1. **Синтаксический контроль** — валидация по JSON-схеме (до 3 попыток автоисправления).
-2. **Правовая экспертиза** — `legal-compliance-counsel` (миллируется не более 3 итераций).
+2. **Правовая экспертиза** — `legal-compliance-counsel` (лимитируется не более 3 итераций).
 3. **Смысловой аудит** — `quality-evaluator` по 5 осям, порог ≥ 85 баллов.
 
 ## 2. Полный перечень схем
@@ -21,13 +21,13 @@
 | `research_plan.schema.json` | `research_plan.json` | `multi-source-researcher` | `hermes-orchestrator` | Внутренний план исследования: подзапросы, целевые Tier и статусы |
 | `research_output.schema.json` | `research_output.json` | `multi-source-researcher` | `hermes-orchestrator` → PM, BA | Исследование: выводы, метрики с source_id, конфликты данных, каталог источников с tier/reliability |
 | `product_brief.schema.json` | `product_brief.json` | `hermes-orchestrator` | `product-manager` | Бриф стратега: тип продукта, контекст банка, ссылка на исследование |
-| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция,价值 proposition, тарифы, финмодель (NII, NIM, CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE |
+| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция,ценностное предложение, тарифы, финмодель (NII, NIM, CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE |
 | `ba_input_contract.schema.json` | `ba_input_contract.json` | Оркестратор | `business-analyst` | Вход аналитика: ссылки на стратегию, регуляторный чек-лист, IT-ландшафт, формат вывода |
 | `business_requirements.schema.json` | `business_requirements.json` | `business-analyst` | Оркестратор → юрист, синтетик | BRD, AS-IS→TO-BE, User Stories с Gherkin, NFR, матрица влияния на ИТ |
 | `legal_review_request.schema.json` | `legal_review_request.json` | Оркестратор | `legal-compliance-counsel` | Запрос на правовую проверку концепции или BRD (BRD опционален на этапе концепции) |
-| `legal_compliance_report.schema.json` | `legal_compliance_report.json` | `legal-compliance-counsel` | Оркестратор → 비판, синтетик | Ю Conclusion: статус, общий риск, реестр нарушений с нормами/прецедентами/мерами смягчения, необходимые дисклеймеры |
+| `legal_compliance_report.schema.json` | `legal_compliance_report.json` | `legal-compliance-counsel` | Оркестратор → критик, синтетик | Юридическое заключение: статус, общий риск, реестр нарушений с нормами/прецедентами/мерами смягчения, необходимые дисклеймеры |
 | `brief_schema.schema.json` | `brief_schema.json` | Оркестратор | `research-synthesist` | Бриф на синтез: тип документа, формат вывода, аудитория, брендинг, ссылка на данные |
-| `eval_request.schema.json` | `eval_request.json` | Оркестратор | `quality-evaluator` | Запрос на аудит: целевой агент, тип артеfакта, данные, контекст, порог качества |
+| `eval_request.schema.json` | `eval_request.json` | Оркестратор | `quality-evaluator` | Запрос на аудит: целевой агент, тип артефакта, данные, контекст, порог качества |
 | `evaluation_report.schema.json` | `evaluation_report.json` | `quality-evaluator` | Оркестратор | Отчет аудита: балл 0–100, разбивка по 5 осям, критические находки с кодами REG_*, actionable_fixes |
 | `orchestration_output.schema.json` | `orchestration_output.json` | `hermes-orchestrator` | Заказчик | Итоговый отчет: статус выполнения, история Stage-Gate, финальный пакет объектов, ссылка на AAR |
 | `project_aar.schema.json` | `project_aar.json` | `hermes-orchestrator` | Заказчик, память системы | Постпроектная рефлексия: оценка Человека, уроки, патчи скиллов и адрес индексации |
