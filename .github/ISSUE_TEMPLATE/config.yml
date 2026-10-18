@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Документация Hermes Protocol
+    url: https://github.com/DenisZakharov2/hermes-protocol-team/tree/main/docs
+    about: Руководство Заказчика, справочник команды, каталог артефактов и AAR
+  - name: Сообщить об уязвимости
+    url: https://github.com/DenisZakharov2/hermes-protocol-team/security/advisories/new
+    about: Приватное сообщение об уязвимости или утечке данных

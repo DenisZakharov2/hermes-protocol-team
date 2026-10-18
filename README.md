@@ -156,7 +156,8 @@ AAR — project_aar.json, project_final_review.md, память
 - **Загрузчик скиллов** — файлы `skills/<agent>/SKILL.md` загружаются в Hermes как навыки агентов;
 - **Память:** `/memory/cases/{project_id}/` (эпизодическая), `/memory/domain_knowledge/` (семантическая), `/memory/legal_precedents/` (судебная практика);
 - **Доступ в сеть** для `multi-source-researcher` (поиск первичных источников Tier 1/2: cbr.ru, суды, официальная отчетность);
-- Для рендера презентаций: Marp, PyPPTX, Typst — в зависимости от выбранного `output_format`.
+- Для рендера презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format`;
+- **Node.js 20+** — только для локальной проверки репозитория: `npm ci && npm run validate`.
 
 ## 9. Диаграммы работы
 

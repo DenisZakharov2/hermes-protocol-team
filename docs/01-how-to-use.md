@@ -79,7 +79,7 @@
 | Навыки (SKILL.md) | Загрузите все 7 навыков из папки `skills/<agent>/SKILL.md` в Hermes |
 | Память команды | Создайте `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/` |
 | Интернет для исследователя | Доступ к сети для `multi-source-researcher` (поиск Tier 1/2 источников: cbr.ru, суды, официальная отчетность) |
-| Инструменты верстки | Для презентаций: Marp, PyPPTX, Typst — в зависимости от выбранного `output_format` |
+| Инструменты верстки | Для презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format` |
 
 ---
 
