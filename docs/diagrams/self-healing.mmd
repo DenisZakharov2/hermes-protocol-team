@@ -2,24 +2,24 @@
 
 flowchart TD
     A["quality-evaluator: overall_score < 85<br/>Статус REJECTED"]
-    
+
     A --> B["hermes-orchestrator возвращает артефакт<br/>владельцу артефакта — воркеру (шаги 3–8 DAG)<br/>Не напрямую к юристу"]
-    
+
     B --> C[Воркер вносит точечные исправления<br/>по actionable_fixes]
-    
+
     C --> D[Дефект регуляторный/юридический?<br/>код REG_* — риск CRITICAL/HIGH]
-    
+
     D -->|Нет| E[Повторный аудит качества quality-evaluator]
     D -->|Да| F["Повторный Legal Check-in<br/>legal-compliance-counsel (шаг 5, 7 или 8.5)"]
-    
+
     F --> E
-    
+
     E -->|Score ≥ 85| G[PASSED → передача Заказчику]
     E -->|Score < 85| H[Счетчик итераций Self-Healing +1]
-    
+
     H -->|Итераций < 3| B
     H -->|Итераций = 3| I[Эскаляция Заказчику на Stage-Gate<br/>execution_status = ESCALATED]
-    
+
     style A fill:#ffebee,stroke:#c62828,stroke-width:2px
     style E fill:#fff3e0,stroke:#ef6c00
     style F fill:#fff3e0,stroke:#ef6c00
