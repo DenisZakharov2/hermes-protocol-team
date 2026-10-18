@@ -1,7 +1,7 @@
 # Справочник по агентам Hermes Protocol — роли, контракты, границы
 
 > Источник: папка `skills/` (файлы `SKILL.md` каждого агента) и `Hermes_Protocol_Constitution.md`.  
-> Версия: 2.0.0.
+> Версия: 2.1.0.
 
 ## 1. hermes-orchestrator — агент-оркестратор (руководитель DAG)
 
