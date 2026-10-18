@@ -1,13 +1,13 @@
-# Архитектура Hermes Protocol
+%% Архитектура Hermes Protocol
 
 flowchart TD
-    Z[Заказчик (Человек) — Stage-Gate HITL]
+    Z["Заказчик (Человек) — Stage-Gate HITL"]
     O[hermes-orchestrator — диспетчер DAG]
     
     subgraph Memory["Трехуровневая память"]
-        PM[/memory/cases/{project_id}/ — эпизодическая память]
-        SM[/memory/domain_knowledge/ — семантическая память]
-        LM[/memory/legal_precedents/ — судебная практика]
+        PM["/memory/cases/{project_id}/ — эпизодическая память"]
+        SM["/memory/domain_knowledge/ — семантическая память"]
+        LM["/memory/legal_precedents/ — судебная практика"]
     end
     
     subgraph Workers["Специализированные воркеры"]
