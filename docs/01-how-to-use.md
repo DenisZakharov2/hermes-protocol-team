@@ -146,6 +146,7 @@
 ### Шаг 9. Аудит качества и Self-Healing
 
 `quality-evaluator` проверяет весь пакет по 5 осям:
+
 1. Accuracy & Fact Grounding (25 %)
 2. Security & Data Protection (25 %)
 3. Cross-Artifact Consistency (20 %)
@@ -162,6 +163,7 @@
 ### Шаг 11. Постпроектная рефлексия (AAR)
 
 После одобрения команда проводит AAR:
+
 - фиксирует вашу оценку 1–5 и комментарии;
 - составляет `project_aar.json` с патчами скиллов (`skill_patches`);
 - генерирует `project_final_review.md`;
