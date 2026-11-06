@@ -14,10 +14,16 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "type": "string",
+      "examples": [
+        "REQ_RES_2026_01"
+      ]
     },
     "project_id": {
-      "type": "string"
+      "type": "string",
+      "examples": [
+        "SAV_DEP_2026_01"
+      ]
     },
     "system_impact_matrix": {
       "type": "array",

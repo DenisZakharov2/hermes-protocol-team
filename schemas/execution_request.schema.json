@@ -12,7 +12,10 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "type": "string",
+      "examples": [
+        "SAV_DEP_2026_01"
+      ]
     },
     "user_prompt": {
       "type": "string"

@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:hermes-protocol:schemas:common:definitions.schema.json",
+  "title": "Common Definitions for Hermes Protocol JSON Schemas",
+  "description": "Переиспользуемые определения типов для всех JSON-схем Hermes Protocol",
+  "type": "object",
+  "$defs": {
+    "ProjectId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$",
+      "description": "Уникальный идентификатор проекта (UPPER_SNAKE_CASE)",
+      "examples": ["SAV_DEP_2026_01"]
+    },
+    "TaskId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$",
+      "description": "Уникальный идентификатор задачи (UPPER_SNAKE_CASE)",
+      "examples": ["REQ_RES_2026_01", "PM_2026_01", "BA_2026_01"]
+    },
+    "EvalId": {
+      "type": "string",
+      "pattern": "^EVAL_[A-Z0-9_]+$",
+      "description": "Идентификатор оценки качества",
+      "examples": ["EVAL_2026_01"]
+    },
+    "AgentId": {
+      "type": "string",
+      "enum": [
+        "hermes-orchestrator",
+        "multi-source-researcher",
+        "product-manager",
+        "business-analyst",
+        "legal-compliance-counsel",
+        "research-synthesist",
+        "quality-evaluator"
+      ],
+      "description": "Системный идентификатор агента"
+    },
+    "DomainContext": {
+      "type": "string",
+      "enum": ["RETAIL_BANKING", "INVESTMENT", "PAYMENTS"],
+      "description": "Доменный контекст проекта (банковская сфера РФ)"
+    },
+    "QualityThreshold": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Порог качества (0-100)",
+      "examples": [85]
+    },
+    "TimestampISO": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Временная метка в ISO 8601 (UTC)",
+      "examples": ["2026-10-17T10:00:00Z"]
+    },
+    "VersionString": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
+      "examples": ["2.1.0"]
+    },
+    "Percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Процентное значение (0-100)"
+    },
+    "BasisPoints": {
+      "type": "number",
+      "description": "Значение в базисных пунктах (1 bp = 0.01%)",
+      "examples": [100, 1800]
+    },
+    "CurrencyAmount": {
+      "type": "number",
+      "description": "Денежная сумма в рублях",
+      "examples": [150000000]
+    },
+    "SourceId": {
+      "type": "string",
+      "pattern": "^SRC_[A-Z0-9_]+$",
+      "description": "Идентификатор первичного источника",
+      "examples": ["SRC_1", "SRC_CBR_2026_001"]
+    },
+    "RegulationRef": {
+      "type": "string",
+      "description": "Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)",
+      "examples": ["152-ФЗ", "353-ФЗ", "Указание ЦБ РФ № 5901-У"]
+    },
+    "CourtRef": {
+      "type": "string",
+      "description": "Ссылка на судебную практику",
+      "examples": ["Определение ВС РФ № 305-ЭС24-XXXX", "Постановление Пленума ВС РФ № 1"]
+    },
+    "ImpactType": {
+      "type": "string",
+      "enum": ["CREATE", "MODIFY", "DELETE", "NO_CHANGE"],
+      "description": "Тип влияния на IT-систему"
+    },
+    "SystemType": {
+      "type": "string",
+      "enum": ["CORE", "CHANNEL", "INTEGRATION", "REPORTING", "SECURITY"],
+      "description": "Тип IT-системы"
+    },
+    "RiskLevel": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+      "description": "Уровень юридического/регуляторного риска"
+    },
+    "LegalStatus": {
+      "type": "string",
+      "enum": ["APPROVED", "APPROVED_WITH_RESERVATIONS", "REJECTED", "PENDING"],
+      "description": "Статус правового заключения"
+    },
+    "ExecutionStatus": {
+      "type": "string",
+      "enum": ["PLANNING", "IN_PROGRESS", "PENDING_HUMAN", "COMPLETED_APPROVED", "COMPLETED_REJECTED", "ESCALATED"],
+      "description": "Статус исполнения проекта"
+    },
+    "StageGateVerdict": {
+      "type": "string",
+      "enum": ["APPROVED", "REJECTED", "REVISION_REQUIRED"],
+      "description": "Вердикт на Stage-Gate"
+    },
+    "OutputFormat": {
+      "type": "string",
+      "enum": ["markdown_marp", "python_pptx_script", "html_tailwind_deck", "structured_slides_json", "typst"],
+      "description": "Формат выходного документа синтеза"
+    },
+    "ArtifactRef": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": { "type": "string", "description": "Ссылка на артефакт (путь или ID)" }
+      },
+      "additionalProperties": false,
+      "description": "Ссылка на связанный артефакт"
+    },
+    "ContactInfo": {
+      "type": "object",
+      "required": ["name", "role"],
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "telegram": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
