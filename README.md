@@ -1,185 +1,122 @@
 # Hermes Protocol — команда ИИ-агентов под управлением Hermes Agent
 
+![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
+![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
+
 > **Статус:** версия 2.1.0 — действующая  
 > **Лицензия:** MIT  
 > **Целевая юрисдикция:** Российская Федерация (банковская и финансовая сфера)
 
-## 1. О репозитории
+---
 
-Этот репозиторий содержит набор документации **команды ИИ-агентов Hermes Protocol**: 7 специализированных агентов — оркестратор и 6 воркеров; работой команды руководит `hermes-orchestrator`, функцию которого берет на себя **Hermes Agent**.
+## О проекте
 
-Человек выступает в роли **Заказчика**: он поручает команде выполнение проекта, утверждает план на контрольных точках (Stage-Gate) и принимает итоговый пакет артефактов. Команда ведет проект от первичного запроса и исследования до финального отчета, аудита качества и постпроектного анализа (AAR).
+Этот репозиторий содержит операционную документацию **команды ИИ-агентов Hermes Protocol**: 7 специализированных агентов (оркестратор + 6 воркеров). Работой команды руководит `hermes-orchestrator` (функцию выполняет **Hermes Agent**).
 
-Все материалы подготовлены для публичного размещения на GitHub ([DenisZakharov2](https://github.com/DenisZakharov2)) под лицензией MIT.
+Человек выступает в роли **Заказчика**: поручает проект, утверждает план на Stage-Gate, принимает итоговый пакет артефактов.
 
-### Документация
+**Полные правила работы — в [Конституции](Hermes_Protocol_Constitution.md).**  
+Кратко ключевые принципы:
 
-Полный индекс — [`docs/README.md`](docs/README.md).
+- **Ноль галлюцинаций** — каждая цифра и норма права обоснованы первичным источником
+- **Stage-Gate HITL** — оркестратор не переходит к следующей фазе без утверждения Заказчиком
+- **Triple-Gate контроль** — синтаксис → правовая экспертиза → смысловой аудит (порог ≥ 85)
+- **Централизованная диспетчеризация** — никаких прямых передач между воркерами
+- **Self-Healing** — до 3 итераций автоисправления, затем эскалация
+- **AAR** — постпроектная рефлексия обязательна
 
-- [`docs/01-how-to-use.md`](docs/01-how-to-use.md) — пошаговое руководство Заказчика.
-- [`docs/02-team-guide.md`](docs/02-team-guide.md) — роли, границы и контракты агентов.
-- [`docs/03-artifacts.md`](docs/03-artifacts.md) — каталог артефактов и JSON-схем.
-- [`docs/04-quality.md`](docs/04-quality.md) — оценка качества и цикл Self-Healing.
-- [`docs/05-aar.md`](docs/05-aar.md) — постпроектная рефлексия.
-- [`docs/diagrams/`](docs/diagrams/) — Mermaid-диаграммы.
+---
 
-## 2. Состав команды (7 агентов)
+## Состав команды (7 агентов)
 
-| № | Агент (`skill_id`) | Роль | Основные выходные артефакты |
-|---|---|---|---|
-| 1 | `hermes-orchestrator` | Ведущий агент-оркестратор, диспетчер DAG, Stage-Gate HITL | `execution_plan.json`, `orchestration_output.json`, `hermes_flight_log.json` |
-| 2 | `multi-source-researcher` | Исследователь и сборщик первичных данных (Интернет, Tier 1–3) | `research_task.json` (вход), `research_output.json`, `researcher_flight_log.json` |
-| 3 | `product-manager` | Продуктовый стратег, финансовый инженер (NII/NIM/CoF, тарифы, нормативы ЦБ РФ) | `product_brief.json` (вход), `product_strategy.json`, `pm_flight_log.json` |
-| 4 | `business-analyst` | Ведущий бизнес- и системный аналитик (BRD, Gherkin, NFR, матрица влияния) | `ba_input_contract.json` (вход), `business_requirements.json`, `ba_flight_log.json` |
-| 5 | `legal-compliance-counsel` | Старший юрисконсульт и комплаенс-офицер РФ (Законодательство, ЦБ РФ, судебная практика) | `legal_review_request.json` (вход), `legal_compliance_report.json`, `legal_flight_log.json` |
-| 6 | `research-synthesist` | Аналитик-синтетик, верстка отчетов и презентаций (Marp, PPTX, Typst, Mermaid) | `brief_schema.json` (вход), итоговый дайджест/презентация, `synthesist_flight_log.json` |
-| 7 | `quality-evaluator` | Агент-критик и контролер качества (5 осей, порог 85, Self-Healing) | `eval_request.json` (вход), `evaluation_report.json`, `evaluator_flight_log.json` |
+| Агент (`skill_id`) | Роль | Выходные артефакты |
+|---|---|---|
+| `hermes-orchestrator` | Оркестратор, диспетчер DAG, Stage-Gate HITL | `execution_plan.json`, `orchestration_output.json`, `hermes_flight_log.json` |
+| `multi-source-researcher` | Исследователь Tier 1–3 источников | `research_output.json`, `researcher_flight_log.json` |
+| `product-manager` | Продуктовый стратег, фин. инженер (NII/NIM/CoF, ЦБ РФ) | `product_strategy.json`, `pm_flight_log.json` |
+| `business-analyst` | Бизнес- и системный аналитик (BRD, Gherkin, NFR) | `business_requirements.json`, `ba_flight_log.json` |
+| `legal-compliance-counsel` | Старший юрисконсульт и комплаенс-офицер РФ | `legal_compliance_report.json`, `legal_flight_log.json` |
+| `research-synthesist` | Аналитик-синтетик, верстка (Marp, PPTX, Typst, Mermaid) | Презентация/отчет, `synthesist_flight_log.json` |
+| `quality-evaluator` | Критик, аудит 5 осей, Self-Healing | `evaluation_report.json`, `evaluator_flight_log.json` |
 
-## 3. Принципы работы команды (из Конституции Hermes Protocol)
+---
 
-1. **Ноль галлюцинаций.** Каждая цифра, норма права или технический параметр должны быть обоснованы первичным источником (Tier 1/2), математической/финансовой моделью и ссылкой `source_id`.
-2. **Подконтрольность Человеку (Stage-Gate HITL).** Оркестратор не переходит к следующей фазе без явного утверждения Заказчиком `execution_plan.json` и промежуточных результатов.
-3. **Трехступенчатый контроль качества (Triple-Gate):** синтаксическая валидация по JSON-схеме → правовая экспертиза `legal-compliance-counsel` → смысловой аудит `quality-evaluator` по 5 осям (порог ≥ 85).
-4. **Только через оркестратора.** Прямые передачи артефактов между воркерами (P2P) запрещены — все взаимодействия фиксируются в бортовом журнале `hermes_flight_log.json`.
-5. **Ограничение циклов.** Доработок по праву — не более 3 итераций; циклов Self-Healing — не более 3 попыток. При блокировке — эскалация Заказчику.
-6. **Постпроектная рефлексия.** Каждый проект завершается AAR: `project_aar.json`, `project_final_review.md` и консолидацией уроков в памяти системы.
+## Быстрый старт для Заказчика
 
-## 4. Как работает команда — сквозной путь проекта
+1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте папки памяти `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`.
+2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
+3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
+4. **Мониторьте Stage-Gates:** на каждой точке получайте промежуточный артефакт (исследование, стратегия, BRD, юр. заключение, презентация) — утверждайте или отправляйте на доработку.
+5. **Примите аудит качества:** `quality-evaluator` выдаст `evaluation_report.json`. Score ≥ 85 — артефакт к вам; < 85 — Self-Healing (до 3 итераций).
+6. **Подпишите финал:** после финального Stage-Gate получите пакет `final_package` + отчет AAR.
+
+---
+
+## Структура репозитория
 
 ```text
-Запрос Заказчика
-    │
-    ▼
-Stage-Gate 1 — Plan Approval (Человек утверждает execution_plan.json)
-    │
-    ▼
-multi-source-researcher → research_output.json
-    │
-    ▼
-product-manager → product_strategy.json
-    │
-    ▼
-legal-compliance-counsel — Legal Check-in №1 (концепция)
-    │
-    ▼
-business-analyst → business_requirements.json (BRD, Gherkin, NFR)
-    │
-    ▼
-legal-compliance-counsel — Legal Check-in №2 (BRD, до 3 итераций)
-    │
-    ▼
-research-synthesist → презентация / отчет (Marp, PPTX, Typst)
-    │
-    ▼
-legal-compliance-counsel — Legal Check-in №3 (синтез)
-    │
-    ▼
-quality-evaluator — аудит 5 осей, порог ≥ 85 (Self-Healing до 3 циклов)
-    │
-    ▼
-Stage-Gate — финальное одобрение Человеком + передача пакета артефактов
-    │
-    ▼
-AAR — project_aar.json, project_final_review.md, память
+├── .github/                 # CI, issue/PR templates, CODEOWNERS
+├── ci/                      # (legacy) — workflow теперь в .github/workflows/
+├── docs/                    # 5 руководств + диаграммы Mermaid
+│   ├── 01-how-to-use.md     # Пошаговое руководство Заказчика
+│   ├── 02-team-guide.md     # Роли, границы, контракты агентов
+│   ├── 03-artifacts.md      # Каталог артефактов и JSON-схем
+│   ├── 04-quality.md        # 5 осей качества, Triple-Gate, Self-Healing
+│   ├── 05-aar.md            # Постпроектная рефлексия (AAR)
+│   └── diagrams/            # Mermaid: architecture, DAG, memory, quality, self-healing
+├── examples/                # 18 сквозных примеров проекта SAV_DEP_2026_01
+├── schemas/                 # 21 JSON Schema Draft-07
+├── scripts/                 # validate-json.mjs, check-mermaid.mjs
+├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
+├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
+├── CHANGELOG.md             # Keep a Changelog format
+├── LICENSE                  # MIT
+├── SECURITY.md              # Security policy
+├── package.json             # Node.js 20+, validation scripts
+└── README.md                # Этот файл
 ```
 
-Подробные схемы: `docs/diagrams/*.mmd` (рендерятся GitHub-native Mermaid).
+---
 
-## 5. Быстрый старт для Заказчика (Человека)
+## Важные ссылки
 
-1. **Подготовьте окружение.** Установите Hermes Agent, активируйте профиль (по умолчанию `default`), загрузите скиллы из папки `skills/` (`SKILL.md` каждого агента). Создайте папки памяти: `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`.
-2. **Оформите запрос.** Составьте `execution_request.json` (см. пример в `examples/`): описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
-3. **Утвердите план.** Оркестратор вернет `execution_plan.json` и DAG. Проверьте этапы и ответственные агентов, дайте одобрение на Stage-Gate 1.
-4. **Мониторьте Stage-Gates.** На каждой контрольной точке получайте промежуточный артефакт (исследование, стратегия, BRD, юридическое заключение, презентация) и утверждайте или отправляйте на доработку.
-5. **Примите аудит качества.** `quality-evaluator` выдаст `evaluation_report.json`. Если общий балл ≥ 85 — артефакт переходит к вам; если < 85 — запускается Self-Healing (до 3 итераций).
-6. **Подпишите финал.** После утверждения на финальном Stage-Gate получите пакет `final_package` (стратегия, BRD, юрист-отчет, презентация, оценка качества) и отчет AAR.
+- **Конституция (обязательные правила):** [`Hermes_Protocol_Constitution.md`](Hermes_Protocol_Constitution.md)
+- **Документация:** [`docs/README.md`](docs/README.md)
+- **Схемы:** [`schemas/`](schemas/)
+- **Примеры:** [`examples/`](examples/)
+- **Скиллы агентов:** [`skills/`](skills/)
+- **Диаграммы:** [`docs/diagrams/`](docs/diagrams/)
+- **Вклад:** [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
+- **Безопасность:** [`SECURITY.md`](SECURITY.md)
 
-## 6. JSON-контракты и схемы
+---
 
-Ключевые форматы обмена между агентами формализованы JSON-схемами Draft-07 в папке `schemas/`; служебные журналы используют общий `flight_log.schema.json`:
+## Требования к окружению
 
-| Схема | Описание | Используется агентом |
-|---|---|---|
-| `execution_request.schema.json` | Входной запрос Заказчика / оркестрация проекта | `hermes-orchestrator` |
-| `execution_plan.schema.json` | План исполнения: этапы DAG, владельцы, Stage-Gate | `hermes-orchestrator` |
-| `research_task.schema.json` | Задание исследователю | `multi-source-researcher` |
-| `research_plan.schema.json` | Внутренний план исследования: подзапросы и Tier | `multi-source-researcher` |
-| `research_output.schema.json` | Выход исследования (метрики, источники, конфликты) | `multi-source-researcher` |
-| `product_brief.schema.json` | Бриф для продуктового стратега | `product-manager` |
-| `product_strategy.schema.json` | Продуктовая концепция и финмодель | `product-manager` |
-| `ba_input_contract.schema.json` | Входной контракт аналитика | `business-analyst` |
-| `business_requirements.schema.json` | BRD, User Stories, NFR, матрица влияния | `business-analyst` |
-| `legal_review_request.schema.json` | Запрос на правовую проверку | `legal-compliance-counsel` |
-| `legal_compliance_report.schema.json` | Юридическое заключение и матрица рисков | `legal-compliance-counsel` |
-| `brief_schema.schema.json` | Бриф на синтез и верстку | `research-synthesist` |
-| `eval_request.schema.json` | Запрос на аудит качества | `quality-evaluator` |
-| `evaluation_report.schema.json` | Отчет аудита по 5 осям | `quality-evaluator` |
-| `orchestration_output.schema.json` | Итоговый отчет оркестратора / пакет доставки | `hermes-orchestrator` |
-| `project_aar.schema.json` | Постпроектная рефлексия, уроки и патчи скиллов | `hermes-orchestrator` |
-| `agent_tuning_log.schema.json` | Журнал корректировок и предложенных патчей | все агенты |
-| `flight_log.schema.json` | Универсальный формат журналов `*_flight_log.json` | все агенты |
-| `it_landscape.schema.json` | Описание IT-ландшафта (АБС/ДБО) | `business-analyst` |
-| `regulatory_checklist.schema.json` | Регуляторный чек-лист | `business-analyst`, `legal-compliance-counsel` |
-| `synthesist_output.schema.json` | Выходной контракт синтеза | `research-synthesist` |
+- **Hermes Agent** с активным профилем
+- **Загрузчик скиллов** — `skills/<agent>/SKILL.md`
+- **Память:** `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`
+- **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
+- **Рендер презентаций:** Marp / python-pptx / Typst
+- **Node.js 20+** — только для локальной валидации: `npm ci && npm run validate`
 
-Готовые примеры заполненных артефактов — в папке `examples/`.
+---
 
-## 7. Примеры и шаблоны
-
-Папка `examples/` содержит сквозной пример проекта «Сберегательный депозит до востребования для физических лиц с приветственной ставкой» (`project_id: SAV_DEP_2026_01`):
-
-- `execution_request.example.json` — входной запрос Заказчика
-- `research_task.example.json` — задание исследователю
-- `research_output.example.json` — исследование рынка вкладов
-- `product_brief.example.json` — бриф для продуктового стратега
-- `product_strategy.example.json` — продуктовая стратегия и финмодель
-- `ba_input_contract.example.json` — входной контракт бизнес-аналитика
-- `it_landscape.example.json` — IT-ландшафт и матрица влияния
-- `regulatory_checklist.example.json` — регуляторный чек-лист
-- `business_requirements.example.json` — BRD, Gherkin-истории, NFR
-- `legal_review_request.example.json` — запрос на правовую проверку
-- `legal_compliance_report.example.json` — заключение юриста с риском HIGH и мерами по смягчению
-- `brief_schema.example.json` — бриф на презентацию
-- `synthesist_output.example.json` — результат синтеза (Marp-разметка)
-- `eval_request.example.json` — запрос на аудит качества
-- `evaluation_report.example.json` — отчет аудита с баллом 78,5 (REJECTED) и патчами
-- `orchestration_output.example.json` — итоговый отчет оркестратора
-- `project_aar.example.json` — постпроектная рефлексия
-- `execution_plan.example.json` — утвержденный план исполнения
-- `research_plan.example.json` — план исследования
-- `agent_tuning_log.example.json` — журнал корректировок
-- `flight_log.example.json` — пример бортового журнала
-
-## 8. Требования к окружению
-
-- **Hermes Agent** с активным профилем (default или иной, указанный Заказчиком);
-- **Загрузчик скиллов** — файлы `skills/<agent>/SKILL.md` загружаются в Hermes как навыки агентов;
-- **Память:** `/memory/cases/{project_id}/` (эпизодическая), `/memory/domain_knowledge/` (семантическая), `/memory/legal_precedents/` (судебная практика);
-- **Доступ в сеть** для `multi-source-researcher` (поиск первичных источников Tier 1/2: cbr.ru, суды, официальная отчетность);
-- Для рендера презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format`;
-- **Node.js 20+** — только для локальной проверки репозитория: `npm ci && npm run validate`.
-
-## 9. Диаграммы работы
-
-В папке `docs/diagrams/`:
-
-- `architecture.mmd` — общая архитектура взаимодействия Заказчик → Оркестратор → Воркеры → Память
-- `dag-workflow.mmd` — ориентированный ациклический граф (DAG) исполнения проекта с Stage-Gate
-- `memory-hierarchy.mmd` — трехуровневая память (процедурная / эпизодическая / семантическая)
-- `quality-gates.mmd` — трехступенчатый контроль (синтаксис → право → критический аудит)
-- `self-healing.mmd` — цикл самоусовершенствования с лимитом 3 итераций и эскалацией
-
-## 10. Лицензия
+## Лицензия
 
 Распространяется под [**лицензией MIT**](LICENSE). Без ограничений на использование, копирование, модификацию и распространение при сохранении уведомления об авторских правах.
 
-## 11. Важный дисклеймер
+---
 
-Материалы репозитория носят информационный и методический характер. Выводы агентов (включая юридические и регуляторные оценки `legal-compliance-counsel`) **не заменяют** консультации квалифицированного адвоката и не являются стандартом правовой точности. Заказчик несет полную ответственность за утверждение артефактов на Stage-Gate и за compliance-решения по итоговому продукту.
+## Дисклеймер
 
-## 12. Вклады и контакты
+Материалы репозитория носят информационный и методический характер. Выводы агентов (включая юридические оценки `legal-compliance-counsel`) **не заменяют** консультации квалифицированного адвоката и не являются стандартом правовой точности. Заказчик несет полную ответственность за утверждение артефактов на Stage-Gate и compliance-решения по итоговому продукту.
 
-Предложения, ошибки и запросы на новые скиллы принимаются через **Issues** и **Pull Requests** в этом репозитории. См. `.github/CONTRIBUTING.md`.
+---
 
-Автор: **Denis Zakharov** ([@DenisZakharov2](https://github.com/DenisZakharov2))  
+## Автор
+
+**Denis Zakharov** ([@DenisZakharov2](https://github.com/DenisZakharov2))  
 Лицензия: **MIT**

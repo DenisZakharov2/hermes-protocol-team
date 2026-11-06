@@ -4,6 +4,27 @@
   "private": true,
   "type": "module",
   "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DenisZakharov2/hermes-protocol-team.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DenisZakharov2/hermes-protocol-team/issues"
+  },
+  "homepage": "https://github.com/DenisZakharov2/hermes-protocol-team#readme",
+  "license": "MIT",
+  "keywords": [
+    "ai-agents",
+    "multi-agent-system",
+    "agent-orchestration",
+    "fintech",
+    "banking",
+    "compliance",
+    "json-schema",
+    "mermaid",
+    "documentation",
+    "hermes-protocol"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -11,7 +32,7 @@
     "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md",
     "validate:json": "node scripts/validate-json.mjs",
     "validate:mermaid": "node scripts/check-mermaid.mjs",
-    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"Hermes_Protocol_Constitution.md\" \"examples/README.md\" \"SECURITY.md\" \"CHANGELOG.md\""
+    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"!.github/CODE_OF_CONDUCT.md\" \"examples/README.md\" \"SECURITY.md\" \"CHANGELOG.md\""
   },
   "devDependencies": {
     "ajv": "8.20.0",
