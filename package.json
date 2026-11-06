@@ -42,5 +42,8 @@
     "jsdom": "30.1.3",
     "markdownlint-cli2": "0.24.0",
     "mermaid": "^12.3.0"
+  },
+  "overrides": {
+    "undici": "5.28.4"
   }
 }
