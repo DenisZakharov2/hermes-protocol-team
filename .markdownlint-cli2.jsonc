@@ -40,7 +40,7 @@
     "MD048": true,
     "MD049": { "style": "asterisk" },
     "MD050": true,
-    "MD051": true,
+    "MD051": false,
     "MD052": { "style": "shortcut" },
     "MD053": true,
     "MD054": { "style": "underscore" },
