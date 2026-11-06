@@ -1,0 +1,37 @@
+name: Bug Report
+description: Сообщить об ошибке в схемах, документации, примерах или диаграммах
+title: "[BUG]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Спасибо за репорт! Заполните поля ниже."
+  - type: textarea
+    id: description
+    attributes:
+      label: Описание бага
+      placeholder: Что происходит? Что ожидалось?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Шаги воспроизведения
+      placeholder: |
+        1. Запустить `npm run validate`
+        2. Открыть файл X
+        3. Увидеть ошибку Y
+    validations:
+      required: true
+  - type: input
+    id: file
+    attributes:
+      label: Затронутый файл(ы)
+      placeholder: schemas/execution_request.schema.json
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: [Critical (валидация ломается), High (невалидные примеры), Medium (доки/линт), Low (опечатка)]
+    validations:
+      required: true

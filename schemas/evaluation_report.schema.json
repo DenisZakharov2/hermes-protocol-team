@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/evaluation_report.schema.json",
+  "$id": "urn:hermes-protocol:schemas:evaluation_report.schema.json",
   "title": "evaluation_report.json",
   "description": "Отчет аудита по пяти осям качества с находками и actionable_fixes.",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/flight_log.schema.json",
+  "$id": "urn:hermes-protocol:schemas:flight_log.schema.json",
   "title": "flight_log.json",
   "description": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.",
   "type": "object",

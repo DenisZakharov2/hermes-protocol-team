@@ -1,9 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/synthesist_output.schema.json",
+  "$id": "urn:hermes-protocol:schemas:synthesist_output.schema.json",
   "title": "synthesist_output.json",
   "description": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.",
-  "additionalProperties": false,
   "properties": {
     "citations_index": {
       "items": {

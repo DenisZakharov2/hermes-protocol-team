@@ -1,9 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/it_landscape.schema.json",
+  "$id": "urn:hermes-protocol:schemas:it_landscape.schema.json",
   "title": "it_landscape.json",
   "description": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).",
-  "additionalProperties": false,
   "properties": {
     "project_id": {
       "type": "string"
