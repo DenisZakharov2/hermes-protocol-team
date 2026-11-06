@@ -4,7 +4,24 @@
   "target_worker": "business-analyst",
   "artifact_type": "brd_document",
   "artifact_data": {
-    "REF_TO_ARTIFACT": "business_requirements.json/open_unmasked_SNILS"
+    "task_id": "BA_2026_01",
+    "project_id": "SAV_DEP_2026_01",
+    "system_impact_matrix": [
+      {
+        "system_name": "Core Banking (АБС)",
+        "impact_type": "MODIFY",
+        "description": "Добавление типа продукта 'Вклад до востребования с приветственной ставкой' и учета МГС"
+      }
+    ],
+    "classic_brd": {
+      "business_process_tobe": "Открытие сберегательного вклада до востребования онлайн через ДБО с идентификацией клиента и подписанием договора ЭП",
+      "functional_requirements": [
+        "Подбор тарифа с приветственной и базовой ставками",
+        "Раскрытие МГС шрифтом того же размера"
+      ]
+    },
+    "agile_backlog": [],
+    "regulatory_nfr": []
   },
   "context_artifacts": {
     "ref": "PROJECT_CONTEXT"

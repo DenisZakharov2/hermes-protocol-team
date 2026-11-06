@@ -1,0 +1,23 @@
+# Владельцы кода для обязательного ревью
+# Синтаксис: путь @username или @org/team
+
+# Схемы — критически важны для контрактов
+/schemas/ @DenisZakharov2
+
+# Скиллы агентов — изменения требуют экспертизы
+/skills/ @DenisZakharov2
+
+# Примеры — должны быть валидными
+/examples/ @DenisZakharov2
+
+# Документация
+/docs/ @DenisZakharov2
+
+# CI/CD
+/.github/workflows/ @DenisZakharov2
+/ci/ @DenisZakharov2
+
+# Конфиги репозитория
+/.github/ @DenisZakharov2
+/package.json @DenisZakharov2
+/.markdownlint-cli2.jsonc @DenisZakharov2
