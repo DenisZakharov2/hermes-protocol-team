@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/orchestration_output.schema.json",
+  "$id": "urn:hermes-protocol:schemas:orchestration_output.schema.json",
   "title": "orchestration_output.json",
   "description": "Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.",
   "type": "object",

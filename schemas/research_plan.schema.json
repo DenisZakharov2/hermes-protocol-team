@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/research_plan.schema.json",
+  "$id": "urn:hermes-protocol:schemas:research_plan.schema.json",
   "title": "research_plan.json",
   "description": "Внутренний план исследования: подзапросы, целевые Tier и статусы.",
   "type": "object",

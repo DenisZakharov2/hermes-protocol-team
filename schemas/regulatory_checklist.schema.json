@@ -1,9 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/regulatory_checklist.schema.json",
+  "$id": "urn:hermes-protocol:schemas:regulatory_checklist.schema.json",
   "title": "regulatory_checklist.json",
   "description": "Регуляторный чек-лист требований РФ и способов проверки.",
-  "additionalProperties": false,
   "properties": {
     "checklist_items": {
       "items": {

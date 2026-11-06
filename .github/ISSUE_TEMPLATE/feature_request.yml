@@ -1,0 +1,24 @@
+name: Feature Request
+description: Предложить новый скилл, схему, пример или улучшение документации
+title: "[FEAT]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую проблему решает?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Предлагаемое решение
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options: [Skills (агенты), Schemas (JSON-схемы), Examples, Docs, Diagrams, CI/Tooling, Constitution]
+    validations:
+      required: true

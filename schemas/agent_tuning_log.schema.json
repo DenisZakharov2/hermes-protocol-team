@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/agent_tuning_log.schema.json",
+  "$id": "urn:hermes-protocol:schemas:agent_tuning_log.schema.json",
   "title": "agent_tuning_log.json",
   "description": "Журнал оперативных корректировок агентов и предложенных патчей скиллов.",
   "type": "object",

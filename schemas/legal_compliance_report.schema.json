@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/DenisZakharov2/hermes-protocol-team/main/schemas/legal_compliance_report.schema.json",
+  "$id": "urn:hermes-protocol:schemas:legal_compliance_report.schema.json",
   "title": "legal_compliance_report.json",
   "description": "Юридическое заключение: статус, риски, прецеденты и меры смягчения.",
   "type": "object",
