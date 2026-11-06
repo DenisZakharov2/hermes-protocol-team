@@ -2,16 +2,6 @@
 
 Чек-лист настроек GitHub, которые нельзя зафиксировать в git. Выполняется сопровождающим репозитория.
 
-> **Включение CI.** Готовый workflow лежит в [`ci/validate.yml`](../ci/validate.yml), а не в `.github/workflows/`, потому что GitHub App, используемый для автоматизации, не имеет права `Workflows` и не может пушить этот путь. Чтобы включить CI, выполните:
->
-> ```bash
-> mkdir -p .github/workflows
-> git mv ci/validate.yml .github/workflows/validate.yml
-> git commit -m "ci: enable validation workflow"
-> ```
->
-> После этого push потребует права `Workflows: Read and write` у приложения или аккаунта.
-
 ## 1. Блок «About»
 
 | Параметр | Рекомендуемое значение |
@@ -26,8 +16,6 @@ gh repo edit DenisZakharov2/hermes-protocol-team \
   --homepage "https://github.com/DenisZakharov2/hermes-protocol-team/tree/main/docs" \
   --add-topic "ai-agents,multi-agent-systems,llm,documentation,json-schema,mermaid"
 ```
-
-> Текущая ссылка `.../tree/master/docs` ведёт на несуществующую ветку `master` и даёт 404. После установки Website проверьте поле `documentation` в `community/profile`: GitHub может обновить его с задержкой.
 
 ## 2. Community profile
 
@@ -58,11 +46,11 @@ gh api -X PUT repos/DenisZakharov2/hermes-protocol-team/branches/main/protection
 JSON
 ```
 
-Требует прав администратора репозитория. Context `validate` соответствует job из workflow, который включается из `ci/validate.yml` (см. раздел 1).
+Требует прав администратора репозитория. Context `validate` соответствует job из workflow в `.github/workflows/validate.yml`.
 
 ## 4. Релизы и версии
 
-- Версия команды — `2.1.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `2.2.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v2.1.0 -m "Hermes Protocol 2.1.0" && git push origin v2.1.0`.
+- Тег: `git tag -a v2.2.0 -m "Hermes Protocol 2.2.0" && git push origin v2.2.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).

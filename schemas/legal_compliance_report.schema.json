@@ -38,6 +38,7 @@
         "type": "object",
         "required": [
           "regulation",
+          "article",
           "status",
           "risk_level",
           "issue",
@@ -46,6 +47,10 @@
         "properties": {
           "regulation": {
             "type": "string"
+          },
+          "article": {
+            "type": "string",
+            "description": "Конкретная статья/пункт нормативного акта (напр., \"ст. 5 152-ФЗ\", \"п. 2.1 Положения 821-П\")"
           },
           "status": {
             "type": "string",

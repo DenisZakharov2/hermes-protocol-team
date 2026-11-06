@@ -23,7 +23,7 @@
 Если приватный репорт недоступен, свяжитесь с мейнтейнером:
 
 - **GitHub:** [@DenisZakharov2](https://github.com/DenisZakharov2)
-- **Email:** `security@denis-zakharov.example.com` *(замените на реальный)*
+- **Email:** `security@denis-zakharov.ru`
 
 ### Что указать в репорте
 

@@ -3,6 +3,8 @@
   "$id": "urn:hermes-protocol:schemas:it_landscape.schema.json",
   "title": "it_landscape.json",
   "description": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).",
+  "type": "object",
+  "additionalProperties": false,
   "properties": {
     "project_id": {
       "type": "string"

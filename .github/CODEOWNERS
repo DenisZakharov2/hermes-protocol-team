@@ -15,7 +15,6 @@
 
 # CI/CD
 /.github/workflows/ @DenisZakharov2
-/ci/ @DenisZakharov2
 
 # Конфиги репозитория
 /.github/ @DenisZakharov2

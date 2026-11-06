@@ -3,6 +3,8 @@
   "$id": "urn:hermes-protocol:schemas:synthesist_output.schema.json",
   "title": "synthesist_output.json",
   "description": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.",
+  "type": "object",
+  "additionalProperties": false,
   "properties": {
     "citations_index": {
       "items": {

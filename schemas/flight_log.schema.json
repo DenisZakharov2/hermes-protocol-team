@@ -52,7 +52,10 @@
               "HANDOFF",
               "STAGE_GATE",
               "SELF_HEALING",
-              "ERROR"
+              "ERROR",
+              "LEGAL_CHECKIN",
+              "QUALITY_AUDIT",
+              "AAR"
             ]
           },
           "status": {

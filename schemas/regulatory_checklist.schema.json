@@ -3,6 +3,8 @@
   "$id": "urn:hermes-protocol:schemas:regulatory_checklist.schema.json",
   "title": "regulatory_checklist.json",
   "description": "Регуляторный чек-лист требований РФ и способов проверки.",
+  "type": "object",
+  "additionalProperties": false,
   "properties": {
     "checklist_items": {
       "items": {

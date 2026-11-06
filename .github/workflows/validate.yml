@@ -3,6 +3,7 @@ name: validate
 on:
   push:
   pull_request:
+  pull_request_target:
 
 permissions:
   contents: read
@@ -17,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '20'
           cache: npm
 
       - name: Install dependencies

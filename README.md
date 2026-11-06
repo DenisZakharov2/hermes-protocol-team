@@ -1,6 +1,6 @@
 # Hermes Protocol — команда ИИ-агентов под управлением Hermes Agent
 
-![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![Version](https://img.shields.io/github/package-json/v/DenisZakharov2/hermes-protocol-team?label=version&color=blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
@@ -58,7 +58,6 @@
 
 ```text
 ├── .github/                 # CI, issue/PR templates, CODEOWNERS
-├── ci/                      # (legacy) — workflow теперь в .github/workflows/
 ├── docs/                    # 5 руководств + диаграммы Mermaid
 │   ├── 01-how-to-use.md     # Пошаговое руководство Заказчика
 │   ├── 02-team-guide.md     # Роли, границы, контракты агентов
