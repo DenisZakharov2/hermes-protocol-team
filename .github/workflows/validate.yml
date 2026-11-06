@@ -21,11 +21,10 @@ jobs:
           node-version: '20'
           cache: npm
 
-      - name: Clean npm cache
-        run: npm cache clean --force
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Clean install (force fresh node_modules)
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Validate JSON examples, Mermaid diagrams and Markdown
         run: npm run validate
