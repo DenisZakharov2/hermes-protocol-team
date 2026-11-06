@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 2.1.0 — действующая  
+> **Статус:** версия 2.2.0 — действующая  
 > **Лицензия:** MIT  
 > **Целевая юрисдикция:** Российская Федерация (банковская и финансовая сфера)
 
