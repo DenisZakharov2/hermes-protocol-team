@@ -22,6 +22,8 @@ updates:
           - "minor"
           - "patch"
     ignore:
+      # mermaid и markdownlint-cli2 — реальные devDependencies репозитория;
+      # мажорные версии пропускаются, потому что они ломают Node 22 / CLI-контракт
       - dependency-name: "mermaid"
         versions: [">= 13.0.0"]
       - dependency-name: "markdownlint-cli2"
