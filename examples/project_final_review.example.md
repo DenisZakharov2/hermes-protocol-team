@@ -1,6 +1,6 @@
 # Итоговый отчёт по проекту (project_final_review)
 
-> Шаблон итогового отчёта фазы AAR. Разделы соответствуют [`docs/05-aar.md`](../../docs/05-aar.md) §4.
+> Шаблон итогового отчёта фазы AAR. Разделы соответствуют [`docs/05-aar.md`](../docs/05-aar.md) §4.
 > Оркестратор копирует файл в `/memory/cases/{project_id}/project_final_review.md` и подставляет фактические данные проекта вместо значений примера `SAV_DEP_2026_01`.
 > Числовые значения ниже взяты из примеров `examples/*.example.json` того же сквозного проекта; заглушек нет.
 
@@ -76,12 +76,12 @@ First-Time Right Rate (FTR): по подтверждённым данным чи
 
 | Артефакт | Файл |
 |---|---|
-| Продуктовая стратегия | [`artifacts/product_strategy.json`](artifacts/product_strategy.json) |
-| Бизнес-требования | [`artifacts/business_requirements.json`](artifacts/business_requirements.json) |
-| Юридическое заключение | [`artifacts/legal_compliance_report.json`](artifacts/legal_compliance_report.json) |
-| Отчёт аудита качества | [`artifacts/evaluation_report.json`](artifacts/evaluation_report.json) |
-| Итоговый дайджест синтеза | [`artifacts/synthesist_output.json`](artifacts/synthesist_output.json) |
-| Постпроектная рефлексия | [`artifacts/project_aar.json`](artifacts/project_aar.json) |
+| Продуктовая стратегия | [`product_strategy.example.json`](product_strategy.example.json) |
+| Бизнес-требования | [`business_requirements.example.json`](business_requirements.example.json) |
+| Юридическое заключение | [`legal_compliance_report.example.json`](legal_compliance_report.example.json) |
+| Отчёт аудита качества | [`evaluation_report.example.json`](evaluation_report.example.json) |
+| Итоговый дайджест синтеза | [`synthesist_output.example.json`](synthesist_output.example.json) |
+| Постпроектная рефлексия | [`project_aar.example.json`](project_aar.example.json) |
 
 Сам отчёт размещается рядом с артефактами — `/memory/cases/SAV_DEP_2026_01/project_final_review.md`.
 
