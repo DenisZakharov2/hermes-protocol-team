@@ -50,8 +50,5 @@
     "synthesist_output": {
       "ref": "synthesist_output.json"
     }
-  },
-  "project_aar": {
-    "ref": "project_aar.json"
   }
 }

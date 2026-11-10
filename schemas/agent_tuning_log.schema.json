@@ -10,7 +10,7 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "entries": {
       "type": "array",
@@ -25,20 +25,10 @@
         ],
         "properties": {
           "timestamp": {
-            "type": "string",
-            "format": "date-time"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "agent_id": {
-            "type": "string",
-            "enum": [
-              "hermes-orchestrator",
-              "multi-source-researcher",
-              "product-manager",
-              "business-analyst",
-              "legal-compliance-counsel",
-              "research-synthesist",
-              "quality-evaluator"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "source": {
             "type": "string",

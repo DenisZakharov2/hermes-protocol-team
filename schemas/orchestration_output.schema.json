@@ -8,26 +8,19 @@
     "project_id",
     "artifact_root",
     "execution_status",
-    "stage_gate_history",
-    "final_package"
+    "stage_gate_history"
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "artifact_root": {
       "type": "string",
-      "pattern": "^/memory/cases/[^/]+/artifacts/$"
+      "pattern": "^/memory/cases/[^/]+/artifacts/$",
+      "description": "Абсолютный путь к каталогу артефактов проекта. Зафиксирован в контракте 2.2.x; переход на относительный путь — отдельный минорный релиз."
     },
     "execution_status": {
-      "type": "string",
-      "enum": [
-        "COMPLETED_APPROVED",
-        "REJECTED",
-        "ESCALATED",
-        "STOPPED",
-        "PENDING_HUMAN"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ExecutionStatus"
     },
     "stage_gate_history": {
       "type": "array",
@@ -48,16 +41,10 @@
             "type": "boolean"
           },
           "human_verdict": {
-            "type": "string",
-            "enum": [
-              "APPROVED",
-              "REJECTED",
-              "NEEDS_REWORK"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/StageGateVerdict"
           },
           "timestamp": {
-            "type": "string",
-            "format": "date-time"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           }
         },
         "additionalProperties": false
@@ -74,83 +61,46 @@
       ],
       "properties": {
         "product_strategy": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         },
         "business_requirements": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         },
         "legal_compliance_report": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         },
         "quality_evaluation": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         },
         "synthesist_output": {
-          "type": "object",
-          "required": [
-            "ref"
-          ],
-          "properties": {
-            "ref": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         }
       },
       "additionalProperties": false
     },
     "project_aar": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     }
   },
   "additionalProperties": false,
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "execution_status": {
+            "enum": ["COMPLETED_APPROVED", "PENDING_HUMAN"]
+          }
+        },
+        "required": [
+          "execution_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "final_package"
+        ]
+      }
+    },
     {
       "if": {
         "properties": {
@@ -166,6 +116,25 @@
         "required": [
           "project_aar"
         ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_status": {
+            "enum": ["REJECTED", "ESCALATED", "STOPPED", "PENDING_HUMAN"]
+          }
+        },
+        "required": [
+          "execution_status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "project_aar"
+          ]
+        }
       }
     }
   ]

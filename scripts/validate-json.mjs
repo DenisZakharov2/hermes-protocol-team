@@ -9,6 +9,11 @@ const examplesDir = 'examples';
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 
+const definitions = JSON.parse(
+  fs.readFileSync(path.join(schemasDir, 'common', 'definitions.schema.json'), 'utf8')
+);
+ajv.addSchema(definitions);
+
 const examples = fs
   .readdirSync(examplesDir)
   .filter((file) => file.endsWith('.example.json'))

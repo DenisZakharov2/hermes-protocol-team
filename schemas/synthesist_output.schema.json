@@ -22,28 +22,38 @@
       "type": "array"
     },
     "output_format": {
-      "enum": [
-        "markdown_marp",
-        "python_pptx_script",
-        "html_tailwind_deck",
-        "structured_slides_json",
-        "markdown_report",
-        "python_docx_script",
-        "typst_pdf_markup"
-      ],
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/OutputFormat"
     },
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "visualization_specs": {
+      "type": "array",
       "items": {
-        "type": "object"
-      },
-      "type": "array"
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "source"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип визуализации (bar, line, table и т. п.)"
+          },
+          "title": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "description": "Ссылка на артефакт-источник данных"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -51,6 +61,5 @@
     "project_id",
     "output_format",
     "deliverable_content"
-  ],
-  "type": "object"
+  ]
 }

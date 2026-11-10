@@ -6,6 +6,7 @@
   "type": "object",
   "required": [
     "task_id",
+    "project_id",
     "key_takeaways",
     "quantifiable_metrics",
     "conflicts_and_limitations",
@@ -13,7 +14,10 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
+    },
+    "project_id": {
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "key_takeaways": {
       "type": "array",
@@ -42,8 +46,7 @@
             "type": "string"
           },
           "source_id": {
-            "type": "string",
-            "pattern": "^SRC_\\d+$"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceId"
           }
         },
         "additionalProperties": false
@@ -84,8 +87,7 @@
         ],
         "properties": {
           "source_id": {
-            "type": "string",
-            "pattern": "^SRC_\\d+$"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceId"
           },
           "url": {
             "type": "string",

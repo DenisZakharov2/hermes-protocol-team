@@ -14,46 +14,19 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "product_strategy": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     },
     "regulatory_checklist": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     },
     "it_landscape": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     },
     "output_format": {
       "type": "string",

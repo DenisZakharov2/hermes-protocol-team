@@ -21,7 +21,13 @@
       ]
     },
     "agile_backlog": [],
-    "regulatory_nfr": []
+    "regulatory_nfr": {
+      "data_masking_152_fz": true,
+      "correlation_id_logging": true,
+      "sla_availability": "99.95%",
+      "rpo_minutes": 5,
+      "rto_minutes": 30
+    }
   },
   "context_artifacts": {
     "ref": "PROJECT_CONTEXT"

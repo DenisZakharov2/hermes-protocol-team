@@ -32,17 +32,13 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string",
-      "examples": [
-        "SAV_DEP_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "plan_version": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/VersionString"
     },
     "created_at": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
     },
     "stages": {
       "type": "array",
@@ -72,16 +68,7 @@
             "type": "string"
           },
           "owner_agent": {
-            "type": "string",
-            "enum": [
-              "hermes-orchestrator",
-              "multi-source-researcher",
-              "product-manager",
-              "business-analyst",
-              "legal-compliance-counsel",
-              "research-synthesist",
-              "quality-evaluator"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "inputs": {
             "type": "array",
@@ -138,8 +125,7 @@
           "type": "boolean"
         },
         "approved_at": {
-          "type": "string",
-          "format": "date-time"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
         },
         "comments": {
           "type": "string"

@@ -17,10 +17,10 @@
   ],
   "properties": {
     "eval_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/EvalId"
     },
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "target_worker": {
       "type": "string",
@@ -38,9 +38,7 @@
       "maximum": 100
     },
     "quality_threshold": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 100
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
     },
     "passed": {
       "type": "boolean"
@@ -99,13 +97,7 @@
             "type": "string"
           },
           "severity": {
-            "type": "string",
-            "enum": [
-              "CRITICAL",
-              "HIGH",
-              "MEDIUM",
-              "LOW"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/RiskLevel"
           },
           "field": {
             "type": "string"

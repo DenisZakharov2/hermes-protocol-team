@@ -14,16 +14,10 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string",
-      "examples": [
-        "REQ_RES_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "project_id": {
-      "type": "string",
-      "examples": [
-        "SAV_DEP_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "system_impact_matrix": {
       "type": "array",
@@ -39,13 +33,7 @@
             "type": "string"
           },
           "impact_type": {
-            "type": "string",
-            "enum": [
-              "MODIFY",
-              "CREATE",
-              "DELETE",
-              "NO_CHANGE"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ImpactType"
           },
           "description": {
             "type": "string"

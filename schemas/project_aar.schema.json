@@ -15,7 +15,7 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "human_rating": {
       "type": "integer",
@@ -48,16 +48,7 @@
         ],
         "properties": {
           "agent_id": {
-            "type": "string",
-            "enum": [
-              "hermes-orchestrator",
-              "multi-source-researcher",
-              "product-manager",
-              "business-analyst",
-              "legal-compliance-counsel",
-              "research-synthesist",
-              "quality-evaluator"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "section": {
             "type": "string"
@@ -71,7 +62,8 @@
     },
     "lessons_indexed_to": {
       "type": "string",
-      "pattern": "^/memory/cases/[^/]+/$"
+      "pattern": "^/memory/cases/[^/]+/$",
+      "description": "Абсолютный путь к эпизодической памяти проекта. Зафиксирован в контракте 2.2.x; переход на относительный путь — отдельный минорный релиз."
     }
   },
   "additionalProperties": false
