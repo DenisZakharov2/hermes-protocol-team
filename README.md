@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/github/package-json/v/DenisZakharov2/hermes-protocol-team?label=version&color=blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
+![Node](https://img.shields.io/badge/node-%3E%3D22.22-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
 > **Статус:** версия 3.0.0 — действующая
@@ -60,23 +60,27 @@
 
 ```text
 ├── .github/                 # CI, issue/PR templates, CODEOWNERS
-├── docs/                    # 6 руководств + диаграммы Mermaid
+├── docs/                    # 9 документов + диаграммы Mermaid
+│   ├── README.md            # Индекс документов
 │   ├── 01-how-to-use.md     # Пошаговое руководство Заказчика
 │   ├── 02-team-guide.md     # Роли, границы, контракты агентов
-│   ├── 03-artifacts.md      # Каталог артефактов и JSON-схем
+│   ├── 03-artifacts.md      # Каталог артефактов и JSON-контрактов
 │   ├── 04-quality.md        # 5 осей качества, Triple-Gate, Self-Healing
 │   ├── 05-aar.md            # Постпроектная рефлексия (AAR)
 │   ├── legal-stack.md       # Канонический перечень законов и актов ЦБ РФ
+│   ├── schemas-reference.md # Справочник JSON-схем (генерируется из schemas/)
+│   ├── MAINTAINERS.md       # Настройки GitHub, защита ветки, релизы
 │   └── diagrams/            # Mermaid: architecture, DAG, memory, quality, self-healing
 ├── examples/                # 21 сквозной пример проекта SAV_DEP_2026_01 + шаблон итогового отчёта
 ├── schemas/                 # 21 контрактная схема Draft-07 + 1 общий файл определений
-├── scripts/                 # validate-json.mjs, check-mermaid.mjs
+├── scripts/                 # validate-json, check-mermaid, generate-docs, init-memory, sync-version
 ├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
+├── memory/                  # Шаблон памяти команд (.gitkeep, без содержимого)
 ├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
 ├── CHANGELOG.md             # Keep a Changelog format
 ├── LICENSE                  # MIT
 ├── SECURITY.md              # Security policy
-├── package.json             # Node.js 20+, validation scripts
+├── package.json             # Node.js 22.22+, скрипты валидации и генерации
 └── README.md                # Этот файл
 ```
 
@@ -102,7 +106,7 @@
 - **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`)
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
-- **Node.js 20+** — только для локальной валидации: `npm ci && npm run validate`
+- **Node.js 22.22+** — только для локальной валидации: `npm ci && npm run validate` (в CI используется Node 22)
 
 ---
 
