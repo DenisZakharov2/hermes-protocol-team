@@ -107,6 +107,22 @@
       "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
       "description": "Уровень юридического/регуляторного риска"
     },
+    "TargetWorker": {
+      "type": "string",
+      "enum": [
+        "multi-source-researcher",
+        "research-synthesist",
+        "business-analyst",
+        "product-manager",
+        "legal-compliance-counsel"
+      ],
+      "description": "Агент, чей артефакт проверяет критик"
+    },
+    "SourceTier": {
+      "type": "string",
+      "enum": ["TIER_1", "TIER_2", "TIER_3"],
+      "description": "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный"
+    },
     "LegalStatus": {
       "type": "string",
       "enum": ["APPROVED", "APPROVED_WITH_RESERVATIONS", "REJECTED"],

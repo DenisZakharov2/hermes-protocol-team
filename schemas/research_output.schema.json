@@ -97,12 +97,7 @@
             "description": "Конкретная страница источника. Корневой URL допустим только при illustrative: true."
           },
           "tier_level": {
-            "type": "string",
-            "enum": [
-              "TIER_1",
-              "TIER_2",
-              "TIER_3"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"
           },
           "reliability_score": {
             "type": "number",

@@ -23,14 +23,7 @@
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "target_worker": {
-      "type": "string",
-      "enum": [
-        "multi-source-researcher",
-        "research-synthesist",
-        "business-analyst",
-        "product-manager",
-        "legal-compliance-counsel"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TargetWorker"
     },
     "overall_score": {
       "type": "number",
