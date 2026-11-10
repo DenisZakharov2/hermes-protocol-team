@@ -12,31 +12,20 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "product_concept": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     },
     "business_requirements": {
-      "type": [
-        "object",
-        "null"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
+      "anyOf": [
+        {
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+        },
+        {
+          "type": "null"
         }
-      },
-      "additionalProperties": false
+      ]
     },
     "target_audience": {
       "type": "string"

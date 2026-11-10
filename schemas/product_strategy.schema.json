@@ -14,16 +14,10 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string",
-      "examples": [
-        "REQ_RES_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "project_id": {
-      "type": "string",
-      "examples": [
-        "SAV_DEP_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "product_concept": {
       "type": "object",
@@ -45,60 +39,70 @@
         "tariff_structure": {
           "type": "object",
           "required": [
-            "base_rate",
-            "welcome_rate",
-            "mgs_rate"
+            "base_rate_percent",
+            "welcome_rate_percent",
+            "mgs_percent"
           ],
           "properties": {
-            "base_rate": {
+            "base_rate_percent": {
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 100,
+              "description": "Базовая ставка, % годовых."
             },
-            "welcome_rate": {
+            "welcome_rate_percent": {
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 100,
+              "description": "Приветственная ставка, % годовых."
             },
-            "mgs_rate": {
+            "mgs_percent": {
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 100,
+              "description": "Минимальная гарантированная ставка (МГС), % годовых."
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Тарифные ставки в процентных пунктах годовых (не в долях)."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах."
     },
     "financial_model": {
       "type": "object",
       "required": [
         "projected_nii",
-        "projected_nim",
-        "cof_cost_of_funds",
+        "projected_nim_percent",
+        "cof_cost_of_funds_percent",
         "ltv_cac_ratio"
       ],
       "properties": {
         "projected_nii": {
-          "type": "number"
+          "type": "number",
+          "description": "Прогнозный чистый процентный доход, руб."
         },
-        "projected_nim": {
+        "projected_nim_percent": {
           "type": "number",
           "minimum": 0,
-          "maximum": 1
+          "maximum": 100,
+          "description": "Прогнозная чистая процентная маржа, % годовых."
         },
-        "cof_cost_of_funds": {
+        "cof_cost_of_funds_percent": {
           "type": "number",
           "minimum": 0,
-          "maximum": 1
+          "maximum": 100,
+          "description": "Стоимость фондирования (CoF), % годовых."
         },
         "ltv_cac_ratio": {
           "type": "number",
-          "minimum": 0
+          "minimum": 0,
+          "description": "Отношение LTV к CAC (безразмерное)."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Финансовая модель. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях."
     },
     "regulatory_guardrails": {
       "type": "object",
@@ -113,27 +117,88 @@
           "enum": [
             "PASSED",
             "FAILED",
-            "WARNING"
-          ]
+            "WARNING",
+            "NOT_APPLICABLE"
+          ],
+          "description": "Проверка ПСК; для вкладов и иных некредитных продуктов — NOT_APPLICABLE."
         },
         "mpl_limit_check": {
           "type": "string",
           "enum": [
             "PASSED",
             "FAILED",
-            "WARNING"
-          ]
+            "WARNING",
+            "NOT_APPLICABLE"
+          ],
+          "description": "Проверка макропруденциального лимита; для некредитных продуктов — NOT_APPLICABLE."
         },
         "cbr_mgs_compliance": {
           "type": "string",
           "enum": [
             "PASSED",
             "FAILED",
-            "WARNING"
-          ]
+            "WARNING",
+            "NOT_APPLICABLE"
+          ],
+          "description": "Соблюдение правил раскрытия МГС."
+        },
+        "not_applicable_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Причина, по которой проверки ПСК/МПЛ не применяются к продукту."
         }
       },
-      "additionalProperties": false
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "psk_limit_check": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "psk_limit_check"
+                ]
+              },
+              {
+                "properties": {
+                  "mpl_limit_check": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "mpl_limit_check"
+                ]
+              },
+              {
+                "properties": {
+                  "cbr_mgs_compliance": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "cbr_mgs_compliance"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "not_applicable_reason"
+            ],
+            "properties": {
+              "not_applicable_reason": {
+                "type": "string",
+                "minLength": 10
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false,
+      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason."
     },
     "prioritization_rice": {
       "type": "object",

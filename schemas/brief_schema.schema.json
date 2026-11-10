@@ -15,10 +15,10 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "document_type": {
       "type": "string",
@@ -30,16 +30,7 @@
       ]
     },
     "output_format": {
-      "type": "string",
-      "enum": [
-        "markdown_marp",
-        "python_pptx_script",
-        "html_tailwind_deck",
-        "structured_slides_json",
-        "markdown_report",
-        "python_docx_script",
-        "typst_pdf_markup"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/OutputFormat"
     },
     "target_audience": {
       "type": "string",
@@ -73,16 +64,7 @@
       "additionalProperties": false
     },
     "research_data": {
-      "type": "object",
-      "required": [
-        "ref"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     }
   },
   "additionalProperties": false

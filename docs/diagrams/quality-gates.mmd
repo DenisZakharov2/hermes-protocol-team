@@ -12,11 +12,11 @@ flowchart TD
     C -->|Требуются правки| C
     C -->|Принято| E[Гейт 3: Смысловой аудит<br/>quality-evaluator, 5 осей качества<br/>Accuracy 25% / Security 25% / Consistency 20%<br/>Completeness 15% / Executability 15%<br/>Порог Overall Score ≥ 85]
 
-    E -->|Score ≥ 85| F[PASSED → передача Заказчику<br/>Финальный Stage-Gate одобрения]
+    E -->|Score ≥ 85| F[PASSED → FINAL_GATE<br/>финальное одобрение Человеком]
 
-    E -->|Score < 85| G[REJECTED → Self-Healing<br/>actionable_fixes → владелец артефакта<br/>max 3 цикла; дефекты REG_* → повторный Гейт 2]
+    E -->|Score < 85| G[REJECTED → Self-Healing<br/>actionable_fixes → владелец артефакта<br/>счётчик неудачных циклов = 0; первичное падение в лимит не входит<br/>max 3 неудачных цикла; дефекты REG_* → повторный Гейт 2]
 
-    G -->|Исчерпано 3 цикла| D
+    G -->|Исчерпано 3 неудачных цикла| D
 
     style A fill:#e3f2fd,stroke:#1565c0
     style B fill:#fff3e0,stroke:#ef6c00

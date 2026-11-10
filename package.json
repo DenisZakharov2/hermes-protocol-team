@@ -1,6 +1,6 @@
 {
   "name": "hermes-protocol-team",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
@@ -32,17 +32,21 @@
     "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md",
     "validate:json": "node scripts/validate-json.mjs",
     "validate:mermaid": "node scripts/check-mermaid.mjs",
-    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"!.github/CODE_OF_CONDUCT.md\" \"examples/README.md\" \"SECURITY.md\" \"CHANGELOG.md\"",
+    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"Hermes_Protocol_Constitution.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"!.github/CODE_OF_CONDUCT.md\" \"examples/README.md\" \"examples/*.example.md\" \"SECURITY.md\" \"CHANGELOG.md\"",
     "init:memory": "node scripts/init-memory.mjs",
-    "sync:version": "node scripts/sync-version.mjs"
+    "sync:version": "node scripts/sync-version.mjs",
+    "generate:docs": "node scripts/generate-docs.mjs"
   },
   "devDependencies": {
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
-    "markdownlint-cli2": "^0.23.3"
+    "jsdom": "^31.0.0",
+    "markdownlint-cli2": "^0.24.0",
+    "mermaid": "^11.17.2"
   },
   "overrides": {
-    "undici": "5.28.4",
-    "string-width": "5.1.2"
+    "re2js": "^2.10.0",
+    "fast-uri": "^4.2.3",
+    "katex": "^0.19.1"
   }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Инициализация структуры памяти Hermes Protocol
- * Создаёт необходимые директории для эпизодической, семантической памяти и прецедентов
+ * Инициализация структуры памяти Hermes Protocol.
+ * Создаёт шаблон каталогов рантайма для эпизодической, семантической памяти и прецедентов.
  */
 
 import fs from 'node:fs';
@@ -9,12 +9,16 @@ import path from 'node:path';
 
 const memoryRoot = 'memory';
 const dirs = [
-  // Эпизодическая память — кейсы проектов
+  // Эпизодическая память — каталог проектов; {project_id} создаёт оркестратор при старте проекта
   path.join(memoryRoot, 'cases'),
-  // Семантическая память — доменные знания
-  path.join(memoryRoot, 'domain_knowledge'),
-  // Память прецедентов — судебная практика
-  path.join(memoryRoot, 'legal_precedents'),
+  // Семантическая память — отраслевые знания
+  path.join(memoryRoot, 'domain_knowledge', 'regulatory'),
+  path.join(memoryRoot, 'domain_knowledge', 'nfr_profiles'),
+  path.join(memoryRoot, 'domain_knowledge', 'templates'),
+  // Подраздел эпизодической памяти — судебные прецеденты
+  path.join(memoryRoot, 'legal_precedents', 'vs_rf'),
+  path.join(memoryRoot, 'legal_precedents', 'as_rf'),
+  path.join(memoryRoot, 'legal_precedents', 'ks_rf'),
 ];
 
 console.log('🔧 Инициализация структуры памяти Hermes Protocol...\n');
@@ -28,7 +32,7 @@ for (const dir of dirs) {
   }
 }
 
-// Создаём .gitkeep в каждой папке, чтобы Git отслеживал структуру
+// Создаём .gitkeep в каждом листе и в memory/cases/, чтобы Git отслеживал структуру
 for (const dir of dirs) {
   const gitkeep = path.join(dir, '.gitkeep');
   if (!fs.existsSync(gitkeep)) {
@@ -42,22 +46,22 @@ const readmePath = path.join(memoryRoot, 'README.md');
 if (!fs.existsSync(readmePath)) {
   const readmeContent = `# Структура памяти Hermes Protocol
 
-Эта директория содержит трёх уровневую память мультиагентной системы.
+Эта директория содержит шаблон трёхуровневой памяти мультиагентной системы.
+Процедурная память хранится в репозитории — \`skills/*/SKILL.md\` и \`schemas/\`.
+Эпизодическая память — \`cases/\`, её подраздел — \`legal_precedents/\`.
+Семантическая память — \`domain_knowledge/\`.
 
 ## Структура
 
-\`\`\`
+\`\`\`text
 memory/
-├── cases/                 # Эпизодическая память — история проектов
-│   └── {project_id}/      # По папке на проект
-│       ├── artifacts/     # Артефакты проекта
-│       ├── flight_logs/   # Бортовые журналы агентов
-│       └── aar/           # Post-project AAR
-├── domain_knowledge/      # Семантическая память — отраслевые знания
-│   ├── regulatory/        # Регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
-│   ├── nfr_profiles/      # Профили NFR (SLA, RPO/RTO)
-│   └── templates/         # Шаблоны правовых оговорок, дисклеймеров
-└── legal_precedents/      # Память прецедентов — судебная практика
+├── README.md              # этот файл
+├── cases/                 # эпизодическая память; {project_id} создаёт hermes-orchestrator
+├── domain_knowledge/      # семантическая память
+│   ├── regulatory/        # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
+│   ├── nfr_profiles/      # профили NFR (SLA, RPO/RTO)
+│   └── templates/         # шаблоны правовых оговорок и дисклеймеров
+└── legal_precedents/      # подраздел эпизодической памяти — судебная практика
     ├── vs_rf/             # ВС РФ
     ├── as_rf/             # АС РФ
     └── ks_rf/             # КС РФ
@@ -65,8 +69,9 @@ memory/
 
 ## Использование
 
-Агенты автоматически читают/пишут в эти директории во время исполнения проектов.
-Не редактируйте файлы вручную — используйте интерфейсы агентов.
+Каталоги рассчитаны на рантайм Hermes Agent: агент читает и пишет в них во время
+исполнения проектов. Этот репозиторий только создаёт шаблон структуры; содержимое
+памяти не коммитится.
 
 ## Инициализация
 
@@ -79,4 +84,4 @@ npm run init:memory
 }
 
 console.log('\n✅ Структура памяти инициализирована!');
-console.log('💡 Добавьте в package.json: "init:memory": "node scripts/init-memory.mjs"');
+console.log('💡 Запуск: npm run init:memory');

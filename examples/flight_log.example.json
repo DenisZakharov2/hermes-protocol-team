@@ -21,6 +21,60 @@
       "artifacts": [
         "business_requirements.json"
       ]
+    },
+    {
+      "timestamp": "2026-10-17T16:20:00Z",
+      "phase": "quality_audit",
+      "event_type": "QUALITY_AUDIT",
+      "status": "WARNING",
+      "details": "Первое предъявление business_requirements.json не прошло аудит: незамаскированные персональные данные",
+      "artifacts": [
+        "business_requirements.json"
+      ]
+    },
+    {
+      "timestamp": "2026-10-17T17:45:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Владелец артефакта business-analyst замаскировал персональные данные по 152-ФЗ; цикл доработки 1 из 3",
+      "artifacts": [
+        "business_requirements.json"
+      ],
+      "self_healing_attempt": 1
+    },
+    {
+      "timestamp": "2026-10-17T20:10:00Z",
+      "phase": "legal_checkin_3",
+      "event_type": "LEGAL_CHECKIN",
+      "status": "OK",
+      "details": "Повторный Legal Check-in по материалам синтеза: размер шрифта приветственной ставки и МГС приведён к требованиям 38-ФЗ; итерация 1 из 3",
+      "artifacts": [
+        "synthesist_output.json",
+        "legal_compliance_report.json"
+      ],
+      "legal_iteration": 1
+    },
+    {
+      "timestamp": "2026-10-18T10:00:00Z",
+      "phase": "final_gate",
+      "event_type": "STAGE_GATE",
+      "status": "OK",
+      "details": "Человек утвердил финальный пакет; проект переведен в COMPLETED_APPROVED",
+      "artifacts": [
+        "orchestration_output.json"
+      ]
+    },
+    {
+      "timestamp": "2026-10-18T11:00:00Z",
+      "phase": "aar",
+      "event_type": "AAR",
+      "status": "OK",
+      "details": "AAR проведен, уроки проиндексированы в эпизодической памяти",
+      "artifacts": [
+        "project_aar.json",
+        "project_final_review.md"
+      ]
     }
   ]
 }

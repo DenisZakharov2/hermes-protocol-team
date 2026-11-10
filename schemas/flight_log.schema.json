@@ -11,19 +11,10 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "agent_id": {
-      "type": "string",
-      "enum": [
-        "hermes-orchestrator",
-        "multi-source-researcher",
-        "product-manager",
-        "business-analyst",
-        "legal-compliance-counsel",
-        "research-synthesist",
-        "quality-evaluator"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
     },
     "entries": {
       "type": "array",
@@ -38,8 +29,7 @@
         ],
         "properties": {
           "timestamp": {
-            "type": "string",
-            "format": "date-time"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "phase": {
             "type": "string"
@@ -75,6 +65,18 @@
             "items": {
               "type": "string"
             }
+          },
+          "self_healing_attempt": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "description": "Номер попытки Self-Healing (0–3); 3 — лимит до эскалации"
+          },
+          "legal_iteration": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "description": "Номер итерации Legal Check-in (0–3)"
           }
         },
         "additionalProperties": false

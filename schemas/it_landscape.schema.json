@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "properties": {
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "systems": {
       "items": {
@@ -26,16 +26,10 @@
             "type": "string"
           },
           "system_type": {
-            "type": "string"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SystemType"
           },
           "impact_type": {
-            "enum": [
-              "MODIFY",
-              "CREATE",
-              "DELETE",
-              "NO_CHANGE"
-            ],
-            "type": "string"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ImpactType"
           }
         },
         "required": [
@@ -52,6 +46,5 @@
   "required": [
     "project_id",
     "systems"
-  ],
-  "type": "object"
+  ]
 }

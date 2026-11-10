@@ -12,21 +12,13 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string",
-      "examples": [
-        "SAV_DEP_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "user_prompt": {
       "type": "string"
     },
     "domain_context": {
-      "type": "string",
-      "enum": [
-        "RETAIL_BANKING",
-        "INVESTMENT",
-        "PAYMENTS"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/DomainContext"
     },
     "output_requirements": {
       "type": "object",
@@ -48,9 +40,7 @@
           }
         },
         "quality_threshold": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 100
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
         }
       }
     }

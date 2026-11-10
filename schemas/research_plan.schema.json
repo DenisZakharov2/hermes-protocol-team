@@ -12,14 +12,13 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
     },
     "project_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "created_at": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
     },
     "subqueries": {
       "type": "array",
@@ -35,12 +34,7 @@
             "type": "string"
           },
           "target_tier": {
-            "type": "string",
-            "enum": [
-              "TIER_1",
-              "TIER_2",
-              "TIER_3"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"
           },
           "status": {
             "type": "string",

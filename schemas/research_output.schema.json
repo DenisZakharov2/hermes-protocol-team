@@ -6,6 +6,7 @@
   "type": "object",
   "required": [
     "task_id",
+    "project_id",
     "key_takeaways",
     "quantifiable_metrics",
     "conflicts_and_limitations",
@@ -13,7 +14,10 @@
   ],
   "properties": {
     "task_id": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TaskId"
+    },
+    "project_id": {
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "key_takeaways": {
       "type": "array",
@@ -39,11 +43,11 @@
             "type": "number"
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "Единица измерения. Для ставок используйте «% годовых», для денежных сумм — «руб.»"
           },
           "source_id": {
-            "type": "string",
-            "pattern": "^SRC_\\d+$"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceId"
           }
         },
         "additionalProperties": false
@@ -80,29 +84,29 @@
           "source_id",
           "url",
           "tier_level",
-          "reliability_score"
+          "reliability_score",
+          "illustrative"
         ],
         "properties": {
           "source_id": {
-            "type": "string",
-            "pattern": "^SRC_\\d+$"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceId"
           },
           "url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Конкретная страница источника. Корневой URL допустим только при illustrative: true."
           },
           "tier_level": {
-            "type": "string",
-            "enum": [
-              "TIER_1",
-              "TIER_2",
-              "TIER_3"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"
           },
           "reliability_score": {
             "type": "number",
             "minimum": 0,
             "maximum": 1
+          },
+          "illustrative": {
+            "type": "boolean",
+            "description": "true — источник используется как учебная иллюстрация, цифры не считаются подтверждёнными этим URL."
           }
         },
         "additionalProperties": false

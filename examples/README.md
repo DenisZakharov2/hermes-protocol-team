@@ -1,6 +1,6 @@
 # Примеры артефактов Hermes Protocol
 
-Сквозной пример проекта `SAV_DEP_2026_01` — «Сберегательный депозит до востребования для физических лиц с приветственной ставкой». Каждый файл `*.example.json` валидируется по одноимённой схеме из [`../schemas/`](../schemas/) (JSON Schema Draft-07).
+Сквозной пример проекта `SAV_DEP_2026_01` — «Сберегательный депозит до востребования для физических лиц с приветственной ставкой». Все файлы описывают один успешный проект с концовкой `COMPLETED_APPROVED`: план исполнен полностью, финальный пакет утверждён, AAR проведён. Каждый файл `*.example.json` валидируется по одноимённой схеме из [`../schemas/`](../schemas/) (JSON Schema Draft-07).
 
 | Пример | Схема | Этап / назначение |
 |---|---|---|
@@ -26,14 +26,14 @@
 | `agent_tuning_log.example.json` | `agent_tuning_log.schema.json` | Журнал корректировок агентов |
 | `flight_log.example.json` | `flight_log.schema.json` | Бортовой журнал агента |
 
+Markdown-шаблон итогового отчёта: [`project_final_review.example.md`](project_final_review.example.md).
+
 ## Проверка
 
+Все примеры проверяются одной командой из корня репозитория:
+
 ```bash
-for f in examples/*.example.json; do
-  name=$(basename "$f" .example.json)
-  ajv validate --spec=draft7 -c ajv-formats \
-    -s "schemas/$name.schema.json" -d "$f"
-done
+npm run validate
 ```
 
 Имена `*_flight_log.json` (`hermes_flight_log.json`, `researcher_flight_log.json`, `pm_flight_log.json`, `ba_flight_log.json`, `legal_flight_log.json`, `synthesist_flight_log.json`, `evaluator_flight_log.json`) используют общую схему `flight_log.schema.json`.

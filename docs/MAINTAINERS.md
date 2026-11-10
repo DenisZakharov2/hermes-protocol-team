@@ -8,13 +8,34 @@
 |---|---|
 | Description | `Hermes Protocol — команда ИИ-агентов под управлением Hermes Agent. Документация, скиллы, JSON-контракты, схемы, примеры и диаграммы.` |
 | Website / Documentation | `https://github.com/DenisZakharov2/hermes-protocol-team/tree/main/docs` |
-| Topics | `ai-agents`, `multi-agent-systems`, `llm`, `documentation`, `json-schema`, `mermaid` |
+| Topics | `agent-orchestration`, `ai-agents`, `banking`, `compliance`, `documentation`, `fintech`, `hermes-protocol`, `json-schema`, `legal-compliance`, `mermaid`, `multi-agent-system`, `quality-assurance`, `russia` |
+
+Топики в таблице совпадают с фактическим набором репозитория. Проверить и привести в соответствие:
+
+```bash
+gh api repos/DenisZakharov2/hermes-protocol-team/topics --jq '.names'
+```
+
+Каждый топик задаётся отдельным флагом `--add-topic` — так список нельзя случайно прочитать как один
+токен с запятыми:
 
 ```bash
 gh repo edit DenisZakharov2/hermes-protocol-team \
   --description "Hermes Protocol — команда ИИ-агентов под управлением Hermes Agent. Документация, скиллы, JSON-контракты, схемы, примеры и диаграммы." \
   --homepage "https://github.com/DenisZakharov2/hermes-protocol-team/tree/main/docs" \
-  --add-topic "ai-agents,multi-agent-systems,llm,documentation,json-schema,mermaid"
+  --add-topic "agent-orchestration" \
+  --add-topic "ai-agents" \
+  --add-topic "banking" \
+  --add-topic "compliance" \
+  --add-topic "documentation" \
+  --add-topic "fintech" \
+  --add-topic "hermes-protocol" \
+  --add-topic "json-schema" \
+  --add-topic "legal-compliance" \
+  --add-topic "mermaid" \
+  --add-topic "multi-agent-system" \
+  --add-topic "quality-assurance" \
+  --add-topic "russia"
 ```
 
 ## 2. Community profile
@@ -24,7 +45,9 @@ gh api repos/DenisZakharov2/hermes-protocol-team/community/profile \
   --jq '{health_percentage, documentation, files: (.files | keys)}'
 ```
 
-Ожидается: README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT и issue-шаблоны. PR-template и `SECURITY.md` добавлены в репозиторий; после merge health percentage должен вырасти.
+Файлы `README`, `LICENSE`, `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY.md`, PR-template и issue-шаблоны
+уже лежат в `main` — это текущее состояние, а не задача для следующего merge. Проверять состав и
+`health_percentage` нужно после каждого крупного изменения документации.
 
 ## 3. Защита ветки `main` (опционально)
 
@@ -46,11 +69,16 @@ gh api -X PUT repos/DenisZakharov2/hermes-protocol-team/branches/main/protection
 JSON
 ```
 
-Требует прав администратора репозитория. Context `validate` соответствует job из workflow в `.github/workflows/validate.yml`.
+Требует прав администратора репозитория. Фактическое имя обязательного check — `validate`: это job `validate` из workflow `validate` в `.github/workflows/validate.yml` (GitHub показывает его как `validate`, без префикса workflow, потому что имя workflow совпадает с именем job). Проверяется так:
+
+```bash
+gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
+  --jq '.check_runs[] | select(.app.slug == "github-actions") | .name'
+```
 
 ## 4. Релизы и версии
 
-- Версия команды — `2.2.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `3.0.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v2.2.0 -m "Hermes Protocol 2.2.0" && git push origin v2.2.0`.
+- Тег: `git tag -a v3.0.0 -m "Hermes Protocol 3.0.0" && git push origin v3.0.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).

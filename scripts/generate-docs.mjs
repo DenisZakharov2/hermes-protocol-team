@@ -1,107 +1,172 @@
 #!/usr/bin/env node
 /**
- * Генерация документации из JSON-схем
- * Создаёт markdown-таблицы для docs/03-artifacts.md и README.md
+ * Генерация справочника JSON-схем.
+ *
+ * Скрипт перезаписывает ТОЛЬКО содержимое между маркерами
+ * `<!-- BEGIN GENERATED: <name> -->` и `<!-- END GENERATED: <name> -->`.
+ * Заголовок, вводный текст и всё, что вне маркеров, остаётся ручным содержимым
+ * и не перезаписывается — поэтому H1 и структура страницы не разрушаются.
+ *
+ * Источник истины — папка `schemas/`. Второго каталога схем в документации нет:
+ * `docs/03-artifacts.md` описывает владельцев артефактов, этот файл — их
+ * технические свойства.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
 
 const schemasDir = 'schemas';
-const docsDir = 'docs';
+const referencePath = path.join('docs', 'schemas-reference.md');
 
-function pascalToWords(str) {
-  return str.replace(/([A-Z])/g, ' $1').trim();
+const AGENT_BY_SCHEMA = {
+  execution_request: 'hermes-orchestrator',
+  execution_plan: 'hermes-orchestrator',
+  orchestration_output: 'hermes-orchestrator',
+  project_aar: 'hermes-orchestrator',
+  it_landscape: 'hermes-orchestrator',
+  research_task: 'multi-source-researcher',
+  research_plan: 'multi-source-researcher',
+  research_output: 'multi-source-researcher',
+  product_brief: 'product-manager',
+  product_strategy: 'product-manager',
+  ba_input_contract: 'business-analyst',
+  business_requirements: 'business-analyst',
+  regulatory_checklist: 'legal-compliance-counsel',
+  legal_review_request: 'legal-compliance-counsel',
+  legal_compliance_report: 'legal-compliance-counsel',
+  brief_schema: 'research-synthesist',
+  synthesist_output: 'research-synthesist',
+  eval_request: 'quality-evaluator',
+  evaluation_report: 'quality-evaluator',
+  agent_tuning_log: 'все агенты',
+  flight_log: 'все агенты'
+};
+
+/**
+ * Многоточие ставится только при реальном обрезании текста.
+ * Угловые скобки экранируются: иначе markdownlint считает их inline-HTML.
+ * @param {string} text
+ * @param {number} max
+ * @returns {string}
+ */
+function truncate(text, max) {
+  const escaped = (text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (escaped.length <= max) return escaped;
+  return `${escaped.slice(0, max).trimEnd()}…`;
 }
 
-function extractSchemaInfo(schemaPath) {
-  const content = fs.readFileSync(schemaPath, 'utf8');
+function listSchemaFiles(dir, base = '') {
+  const result = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const relative = base ? `${base}/${entry.name}` : entry.name;
+    const absolute = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      result.push(...listSchemaFiles(absolute, relative));
+    } else if (entry.name.endsWith('.schema.json')) {
+      result.push(relative);
+    }
+  }
+  return result;
+}
+
+function readSchema(relativePath) {
+  const content = fs.readFileSync(path.join(schemasDir, relativePath), 'utf8');
   const schema = JSON.parse(content);
-  const filename = path.basename(schemaPath, '.schema.json');
-  
+  const basename = path.basename(relativePath, '.schema.json');
   return {
-    filename,
-    title: schema.title || filename,
-    description: schema.description || '',
-    required: schema.required || [],
-    properties: Object.keys(schema.properties || {}),
-    agent: inferAgent(filename)
+    relativePath,
+    basename,
+    isCommon: relativePath.startsWith('common/'),
+    title: schema.title ?? basename,
+    description: schema.description ?? '',
+    required: Array.isArray(schema.required) ? schema.required : [],
+    properties: Object.keys(schema.properties ?? {}),
+    agent: AGENT_BY_SCHEMA[basename] ?? 'все агенты'
   };
 }
 
-function inferAgent(filename) {
-  const mapping = {
-    'execution_request': 'hermes-orchestrator',
-    'execution_plan': 'hermes-orchestrator',
-    'orchestration_output': 'hermes-orchestrator',
-    'project_aar': 'hermes-orchestrator',
-    'research_task': 'multi-source-researcher',
-    'research_plan': 'multi-source-researcher',
-    'research_output': 'multi-source-researcher',
-    'product_brief': 'product-manager',
-    'product_strategy': 'product-manager',
-    'ba_input_contract': 'business-analyst',
-    'business_requirements': 'business-analyst',
-    'it_landscape': 'business-analyst',
-    'regulatory_checklist': 'business-analyst, legal-compliance-counsel',
-    'legal_review_request': 'legal-compliance-counsel',
-    'legal_compliance_report': 'legal-compliance-counsel',
-    'brief_schema': 'research-synthesist',
-    'synthesist_output': 'research-synthesist',
-    'eval_request': 'quality-evaluator',
-    'evaluation_report': 'quality-evaluator',
-    'agent_tuning_log': 'all agents',
-    'flight_log': 'all agents'
-  };
-  return mapping[filename] || 'unknown';
+function renderSchemaTable(schemas) {
+  const lines = [];
+
+  lines.push('| Файл | Агент | Назначение | Обязательные поля |');
+  lines.push('|---|---|---|---|');
+  for (const schema of schemas.filter((item) => !item.isCommon)) {
+    const required = schema.required.length > 0 ? schema.required.join(', ') : '—';
+    lines.push(`| \`${schema.relativePath}\` | \`${schema.agent}\` | ${truncate(schema.description, 120)} | ${required} |`);
+  }
+  lines.push('');
+
+  return lines.join('\n');
 }
 
-function generateArtifactsTable() {
-  const schemas = fs.readdirSync(schemasDir)
-    .filter(f => f.endsWith('.schema.json') && !f.startsWith('common'))
-    .map(f => extractSchemaInfo(path.join(schemasDir, f)))
-    .sort((a, b) => a.filename.localeCompare(b.filename));
+function renderCommonTable(schemas) {
+  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
+  const count = Object.keys(JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {}).length;
+  const lines = [];
 
-  let md = '# Каталог артефактов и JSON-схем (автогенерировано)\n\n';
-  md += '> Источник: папка `schemas/` (JSON Schema Draft-07). Обновляется скриптом `scripts/generate-docs.mjs`.\n\n';
-  md += '| Схема | Назначение | Агент | Обязательные поля |\n';
-  md += '|-------|------------|-------|-------------------|\n';
+  lines.push('| Файл | Назначение | Определений |');
+  lines.push('|---|---|---|');
+  for (const schema of schemas.filter((item) => item.isCommon)) {
+    lines.push(`| \`${schema.relativePath}\` | ${truncate(schema.description, 160)} | ${count} |`);
+  }
+  lines.push('');
 
-  for (const s of schemas) {
-    const req = s.required.slice(0, 5).join(', ') + (s.required.length > 5 ? '...' : '');
-    md += `| \`${s.filename}.schema.json\` | ${s.description} | \`${s.agent}\` | ${req} |\n`;
+  return lines.join('\n');
+}
+
+function renderDefinitionsTable() {
+  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
+  const definitions = JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {};
+  const lines = [];
+
+  lines.push('| Определение | Тип | Описание |');
+  lines.push('|---|---|---|');
+  for (const [name, definition] of Object.entries(definitions)) {
+    const type = definition.type ?? (definition.enum ? 'enum' : (definition.$ref ? '$ref' : '—'));
+    const enumHint = Array.isArray(definition.enum) ? ` (${definition.enum.join(', ')})` : '';
+    lines.push(`| \`${name}\` | \`${type}\`${enumHint} | ${truncate(definition.description ?? '', 140)} |`);
+  }
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+function replaceBlock(content, name, body) {
+  const begin = `<!-- BEGIN GENERATED: ${name} -->`;
+  const end = `<!-- END GENERATED: ${name} -->`;
+  const beginIndex = content.indexOf(begin);
+  const endIndex = content.indexOf(end);
+
+  if (beginIndex === -1 || endIndex === -1) {
+    console.error(`❌ Не найден блок маркеров "${name}" в ${referencePath}. Добавьте ${begin} и ${end}.`);
+    process.exit(1);
   }
 
-  return md;
+  const before = content.slice(0, beginIndex + begin.length);
+  const after = content.slice(endIndex);
+  return `${before}\n${body.replace(/\n+$/, '')}\n${after}`;
 }
 
-function generateReadmeTable() {
-  const schemas = fs.readdirSync(schemasDir)
-    .filter(f => f.endsWith('.schema.json') && !f.startsWith('common'))
-    .map(f => extractSchemaInfo(path.join(schemasDir, f)))
-    .sort((a, b) => a.filename.localeCompare(b.filename));
+console.log('📝 Генерация справочника JSON-схем...\n');
 
-  let md = '## JSON-схемы (автогенерировано)\n\n';
-  md += '| Файл | Агент | Описание |\n';
-  md += '|------|-------|----------|\n';
-
-  for (const s of schemas) {
-    md += `| \`${s.filename}.schema.json\` | \`${s.agent}\` | ${s.description.slice(0, 80)}... |\n`;
-  }
-
-  return md;
+if (!fs.existsSync(referencePath)) {
+  console.error(`❌ Не найден ${referencePath}.`);
+  process.exit(1);
 }
 
-console.log('📝 Генерация документации из схем...\n');
+const schemaFiles = listSchemaFiles(schemasDir);
+const schemas = schemaFiles.map(readSchema);
 
-const artifactsMd = generateArtifactsTable();
-const artifactsPath = path.join(docsDir, '03-artifacts-generated.md');
-fs.writeFileSync(artifactsPath, artifactsMd);
-console.log(`✅ Создано: ${artifactsPath}`);
+let content = fs.readFileSync(referencePath, 'utf8');
+content = replaceBlock(content, 'schemas', renderSchemaTable(schemas));
+content = replaceBlock(content, 'common', renderCommonTable(schemas));
+content = replaceBlock(content, 'definitions', renderDefinitionsTable());
 
-const readmeMd = generateReadmeTable();
-const readmePath = path.join(docsDir, 'schemas-reference.md');
-fs.writeFileSync(readmePath, readmeMd);
-console.log(`✅ Создано: ${readmePath}`);
-
-console.log('\n💡 Включите в docs/03-artifacts.md или README.md по необходимости');
+fs.writeFileSync(referencePath, content, 'utf8');
+console.log(`✅ Обновлено: ${referencePath}`);
+console.log(`   Контрактных схем: ${schemas.filter((schema) => !schema.isCommon).length}, общих файлов: ${schemas.filter((schema) => schema.isCommon).length}`);

@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "urn:hermes-protocol:schemas:common:definitions.schema.json",
   "title": "Common Definitions for Hermes Protocol JSON Schemas",
-  "description": "Переиспользуемые определения типов для всех JSON-схем Hermes Protocol",
+  "description": "Переиспользуемые определения типов для всех JSON-схем Hermes Protocol. Схемы ссылаются на них по абсолютному URN и якорю #/definitions/<Type>.",
   "type": "object",
-  "$defs": {
+  "definitions": {
     "ProjectId": {
       "type": "string",
       "pattern": "^[A-Z0-9_]+$",
@@ -58,7 +58,7 @@
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
-      "examples": ["2.1.0"]
+      "examples": ["3.0.0"]
     },
     "Percentage": {
       "type": "number",
@@ -90,7 +90,7 @@
     "CourtRef": {
       "type": "string",
       "description": "Ссылка на судебную практику",
-      "examples": ["Определение ВС РФ № 305-ЭС24-XXXX", "Постановление Пленума ВС РФ № 1"]
+      "examples": ["Постановление Пленума ВС РФ № 1"]
     },
     "ImpactType": {
       "type": "string",
@@ -107,24 +107,48 @@
       "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
       "description": "Уровень юридического/регуляторного риска"
     },
+    "TargetWorker": {
+      "type": "string",
+      "enum": [
+        "multi-source-researcher",
+        "research-synthesist",
+        "business-analyst",
+        "product-manager",
+        "legal-compliance-counsel"
+      ],
+      "description": "Агент, чей артефакт проверяет критик"
+    },
+    "SourceTier": {
+      "type": "string",
+      "enum": ["TIER_1", "TIER_2", "TIER_3"],
+      "description": "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный"
+    },
     "LegalStatus": {
       "type": "string",
-      "enum": ["APPROVED", "APPROVED_WITH_RESERVATIONS", "REJECTED", "PENDING"],
+      "enum": ["APPROVED", "APPROVED_WITH_RESERVATIONS", "REJECTED"],
       "description": "Статус правового заключения"
     },
     "ExecutionStatus": {
       "type": "string",
-      "enum": ["PLANNING", "IN_PROGRESS", "PENDING_HUMAN", "COMPLETED_APPROVED", "COMPLETED_REJECTED", "ESCALATED"],
+      "enum": ["COMPLETED_APPROVED", "REJECTED", "ESCALATED", "STOPPED", "PENDING_HUMAN"],
       "description": "Статус исполнения проекта"
     },
     "StageGateVerdict": {
       "type": "string",
-      "enum": ["APPROVED", "REJECTED", "REVISION_REQUIRED"],
+      "enum": ["APPROVED", "REJECTED", "NEEDS_REWORK"],
       "description": "Вердикт на Stage-Gate"
     },
     "OutputFormat": {
       "type": "string",
-      "enum": ["markdown_marp", "python_pptx_script", "html_tailwind_deck", "structured_slides_json", "typst"],
+      "enum": [
+        "markdown_marp",
+        "python_pptx_script",
+        "html_tailwind_deck",
+        "structured_slides_json",
+        "markdown_report",
+        "python_docx_script",
+        "typst_pdf_markup"
+      ],
       "description": "Формат выходного документа синтеза"
     },
     "ArtifactRef": {
@@ -135,17 +159,6 @@
       },
       "additionalProperties": false,
       "description": "Ссылка на связанный артефакт"
-    },
-    "ContactInfo": {
-      "type": "object",
-      "required": ["name", "role"],
-      "properties": {
-        "name": { "type": "string" },
-        "role": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "telegram": { "type": "string" }
-      },
-      "additionalProperties": false
     }
   }
 }

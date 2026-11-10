@@ -1,6 +1,9 @@
 # Владельцы кода для обязательного ревью
 # Синтаксис: путь @username или @org/team
 
+# Конституция — базовые правила протокола
+/Hermes_Protocol_Constitution.md @DenisZakharov2
+
 # Схемы — критически важны для контрактов
 /schemas/ @DenisZakharov2
 
@@ -15,6 +18,9 @@
 
 # CI/CD
 /.github/workflows/ @DenisZakharov2
+
+# Скрипты валидации и сборки документации
+/scripts/ @DenisZakharov2
 
 # Конфиги репозитория
 /.github/ @DenisZakharov2

@@ -5,8 +5,10 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 2.2.0 — действующая  
-> **Лицензия:** MIT  
+> **Статус:** версия 3.0.0 — действующая
+>
+> **Лицензия:** MIT
+>
 > **Целевая юрисдикция:** Российская Федерация (банковская и финансовая сфера)
 
 ---
@@ -21,7 +23,7 @@
 Кратко ключевые принципы:
 
 - **Ноль галлюцинаций** — каждая цифра и норма права обоснованы первичным источником
-- **Stage-Gate HITL** — оркестратор не переходит к следующей фазе без утверждения Заказчиком
+- **Stage-Gate HITL** — план утверждается один раз на `PLAN_APPROVAL`; повторно — `FINAL_GATE`, эскалации и этапы с `approval_required: true`
 - **Triple-Gate контроль** — синтаксис → правовая экспертиза → смысловой аудит (порог ≥ 85)
 - **Централизованная диспетчеризация** — никаких прямых передач между воркерами
 - **Self-Healing** — до 3 итераций автоисправления, затем эскалация
@@ -39,16 +41,16 @@
 | `business-analyst` | Бизнес- и системный аналитик (BRD, Gherkin, NFR) | `business_requirements.json`, `ba_flight_log.json` |
 | `legal-compliance-counsel` | Старший юрисконсульт и комплаенс-офицер РФ | `legal_compliance_report.json`, `legal_flight_log.json` |
 | `research-synthesist` | Аналитик-синтетик, верстка (Marp, PPTX, Typst, Mermaid) | Презентация/отчет, `synthesist_flight_log.json` |
-| `quality-evaluator` | Критик, аудит 5 осей, Self-Healing | `evaluation_report.json`, `evaluator_flight_log.json` |
+| `quality-evaluator` | Критик, аудит 5 осей, отчёт для Self-Healing | `evaluation_report.json`, `evaluator_flight_log.json` |
 
 ---
 
 ## Быстрый старт для Заказчика
 
-1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте папки памяти `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`.
+1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `/memory/cases/{project_id}/` и её подразделе `/memory/legal_precedents/`; семантическая — в `/memory/domain_knowledge/`.
 2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
 3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
-4. **Мониторьте Stage-Gates:** на каждой точке получайте промежуточный артефакт (исследование, стратегия, BRD, юр. заключение, презентация) — утверждайте или отправляйте на доработку.
+4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на `FINAL_GATE`, при эскалации и для этапов с `approval_required: true`.
 5. **Примите аудит качества:** `quality-evaluator` выдаст `evaluation_report.json`. Score ≥ 85 — артефакт к вам; < 85 — Self-Healing (до 3 итераций).
 6. **Подпишите финал:** после финального Stage-Gate получите пакет `final_package` + отчет AAR.
 
@@ -58,15 +60,16 @@
 
 ```text
 ├── .github/                 # CI, issue/PR templates, CODEOWNERS
-├── docs/                    # 5 руководств + диаграммы Mermaid
+├── docs/                    # 6 руководств + диаграммы Mermaid
 │   ├── 01-how-to-use.md     # Пошаговое руководство Заказчика
 │   ├── 02-team-guide.md     # Роли, границы, контракты агентов
 │   ├── 03-artifacts.md      # Каталог артефактов и JSON-схем
 │   ├── 04-quality.md        # 5 осей качества, Triple-Gate, Self-Healing
 │   ├── 05-aar.md            # Постпроектная рефлексия (AAR)
+│   ├── legal-stack.md       # Канонический перечень законов и актов ЦБ РФ
 │   └── diagrams/            # Mermaid: architecture, DAG, memory, quality, self-healing
-├── examples/                # 18 сквозных примеров проекта SAV_DEP_2026_01
-├── schemas/                 # 21 JSON Schema Draft-07
+├── examples/                # 21 сквозной пример проекта SAV_DEP_2026_01 + шаблон итогового отчёта
+├── schemas/                 # 21 контрактная схема Draft-07 + 1 общий файл определений
 ├── scripts/                 # validate-json.mjs, check-mermaid.mjs
 ├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
 ├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
@@ -96,7 +99,7 @@
 
 - **Hermes Agent** с активным профилем
 - **Загрузчик скиллов** — `skills/<agent>/SKILL.md`
-- **Память:** `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`
+- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`)
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
 - **Node.js 20+** — только для локальной валидации: `npm ci && npm run validate`

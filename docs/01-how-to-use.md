@@ -1,7 +1,7 @@
 # Руководство Заказчика — как работать с командой Hermes Protocol
 
 > Целевая аудитория: человек (Заказчик), поручающий команде выполнение проекта.  
-> Язык: русский. Версия команды: 2.2.0.
+> Язык: русский. Версия команды: 3.0.0.
 
 ## Содержание
 
@@ -60,7 +60,7 @@
 Заказчик — единственный человек в цепочке. Его обязанности:
 
 1. **Формулировать задачу** — проект, домен, требуемые артефакты (`execution_request.json`).
-2. **Утверждать Stage-Gate** — без одобрения команда не переходит к следующей фазе.
+2. **Утверждать ключевые точки** — план на старте, финальный пакет и эскалации. Промежуточные артефакты доступны для просмотра и не требуют отдельного утверждения, если в плане не указано `approval_required: true`.
 3. **Проверять юридические и регуляторные замечания** — особенно при рисках CRITICAL/HIGH.
 4. **Принимать или отклонять итог** после аудита качества (`quality-evaluator`, балл ≥ 85).
 5. **Давать обратную связь 1–5** в фазе AAR для самообучения команды.
@@ -77,13 +77,31 @@
 |---|---|
 | Профиль Hermes | Активный профиль (по умолчанию `default`), в котором работают навыки |
 | Навыки (SKILL.md) | Загрузите все 7 навыков из папки `skills/<agent>/SKILL.md` в Hermes |
-| Память команды | Создайте `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/` |
+| Память команды | Создайте каталоги рантайма командой `npm run init:memory`: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`. Процедурная память — `skills/` и `schemas/`; `{project_id}` создаёт оркестратор |
 | Интернет для исследователя | Доступ к сети для `multi-source-researcher` (поиск Tier 1/2 источников: cbr.ru, суды, официальная отчетность) |
 | Инструменты верстки | Для презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format` |
 
 ---
 
 ## 5. Пошаговый сквозной путь выполнения проекта
+
+Шаги 1–11 соответствуют стабильным `stage_code` из `execution_plan.json`:
+
+| Шаг руководства | `stage_code` |
+|---|---|
+| Шаг 1. Stage-Gate 1 | `PLAN_APPROVAL` |
+| Шаг 2. Исследование | `RESEARCH` |
+| Шаг 3. Продуктовая стратегия | `PRODUCT_STRATEGY` |
+| Шаг 4. Legal Check-in №1 | `LEGAL_CONCEPT` |
+| Шаг 5. BRD и системный анализ | `BUSINESS_REQUIREMENTS` |
+| Шаг 6. Legal Check-in №2 | `LEGAL_BRD` |
+| Шаг 7. Синтез и верстка | `SYNTHESIS` |
+| Шаг 8. Legal Check-in №3 | `LEGAL_SYNTHESIS` |
+| Шаг 9. Аудит качества | `QUALITY_AUDIT` |
+| Шаг 10. Финальное одобрение | `FINAL_GATE` |
+| Шаг 11. Постпроектная рефлексия | `AAR` |
+
+Шаг 0 — подготовка `execution_request.json` — выполняется до создания плана и не входит в `stages`.
 
 ### Шаг 0. Формулировка запроса (`execution_request.json`)
 
@@ -105,9 +123,9 @@
 
 ### Шаг 1. Stage-Gate 1 — утверждение плана исполнения
 
-Оркестратор декомпозирует запрос в DAG и составляет `execution_plan.json` со всеми этапами, ответственными агентами и JSON-контрактами.
+Оркестратор декомпозирует запрос в DAG и составляет `execution_plan.json` со всеми этапами, зависимостями `depends_on`, ответственными агентами и JSON-контрактами.
 
-**Действие Заказчика:** просмотрите план, проверьте этапы и ответственных, утвердите. Без подтверждения на Stage-Gate 1 команда не начинает исследование.
+**Действие Заказчика:** просмотрите план, проверьте этапы и ответственных, утвердите на `PLAN_APPROVAL`. Без подтверждения на Stage-Gate 1 команда не начинает исследование. Это единственное обязательное утверждение плана: дальше этапы исполняются без отдельного согласования, если у них не стоит `approval_required: true`.
 
 ### Шаг 2. Исследование рынка и первичных данных
 
@@ -117,7 +135,7 @@
 
 ### Шаг 3. Продуктовая стратегия и финансовая модель
 
-`product-manager` строит концепцию продукта, целевые сегменты, тарифную структуру, финмодель (NII, NIM, CoF, LTV/CAC) и проверяет нормативы ЦБ РФ (ПСК, Н2, Н3, Н4, МПЛ, МГС).
+`product-manager` строит концепцию продукта, целевые сегменты, тарифную структуру, финмодель (NII, NIM, CoF, LTV/CAC) и проверяет применимые нормативы ЦБ РФ: для кредитных продуктов — ПСК, Н2, Н3, Н4, МПЛ; для вкладов — МГС и раскрытие ставки.
 
 Результат: `product_strategy.json`.
 
@@ -153,46 +171,47 @@
 4. Structural Completeness & Depth (15 %)
 5. Practical Executability & Feasibility (15 %)
 
-- Балл ≥ 85 → статус `PASSED`, артефакт переходит к Заказчику.
-- Балл < 85 → статус `REJECTED`, список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in.
+- Балл ≥ 85 → статус `PASSED`, артефакт переходит к `FINAL_GATE`.
+- Балл < 85 → статус `REJECTED`, список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 
 ### Шаг 10. Финальное одобрение и передача пакета
 
-**Действие Заказчика:** проанализируйте отчет аудита, финальные артефакты и историю Stage-Gate в `orchestration_output.json`, дайте финальное одобрение. Получите пакет `final_package` (стратегия, BRD, юрист-отчет, презентация, оценка качества).
+**Действие Заказчика:** проанализируйте отчет аудита, финальные артефакты и историю Stage-Gate в `orchestration_output.json`, дайте финальное одобрение на `FINAL_GATE`. Получите пакет `final_package` (стратегия, BRD, юрист-отчет, презентация, оценка качества).
 
 ### Шаг 11. Постпроектная рефлексия (AAR)
 
-После одобрения команда проводит AAR:
+После `FINAL_GATE` команда проводит AAR. При статусе `ESCALATED` или `STOPPED`, а также при незакрытом `REG_*` AAR не запускается:
 
 - фиксирует вашу оценку 1–5 и комментарии;
 - составляет `project_aar.json` с патчами скиллов (`skill_patches`);
 - генерирует `project_final_review.md`;
-- консолидирует уроки в `/memory/cases/{project_id}/` и `/memory/legal_precedents/`.
+- консолидирует уроки: `hermes-orchestrator` пишет эпизодическую память `/memory/cases/{project_id}/`, `legal-compliance-counsel` — подраздел прецедентов `/memory/legal_precedents/`.
 
 ---
 
 ## 6. Таблица взаимодействия: кто, что и когда передает
 
-| Отправитель | Получатель | Артефакт | Когда |
+| Отправитель | Получатель | Артефакт | Когда (`stage_code`) |
 |---|---|---|---|
 | Заказчик | `hermes-orchestrator` | `execution_request.json` | Старт |
-| `hermes-orchestrator` | Заказчик | `execution_plan.json` | Stage-Gate 1 |
-| `hermes-orchestrator` | `multi-source-researcher` | `research_task.json` | Шаг 2 |
-| `multi-source-researcher` | `hermes-orchestrator` | `research_output.json` | Шаг 2 завершен |
-| `hermes-orchestrator` | `product-manager` | `product_brief.json` + исследование | Шаг 3 |
-| `product-manager` | `hermes-orchestrator` | `product_strategy.json` | Шаг 3 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (концепция) | Шаг 4 |
-| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | Шаг 4 завершен |
-| `hermes-orchestrator` | `business-analyst` | `ba_input_contract.json` | Шаг 5 |
-| `business-analyst` | `hermes-orchestrator` | `business_requirements.json` | Шаг 5 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (BRD) | Шаг 6 |
-| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | Шаг 6 завершен |
-| `hermes-orchestrator` | `research-synthesist` | `brief_schema.json` | Шаг 7 |
-| `research-synthesist` | `hermes-orchestrator` | Презентация / отчет | Шаг 7 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | Синтез (проверка №3) | Шаг 8 |
-| `hermes-orchestrator` | `quality-evaluator` | `eval_request.json` + пакет | Шаг 9 |
-| `quality-evaluator` | `hermes-orchestrator` | `evaluation_report.json` | Шаг 9 завершен |
-| `hermes-orchestrator` | Заказчик | `orchestration_output.json` + финальный пакет | Stage-Gate финал |
+| `hermes-orchestrator` | Заказчик | `execution_plan.json` | `PLAN_APPROVAL` |
+| `hermes-orchestrator` | `multi-source-researcher` | `research_task.json` | `RESEARCH` |
+| `multi-source-researcher` | `hermes-orchestrator` | `research_output.json` | `RESEARCH` завершён |
+| `hermes-orchestrator` | `product-manager` | `product_brief.json` + исследование | `PRODUCT_STRATEGY` |
+| `product-manager` | `hermes-orchestrator` | `product_strategy.json` | `PRODUCT_STRATEGY` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (концепция) | `LEGAL_CONCEPT` |
+| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | `LEGAL_CONCEPT` завершён |
+| `hermes-orchestrator` | `business-analyst` | `ba_input_contract.json` | `BUSINESS_REQUIREMENTS` |
+| `business-analyst` | `hermes-orchestrator` | `business_requirements.json` | `BUSINESS_REQUIREMENTS` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (BRD) | `LEGAL_BRD` |
+| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | `LEGAL_BRD` завершён |
+| `hermes-orchestrator` | `research-synthesist` | `brief_schema.json` | `SYNTHESIS` |
+| `research-synthesist` | `hermes-orchestrator` | Презентация / отчет | `SYNTHESIS` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | Синтез (проверка №3) | `LEGAL_SYNTHESIS` |
+| `hermes-orchestrator` | `quality-evaluator` | `eval_request.json` + пакет | `QUALITY_AUDIT` |
+| `quality-evaluator` | `hermes-orchestrator` | `evaluation_report.json` | `QUALITY_AUDIT` завершён |
+| `hermes-orchestrator` | Заказчик | `orchestration_output.json` + финальный пакет | `FINAL_GATE` |
+| `hermes-orchestrator` | Заказчик | `project_aar.json` + `project_final_review.md` | `AAR` |
 
 **Правило:** прямые фоновые передачи между воркерами запрещены — всё через `hermes-orchestrator`.
 
@@ -200,7 +219,7 @@
 
 ## 7. JSON-контракты и примеры артефактов
 
-Полный набор JSON-схем — в папке `schemas/` (21 схема). Каждый контракт описан в файле `SKILL.md` соответствующего агента (папка `skills/`).
+Полный набор JSON-схем — в папке `schemas/` (21 контрактная схема и 1 общий файл определений). Технические свойства каждой схемы собраны в справочнике [`schemas-reference.md`](schemas-reference.md). Каждый контракт описан в файле `SKILL.md` соответствующего агента (папка `skills/`).
 
 Пример сквозного проекта «Сберегательный депозит до востребования» (`project_id: SAV_DEP_2026_01`) лежит в папке `examples/`:
 
@@ -220,8 +239,8 @@
 | `brief_schema.example.json` | Бриф на синтез презентации |
 | `synthesist_output.example.json` | Результат синтеза (Marp-разметка и сноски) |
 | `eval_request.example.json` | Запрос на аудит качества |
-| `evaluation_report.example.json` | Аудит качества (балл 78,5, REJECTED, `actionable_fixes`) |
-| `orchestration_output.example.json` | Итоговый отчет оркестратора, `PENDING_HUMAN` |
+| `evaluation_report.example.json` | Аудит качества (балл 88,5, PASSED, `actionable_fixes`) |
+| `orchestration_output.example.json` | Итоговый отчет оркестратора, `COMPLETED_APPROVED` и `project_aar` |
 | `project_aar.example.json` | Постпроектная рефлексия |
 | `execution_plan.example.json` | Утвержденный план исполнения проекта |
 | `research_plan.example.json` | План исследования: подзапросы и Tier |
@@ -250,8 +269,8 @@
 
 - `architecture.mmd` — общая схема: Заказчик → Оркестратор → Воркеры → Память
 - `dag-workflow.mmd` — DAG исполнения с 11 этапами и Stage-Gate
-- `memory-hierarchy.mmd` — трехуровневая память команды
-- `quality-gates.mmd` — трехступенчатый контроль (синтаксис → право → аудит)
+- `memory-hierarchy.mmd` — трёхуровневая память команды: процедурная, эпизодическая с прецедентами, семантическая
+- `quality-gates.mmd` — трёхступенчатый контроль (синтаксис → право → аудит)
 - `self-healing.mmd` — цикл самоисцеления с лимитом 3 итераций
 
 ---
@@ -260,7 +279,7 @@
 
 - [ ] Hermes Agent запущен, профиль активен
 - [ ] Все 7 навыков загружены (`skills/*/SKILL.md`)
-- [ ] Папки памяти созданы: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`
+- [ ] Каталоги рантайма памяти созданы: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`; процедурная память — `skills/` и `schemas/`
 - [ ] Составлен `execution_request.json` с проектом, доменом и требуемыми артефактами
 - [ ] Назначен Stage-Gate-ответственный (вы или уполномоченный сотрудник)
 - [ ] Ознакомились с дисклеймером (раздел 11 README): юридические выводы агентов не заменяют адвокатскую консультацию

@@ -4,6 +4,25 @@
   "title": "execution_plan.json",
   "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
   "type": "object",
+  "definitions": {
+    "StageCode": {
+      "type": "string",
+      "description": "Стабильный код этапа для ссылок и возвратов Self-Healing.",
+      "enum": [
+        "PLAN_APPROVAL",
+        "RESEARCH",
+        "PRODUCT_STRATEGY",
+        "LEGAL_CONCEPT",
+        "BUSINESS_REQUIREMENTS",
+        "LEGAL_BRD",
+        "SYNTHESIS",
+        "LEGAL_SYNTHESIS",
+        "QUALITY_AUDIT",
+        "FINAL_GATE",
+        "AAR"
+      ]
+    }
+  },
   "required": [
     "project_id",
     "plan_version",
@@ -13,49 +32,44 @@
   ],
   "properties": {
     "project_id": {
-      "type": "string",
-      "examples": [
-        "SAV_DEP_2026_01"
-      ]
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "plan_version": {
-      "type": "string"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/VersionString"
     },
     "created_at": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
     },
     "stages": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
         "required": [
           "stage_id",
+          "stage_code",
           "name",
           "owner_agent",
           "inputs",
           "outputs",
-          "approval_required"
+          "depends_on",
+          "approval_required",
+          "status"
         ],
         "properties": {
           "stage_id": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "Порядковый номер этапа внутри конкретного плана."
+          },
+          "stage_code": {
+            "$ref": "#/definitions/StageCode"
           },
           "name": {
             "type": "string"
           },
           "owner_agent": {
-            "type": "string",
-            "enum": [
-              "hermes-orchestrator",
-              "multi-source-researcher",
-              "product-manager",
-              "business-analyst",
-              "legal-compliance-counsel",
-              "research-synthesist",
-              "quality-evaluator"
-            ]
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "inputs": {
             "type": "array",
@@ -69,6 +83,14 @@
               "type": "string"
             }
           },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/StageCode"
+            },
+            "uniqueItems": true,
+            "description": "Коды этапов, которые должны завершиться до старта этого этапа."
+          },
           "approval_required": {
             "type": "boolean"
           },
@@ -79,7 +101,8 @@
               "IN_PROGRESS",
               "COMPLETED",
               "BLOCKED"
-            ]
+            ],
+            "description": "Текущий статус этапа в жизненном цикле проекта."
           }
         },
         "additionalProperties": false
@@ -104,8 +127,7 @@
           "type": "boolean"
         },
         "approved_at": {
-          "type": "string",
-          "format": "date-time"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
         },
         "comments": {
           "type": "string"
