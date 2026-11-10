@@ -39,7 +39,7 @@
 <!-- BEGIN GENERATED: common -->
 | Файл | Назначение | Определений |
 |---|---|---|
-| `common/definitions.schema.json` | Переиспользуемые определения типов для всех JSON-схем Hermes Protocol. Схемы ссылаются на них по абсолютному URN и якорю #/definitions/&lt;Type&gt;. | 22 |
+| `common/definitions.schema.json` | Переиспользуемые определения типов для всех JSON-схем Hermes Protocol. Схемы ссылаются на них по абсолютному URN и якорю #/definitions/&lt;Type&gt;. | 24 |
 <!-- END GENERATED: common -->
 
 ## Общие определения
@@ -67,6 +67,8 @@
 | `ImpactType` | `string` (CREATE, MODIFY, DELETE, NO_CHANGE) | Тип влияния на IT-систему |
 | `SystemType` | `string` (CORE, CHANNEL, INTEGRATION, REPORTING, SECURITY) | Тип IT-системы |
 | `RiskLevel` | `string` (CRITICAL, HIGH, MEDIUM, LOW) | Уровень юридического/регуляторного риска |
+| `TargetWorker` | `string` (multi-source-researcher, research-synthesist, business-analyst, product-manager, legal-compliance-counsel) | Агент, чей артефакт проверяет критик |
+| `SourceTier` | `string` (TIER_1, TIER_2, TIER_3) | Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный |
 | `LegalStatus` | `string` (APPROVED, APPROVED_WITH_RESERVATIONS, REJECTED) | Статус правового заключения |
 | `ExecutionStatus` | `string` (COMPLETED_APPROVED, REJECTED, ESCALATED, STOPPED, PENDING_HUMAN) | Статус исполнения проекта |
 | `StageGateVerdict` | `string` (APPROVED, REJECTED, NEEDS_REWORK) | Вердикт на Stage-Gate |
