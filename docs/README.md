@@ -9,6 +9,7 @@
 | [`01-how-to-use.md`](01-how-to-use.md) | Пошаговое руководство Заказчика: от запроса до AAR, Stage-Gate и обработка эскалаций |
 | [`02-team-guide.md`](02-team-guide.md) | Роли, границы компетенций и контракты семи агентов |
 | [`03-artifacts.md`](03-artifacts.md) | Каталог артефактов, JSON-схем и бортовых журналов |
+| [`schemas-reference.md`](schemas-reference.md) | Справочник JSON-схем: обязательные поля и общие определения (генерируется из `schemas/`) |
 | [`04-quality.md`](04-quality.md) | Пять осей качества, пороги, Triple-Gate и Self-Healing |
 | [`05-aar.md`](05-aar.md) | Постпроектная рефлексия (After Action Review) |
 | [`legal-stack.md`](legal-stack.md) | Канонический перечень федеральных законов, актов ЦБ РФ и стандартов |
@@ -29,3 +30,6 @@ Mermaid-исходники находятся в [`diagrams/`](diagrams/):
 - [`skills/`](../skills/) — семь файлов `SKILL.md` с операционными инструкциями агентов;
 - [`schemas/`](../schemas/) — JSON-схемы Draft-07;
 - [`examples/`](../examples/) — сквозной пример проекта `SAV_DEP_2026_01`.
+
+Каталог артефактов и справочник схем связаны между собой: владельцы контрактов перечислены
+в [`03-artifacts.md`](03-artifacts.md), технические свойства — в [`schemas-reference.md`](schemas-reference.md).
