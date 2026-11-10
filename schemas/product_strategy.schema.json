@@ -144,11 +144,61 @@
         },
         "not_applicable_reason": {
           "type": "string",
+          "minLength": 1,
           "description": "Причина, по которой проверки ПСК/МПЛ не применяются к продукту."
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "psk_limit_check": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "psk_limit_check"
+                ]
+              },
+              {
+                "properties": {
+                  "mpl_limit_check": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "mpl_limit_check"
+                ]
+              },
+              {
+                "properties": {
+                  "cbr_mgs_compliance": {
+                    "const": "NOT_APPLICABLE"
+                  }
+                },
+                "required": [
+                  "cbr_mgs_compliance"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "not_applicable_reason"
+            ],
+            "properties": {
+              "not_applicable_reason": {
+                "type": "string",
+                "minLength": 10
+              }
+            }
+          }
+        }
+      ],
       "additionalProperties": false,
-      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и поясните причину."
+      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason."
     },
     "prioritization_rice": {
       "type": "object",
