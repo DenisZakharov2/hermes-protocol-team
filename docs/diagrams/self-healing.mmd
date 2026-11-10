@@ -3,7 +3,9 @@
 flowchart TD
     A["QUALITY_AUDIT: overall_score < 85<br/>Статус REJECTED"]
 
-    A --> B["hermes-orchestrator возвращает артефакт<br/>владельцу артефакта — соответствующему воркеру<br/>Не напрямую к юристу"]
+    A --> S["Старт Self-Healing<br/>счётчик неудачных циклов доработки = 0<br/>первичное падение QUALITY_AUDIT в лимит не входит"]
+
+    S --> B["hermes-orchestrator возвращает артефакт<br/>владельцу артефакта — соответствующему воркеру<br/>Не напрямую к юристу"]
 
     B --> C[Воркер вносит точечные исправления<br/>по actionable_fixes]
 
@@ -14,14 +16,18 @@ flowchart TD
 
     F --> E
 
-    E -->|Score ≥ 85| G[PASSED → передача Заказчику]
-    E -->|Score < 85| H[Счетчик итераций Self-Healing +1]
+    E -->|Score ≥ 85| G[PASSED]
+    G --> GT["FINAL_GATE<br/>финальное одобрение Человеком"]
 
-    H -->|Итераций < 3| B
-    H -->|Итераций = 3| I[Эскалация Заказчику на Stage-Gate<br/>execution_status = ESCALATED]
+    E -->|Score < 85| H["Неудачный цикл доработки<br/>счётчик + 1"]
+
+    H -->|"Меньше 3 неудачных циклов доработки"| B
+    H -->|"3 неудачных цикла доработки"| I[Эскалация Заказчику на Stage-Gate<br/>execution_status = ESCALATED]
 
     style A fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style S fill:#e3f2fd,stroke:#1565c0
     style E fill:#fff3e0,stroke:#ef6c00
     style F fill:#fff3e0,stroke:#ef6c00
     style G fill:#e1f5e1,stroke:#2e7d32,stroke-width:2px
+    style GT fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
     style I fill:#ffebee,stroke:#c62828,stroke-width:2px

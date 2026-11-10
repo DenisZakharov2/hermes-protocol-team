@@ -17,12 +17,16 @@ flowchart TB
 
     I -->|Score ≥ 85| J[FINAL_GATE<br/>финальное одобрение Человеком + передача пакета]
 
-    I -->|Score < 85| K[Self-Healing<br/>доработка владельцем артефакта, max 3 цикла]
+    I -->|Score < 85| K[Self-Healing<br/>возврат владельцу артефакта, max 3 неудачных цикла]
 
-    K -->|Дефект REG_* / CRITICAL / HIGH| L[LEGAL_CONCEPT / LEGAL_BRD / LEGAL_SYNTHESIS<br/>повторный Legal Check-in]
+    K -->|Обычный дефект| R[Доработка владельцем артефакта]
+    R --> I
+
+    K -->|REG_* / CRITICAL / HIGH| R2[Доработка владельцем артефакта]
+    R2 --> L[LEGAL_CONCEPT / LEGAL_BRD / LEGAL_SYNTHESIS<br/>повторный Legal Check-in]
     L --> I
 
-    K -->|Исчерпано 3 итерации без устранения| M[Эскалация Заказчику<br/>execution_status = ESCALATED]
+    K -->|3 неудачных цикла доработки| M[Эскалация Заказчику<br/>execution_status = ESCALATED]
 
     J --> N[AAR<br/>project_aar.json, project_final_review.md, память]
 
