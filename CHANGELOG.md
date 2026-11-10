@@ -48,6 +48,7 @@
 - Диаграммы DAG и Self-Healing приведены в соответствие с текстом: добавлены обычный и юридический циклы доработки (правка владельцем → Legal Check-in → аудит), успех ведёт через `FINAL_GATE`, база счётчика Self-Healing задана явно (0, первичное падение не входит в лимит; 3 неудачных цикла доработки → `ESCALATED`).
 - Юридический контур: 102-ФЗ исправлен на закон об ипотеке, банковская тайна отнесена к ст. 26 395-1-ФЗ; добавлен канонический перечень `docs/legal-stack.md`; перечни в скиллах и `docs/` синхронизированы, правило маскирования карт и секретов отделено от привязки к 102-ФЗ.
 - Changelog скиллов больше не заявляет «добавлены Learned Guardrails» для версии 2.1.0: запись 2.1.0 приведена к фактическому содержанию, текущее изменение внесено строкой `Unreleased`.
+- `additionalProperties: false` возвращён на корень схем `it_landscape`, `regulatory_checklist` и `synthesist_output` — контракты снова закрыты от лишних полей (запись 2.2.0 уточнена: на момент релиза флаг был снят только с двух схем из трёх).
 
 ## [2.2.0] - 2026-11-06
 
@@ -66,7 +67,7 @@
 
 - CI workflow перенесён из `ci/validate.yml` в `.github/workflows/validate.yml` (активен на push/PR)
 - `$id` во всех 21 JSON-схеме заменены с `raw.githubusercontent.com` на URN `urn:hermes-protocol:schemas:...`
-- Удалён `additionalProperties: false` с корня 3 схем (`it_landscape`, `regulatory_checklist`, `synthesist_output`)
+- Убран `additionalProperties: false` с корня схем `it_landscape` и `synthesist_output` (`regulatory_checklist` сохранил его)
 - Созданы Issue templates (`bug_report.yml`, `feature_request.yml`) и PR template
 - Node.js в CI обновлён с 20 (deprecated) на 22 LTS
 - `package.json`: добавлены `repository`, `bugs`, `homepage`, `license`, `keywords`
@@ -75,7 +76,6 @@
 - `SECURITY.md` расширен: SLA (48h/7d/30d), scope (in/out), best practices, disclosure policy
 - `.gitignore` расширен: `.env*`, secrets, IDE, build, coverage, `memory/`
 - Исправлены примеры: `orchestration_output.example.json` (полный stage_gate_history), `eval_request.example.json` (валидный `context_artifacts.ref`)
-- Добавлены `examples` в 4 ключевые JSON-схемы
 
 ### Changed
 
