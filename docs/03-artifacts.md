@@ -21,7 +21,7 @@
 | `research_plan.schema.json` | `research_plan.json` | `multi-source-researcher` | `hermes-orchestrator` | Внутренний план исследования: подзапросы, целевые Tier и статусы |
 | `research_output.schema.json` | `research_output.json` | `multi-source-researcher` | `hermes-orchestrator` → PM, BA | Исследование: выводы, метрики с source_id, конфликты данных, каталог источников с tier/reliability |
 | `product_brief.schema.json` | `product_brief.json` | `hermes-orchestrator` | `product-manager` | Бриф стратега: тип продукта, контекст банка, ссылка на исследование |
-| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция,ценностное предложение, тарифы, финмодель (NII, NIM, CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE |
+| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция, ценностное предложение, тарифы, финмодель (NII, NIM, CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE |
 | `ba_input_contract.schema.json` | `ba_input_contract.json` | Оркестратор | `business-analyst` | Вход аналитика: ссылки на стратегию, регуляторный чек-лист, IT-ландшафт, формат вывода |
 | `business_requirements.schema.json` | `business_requirements.json` | `business-analyst` | Оркестратор → юрист, синтетик | BRD, AS-IS→TO-BE, User Stories с Gherkin, NFR, матрица влияния на ИТ |
 | `legal_review_request.schema.json` | `legal_review_request.json` | Оркестратор | `legal-compliance-counsel` | Запрос на правовую проверку концепции или BRD (BRD опционален на этапе концепции) |
@@ -51,7 +51,7 @@
 
 Markdown-шаблон итогового отчёта: [`../examples/project_final_review.example.md`](../examples/project_final_review.example.md). Разделы соответствуют [`05-aar.md`](05-aar.md).
 
-## 4. Имена полетных журналов
+## 4. Имена полётных журналов
 
 | Агент | Файл журнала |
 |---|---|
@@ -90,3 +90,5 @@ Markdown-шаблон итогового отчёта: [`../examples/project_fin
         ├── as_rf/               # АС РФ
         └── ks_rf/               # КС РФ
 ```
+
+В контрактах 2.2.x поля `artifact_root` и `lessons_indexed_to` остаются абсолютными путями `/memory/...`. Это осознанное решение: переход на относительный путь `memory/cases/{project_id}/...` с корнем из конфигурации Hermes — отдельный минорный релиз, чтобы не смешивать смену контракта с правками аудита. Новые примеры и скиллы не должны представлять абсолютный путь как единственно возможный.

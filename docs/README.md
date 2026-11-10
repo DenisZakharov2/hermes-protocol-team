@@ -20,7 +20,7 @@ Mermaid-исходники находятся в [`diagrams/`](diagrams/):
 
 - [`architecture.mmd`](diagrams/architecture.mmd) — архитектура взаимодействия;
 - [`dag-workflow.mmd`](diagrams/dag-workflow.mmd) — DAG исполнения проекта;
-- [`memory-hierarchy.mmd`](diagrams/memory-hierarchy.mmd) — трехуровневая память;
+- [`memory-hierarchy.mmd`](diagrams/memory-hierarchy.mmd) — трёхуровневая память;
 - [`quality-gates.mmd`](diagrams/quality-gates.mmd) — Triple-Gate контроль;
 - [`self-healing.mmd`](diagrams/self-healing.mmd) — цикл Self-Healing.
 
