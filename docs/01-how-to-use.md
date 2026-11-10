@@ -77,7 +77,7 @@
 |---|---|
 | Профиль Hermes | Активный профиль (по умолчанию `default`), в котором работают навыки |
 | Навыки (SKILL.md) | Загрузите все 7 навыков из папки `skills/<agent>/SKILL.md` в Hermes |
-| Память команды | Создайте `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/` |
+| Память команды | Создайте каталоги рантайма командой `npm run init:memory`: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`. Процедурная память — `skills/` и `schemas/`; `{project_id}` создаёт оркестратор |
 | Интернет для исследователя | Доступ к сети для `multi-source-researcher` (поиск Tier 1/2 источников: cbr.ru, суды, официальная отчетность) |
 | Инструменты верстки | Для презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format` |
 
@@ -185,7 +185,7 @@
 - фиксирует вашу оценку 1–5 и комментарии;
 - составляет `project_aar.json` с патчами скиллов (`skill_patches`);
 - генерирует `project_final_review.md`;
-- консолидирует уроки в `/memory/cases/{project_id}/` и `/memory/legal_precedents/`.
+- консолидирует уроки: `hermes-orchestrator` пишет эпизодическую память `/memory/cases/{project_id}/`, `legal-compliance-counsel` — подраздел прецедентов `/memory/legal_precedents/`.
 
 ---
 
@@ -269,7 +269,7 @@
 
 - `architecture.mmd` — общая схема: Заказчик → Оркестратор → Воркеры → Память
 - `dag-workflow.mmd` — DAG исполнения с 11 этапами и Stage-Gate
-- `memory-hierarchy.mmd` — трехуровневая память команды
+- `memory-hierarchy.mmd` — трехуровневая память команды: процедурная, эпизодическая с прецедентами, семантическая
 - `quality-gates.mmd` — трехступенчатый контроль (синтаксис → право → аудит)
 - `self-healing.mmd` — цикл самоисцеления с лимитом 3 итераций
 
@@ -279,7 +279,7 @@
 
 - [ ] Hermes Agent запущен, профиль активен
 - [ ] Все 7 навыков загружены (`skills/*/SKILL.md`)
-- [ ] Папки памяти созданы: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`
+- [ ] Каталоги рантайма памяти созданы: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`; процедурная память — `skills/` и `schemas/`
 - [ ] Составлен `execution_request.json` с проектом, доменом и требуемыми артефактами
 - [ ] Назначен Stage-Gate-ответственный (вы или уполномоченный сотрудник)
 - [ ] Ознакомились с дисклеймером (раздел 11 README): юридические выводы агентов не заменяют адвокатскую консультацию

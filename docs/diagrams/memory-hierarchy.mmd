@@ -7,13 +7,13 @@ flowchart LR
         PM3[JSON-контракты и схемы валидации]
     end
 
-    subgraph EM["2. Эпизодическая && память прецедентов (Episodic & Case)"]
-        EM1["/memory/cases/{project_id}/ — история успешных проектов"]
-        EM2["/memory/legal_precedents/ — библиотека судебной практики"]
+    subgraph EM["2. Эпизодическая память и память прецедентов (Episodic & Case)"]
+        EM1["/memory/cases/{project_id}/ — история успешных проектов (пишет hermes-orchestrator после AAR)"]
+        EM2["/memory/legal_precedents/ — подраздел эпизодической памяти: судебная практика (пишет legal-compliance-counsel)"]
     end
 
     subgraph SM["3. Семантическая память (Semantic)"]
-        SM1["/memory/domain_knowledge/"]
+        SM1["/memory/domain_knowledge/ — семантическая память (пишет сопровождающий домена)"]
         SM2[Нормативные чек-листы: ФЗ 395-I, 152, 115, 353; акты ЦБ РФ; ГОСТ Р 57580]
     end
 

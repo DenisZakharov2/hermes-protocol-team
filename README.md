@@ -45,7 +45,7 @@
 
 ## Быстрый старт для Заказчика
 
-1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте папки памяти `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`.
+1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `/memory/cases/{project_id}/` и её подразделе `/memory/legal_precedents/`; семантическая — в `/memory/domain_knowledge/`.
 2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
 3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
 4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на `FINAL_GATE`, при эскалации и для этапов с `approval_required: true`.
@@ -97,7 +97,7 @@
 
 - **Hermes Agent** с активным профилем
 - **Загрузчик скиллов** — `skills/<agent>/SKILL.md`
-- **Память:** `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`
+- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`)
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
 - **Node.js 20+** — только для локальной валидации: `npm ci && npm run validate`

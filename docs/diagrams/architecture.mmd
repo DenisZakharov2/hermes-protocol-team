@@ -4,10 +4,16 @@ flowchart TD
     Z["Заказчик (Человек) — Stage-Gate HITL"]
     O[hermes-orchestrator — диспетчер DAG]
 
-    subgraph Memory["Трехуровневая память"]
-        PM["/memory/cases/{project_id}/ — эпизодическая память"]
-        SM["/memory/domain_knowledge/ — семантическая память"]
-        LM["/memory/legal_precedents/ — судебная практика"]
+    subgraph Memory["Трехуровневая модель памяти"]
+        subgraph Procedural["Процедурная память"]
+            PM["skills/*/SKILL.md — роли и алгоритмы"]
+            SC["schemas/ — JSON-контракты"]
+        end
+        subgraph Runtime["Каталоги рантайма"]
+            EM["/memory/cases/{project_id}/<br/>эпизодическая память; пишет hermes-orchestrator после AAR"]
+            LM["/memory/legal_precedents/<br/>подраздел эпизодической памяти; пишет legal-compliance-counsel"]
+            SM["/memory/domain_knowledge/<br/>семантическая память; пишет сопровождающий домена"]
+        end
     end
 
     subgraph Workers["Специализированные воркеры"]
@@ -34,12 +40,14 @@ flowchart TD
     SY -->|Marp/PPTX/Typst дайджест| O
     QE -->|evaluation_report.json| O
 
-    O -.->|hermes_flight_log.json| PM
-    O -.->|project_aar.json, project_final_review.md| PM
+    O -.->|hermes_flight_log.json| EM
+    O -.->|project_aar.json, project_final_review.md| EM
 
     LC --> LM
 
     style Z fill:#e1f5e1,stroke:#2e7d32,stroke-width:2px
     style O fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
     style Memory fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style Procedural fill:#f3e5f5,stroke:#7b1fa2
+    style Runtime fill:#e3f2fd,stroke:#1565c0
     style Workers fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px

@@ -59,17 +59,26 @@
 
 ## 5. Хранение артефактов
 
+Память делится на три уровня. Процедурная память хранится в репозитории — `skills/*/SKILL.md` и `schemas/`. Ниже перечислены каталоги рантайма: `/memory/cases/{project_id}/` (эпизодическая память), её подраздел `/memory/legal_precedents/` и `/memory/domain_knowledge/` (семантическая память). `memory/README.md` и `.gitkeep` образуют коммитируемый шаблон; содержимое памяти не коммитится.
+
 ```text
 /
 └── memory/
-    ├── cases/
-    │   └── {project_id}/
-    │       ├── artifacts/          # итоговые JSON-артефакты проекта
+    ├── README.md                # шаблон структуры памяти
+    ├── cases/                   # эпизодическая память (пишет hermes-orchestrator после AAR)
+    │   └── {project_id}/        # создаётся оркестратором при старте проекта
+    │       ├── artifacts/       # итоговые JSON-артефакты проекта
     │       ├── execution_request.json
     │       ├── execution_plan.json
     │       ├── hermes_flight_log.json
     │       ├── project_aar.json
     │       └── project_final_review.md
-    ├── domain_knowledge/           # семантическая память: чек-листы, ГОСТ, акты ЦБ РФ
-    └── legal_precedents/           # судебная практика и регуляторные трактовки (юрист)
+    ├── domain_knowledge/        # семантическая память (пишет сопровождающий домена)
+    │   ├── regulatory/          # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
+    │   ├── nfr_profiles/        # профили NFR (SLA, RPO/RTO)
+    │   └── templates/           # шаблоны правовых оговорок и дисклеймеров
+    └── legal_precedents/        # подраздел эпизодической памяти (пишет legal-compliance-counsel)
+        ├── vs_rf/               # ВС РФ
+        ├── as_rf/               # АС РФ
+        └── ks_rf/               # КС РФ
 ```

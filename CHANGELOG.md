@@ -10,6 +10,7 @@
 
 ### Changed
 
+- Память сведена к одной трёхуровневой модели: процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`). Явно указано, кто пишет в каждый каталог: `hermes-orchestrator` после AAR, `legal-compliance-counsel` и сопровождающий домена.
 - Stage-Gate: один `execution_plan.json` утверждается на старте; повторное утверждение — только финальный пакет, эскалации и этапы с `approval_required: true`. Параллелизм ограничен подзапросами `research_plan.json` и явными зависимостями `depends_on`.
 - Self-Healing использует коды `LEGAL_CONCEPT`, `LEGAL_BRD`, `LEGAL_SYNTHESIS`; цикл запускает `hermes-orchestrator`, а `quality-evaluator` только возвращает отчёт.
 
