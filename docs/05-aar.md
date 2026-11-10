@@ -52,6 +52,8 @@
 - затраченные ресурсы (время фаз, итерации Self-Healing, итерации Legal Check-in);
 - выученные уроки и план обновления скиллов команды.
 
+Шаблон: [`../examples/project_final_review.example.md`](../examples/project_final_review.example.md).
+
 ## 5. Как результат AAR используется
 
 - Новые успешные прецеденты сохраняются в эпизодическую память `/memory/cases/{project_id}/` — пишет `hermes-orchestrator` после AAR; перед запуском аналогичного этапа воркеры выполняют Case Retrieval.

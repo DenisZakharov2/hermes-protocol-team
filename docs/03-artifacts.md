@@ -33,15 +33,23 @@
 | `project_aar.schema.json` | `project_aar.json` | `hermes-orchestrator` | Заказчик, память системы | Постпроектная рефлексия: оценка Человека, уроки, патчи скиллов и адрес индексации |
 | `agent_tuning_log.schema.json` | `agent_tuning_log.json` | все агенты | `hermes-orchestrator` | Журнал оперативных замечаний и предложенных патчей скиллов |
 | `flight_log.schema.json` | `*_flight_log.json` | все агенты | `hermes-orchestrator` | Универсальный бортовой журнал: фазы, передачи, Stage-Gate, Self-Healing и ошибки |
-| `it_landscape.schema.json` | `it_landscape.json` | BA/оркестратор | BA | Описание целевого IT-ландшафта (АБС, ДБО, смежные системы) |
-| `regulatory_checklist.schema.json` | `regulatory_checklist.json` | Юрист/доменная память | BA, юрист | Регуляторный чек-лист требований РФ |
+| `it_landscape.schema.json` | `it_landscape.json` | `hermes-orchestrator` (сбор из `execution_request` и входа Заказчика) | `business-analyst` | Описание целевого IT-ландшафта (АБС, ДБО, смежные системы) |
+| `regulatory_checklist.schema.json` | `regulatory_checklist.json` | `legal-compliance-counsel` (на `LEGAL_CONCEPT`) | `business-analyst` | Регуляторный чек-лист требований РФ |
 | `synthesist_output.schema.json` | `synthesist_output.json` | `research-synthesist` | Оркестратор → Юрист (проверка №3) → критик | Готовый дайджест/разметка с диаграммами и индексом сносок |
 
 Все схемы соответствуют `http://json-schema.org/draft-07/schema#`.
 
+Производители `it_landscape.json` и `regulatory_checklist.json` закреплены однозначно, по одному владельцу на каждый артефакт:
+
+- `it_landscape.json` собирает `hermes-orchestrator` на старте проекта, до этапа `BUSINESS_REQUIREMENTS`, из `execution_request.json` и входных данных Заказчика. Если данных недостаточно, оркестратор фиксирует пробел и эскалирует его, а не выдумывает системы.
+- `regulatory_checklist.json` формирует `legal-compliance-counsel` на этапе `LEGAL_CONCEPT` из `product_strategy.json` и семантической памяти `/memory/domain_knowledge/regulatory/`. Обновление чек-листа в доменной памяти — зона юриста.
+- `business-analyst` в обоих случаях только потребитель: файлы приходят к нему через `ba_input_contract.json` и он их не переписывает.
+
 ## 3. Пример заполнения ключевых контрактов
 
 Приведены в папке `examples/` для сквозного проекта `SAV_DEP_2026_01` (сберегательный вклад до востребования физических лиц). Каждый пример json проходит валидацию по соответствующей схеме из `schemas/`.
+
+Markdown-шаблон итогового отчёта: [`../examples/project_final_review.example.md`](../examples/project_final_review.example.md). Разделы соответствуют [`05-aar.md`](05-aar.md).
 
 ## 4. Имена полетных журналов
 

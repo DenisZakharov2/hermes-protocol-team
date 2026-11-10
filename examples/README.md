@@ -26,6 +26,8 @@
 | `agent_tuning_log.example.json` | `agent_tuning_log.schema.json` | Журнал корректировок агентов |
 | `flight_log.example.json` | `flight_log.schema.json` | Бортовой журнал агента |
 
+Markdown-шаблон итогового отчёта: [`project_final_review.example.md`](project_final_review.example.md).
+
 ## Проверка
 
 ```bash

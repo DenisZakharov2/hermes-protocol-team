@@ -13,14 +13,14 @@
 | `execution_plan.schema.json` | `hermes-orchestrator` | План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.... |
 | `execution_request.schema.json` | `hermes-orchestrator` | Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.... |
 | `flight_log.schema.json` | `all agents` | Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.... |
-| `it_landscape.schema.json` | `business-analyst` | Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).... |
+| `it_landscape.schema.json` | `hermes-orchestrator` | Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).... |
 | `legal_compliance_report.schema.json` | `legal-compliance-counsel` | Юридическое заключение: статус, риски, прецеденты и меры смягчения.... |
 | `legal_review_request.schema.json` | `legal-compliance-counsel` | Запрос на правовую проверку концепции или BRD.... |
 | `orchestration_output.schema.json` | `hermes-orchestrator` | Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.... |
 | `product_brief.schema.json` | `product-manager` | Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследо... |
 | `product_strategy.schema.json` | `product-manager` | Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.... |
 | `project_aar.schema.json` | `hermes-orchestrator` | Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.... |
-| `regulatory_checklist.schema.json` | `business-analyst, legal-compliance-counsel` | Регуляторный чек-лист требований РФ и способов проверки.... |
+| `regulatory_checklist.schema.json` | `legal-compliance-counsel` | Регуляторный чек-лист требований РФ и способов проверки.... |
 | `research_output.schema.json` | `multi-source-researcher` | Результат исследования: тезисы, метрики с source_id, конфликты и каталог источни... |
 | `research_plan.schema.json` | `multi-source-researcher` | Внутренний план исследования: подзапросы, целевые Tier и статусы.... |
 | `research_task.schema.json` | `multi-source-researcher` | Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности.... |

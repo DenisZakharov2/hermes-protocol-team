@@ -110,6 +110,7 @@ version: 2.2.0
    - Передать концепцию в `legal-compliance-counsel` на Legal Check-in `LEGAL_CONCEPT`.
    - При правовых рисках запустить доработку в `product-manager` (не более 3 итераций), затем повторить `LEGAL_CONCEPT`.
 4. **`BUSINESS_REQUIREMENTS` → `LEGAL_BRD`**:
+   - Убедиться, что `it_landscape.json` собран (производитель — `hermes-orchestrator`, на старте проекта до `BUSINESS_REQUIREMENTS`), а `regulatory_checklist.json` получен от `legal-compliance-counsel` на `LEGAL_CONCEPT`; обе ссылки включить в `ba_input_contract.json`.
    - Направить утвержденную стратегию в `business-analyst` для формирования `business_requirements.json`.
    - Передать полный пакет в `legal-compliance-counsel` на Legal Check-in `LEGAL_BRD`.
    - При рисках `CRITICAL`/`HIGH` — доработка владельцем и повторный `LEGAL_BRD` (не более 3 итераций).
