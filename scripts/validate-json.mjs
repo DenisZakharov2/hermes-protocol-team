@@ -149,6 +149,19 @@ function legalComplianceInvariantErrors(data) {
     });
   }
 
+  // Незакрытая мера смягчения при HIGH/CRITICAL блокирует передачу пакета в синтез:
+  // риск должен быть либо снят, либо статус не может быть APPROVED_WITH_RESERVATIONS.
+  audit.forEach((item, index) => {
+    if (
+      (item.risk_level === 'HIGH' || item.risk_level === 'CRITICAL') &&
+      item.mitigation_status === 'OPEN'
+    ) {
+      errors.push(
+        `compliance_audit[${index}].mitigation_status must not be OPEN for ${item.risk_level} risk`
+      );
+    }
+  });
+
   return errors;
 }
 
