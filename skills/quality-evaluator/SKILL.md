@@ -1,7 +1,7 @@
 ---
 name: quality-evaluator
 description: "Автономный агент-критик и контролёр качества артефактов"
-version: 2.2.0
+version: 3.0.0
 ---
 
 # Quality Evaluator & Critic Agent skill (quality-evaluator)
