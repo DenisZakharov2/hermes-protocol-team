@@ -88,37 +88,59 @@ const updates = [
     file: 'skills/quality-evaluator/SKILL.md',
     pattern: /version: \d+\.\d+\.\d+/,
     replacement: `version: ${newVersion}`
+  },
+  {
+    file: 'docs/03-artifacts.md',
+    pattern: /> Версия: \d+\.\d+\.\d+\./,
+    replacement: `> Версия: ${newVersion}.`
+  },
+  {
+    file: 'SECURITY.md',
+    // Текущая поддерживаемая версия — строка со знаком «✅ Да»
+    pattern: /\|\s*\d+\.\d+\.x\s*\|\s*✅ Да\s*\|/,
+    replacement: `| ${newVersion.split('.').slice(0, 2).join('.')}.x | ✅ Да |`
+  },
+  {
+    file: 'package-lock.json',
+    // Только корневая запись пакета: "name": "hermes-protocol-team" + следующая строка "version"
+    pattern: /("name": "hermes-protocol-team",\n\s*"version": ")\d+\.\d+\.\d+(")/g,
+    replacement: `$1${newVersion}$2`
+  },
+  {
+    file: 'schemas/common/definitions.schema.json',
+    pattern: /"examples": \["\d+\.\d+\.\d+"\]/,
+    replacement: `"examples": ["${newVersion}"]`
   }
 ];
 
 let updated = 0;
-let failed = 0;
+const skipped = [];
 
 for (const update of updates) {
   const filePath = path.join(process.cwd(), update.file);
-  
+
   if (!fs.existsSync(filePath)) {
     console.warn(`⚠️  File not found: ${update.file}`);
-    failed++;
+    skipped.push(update.file);
     continue;
   }
 
   const content = fs.readFileSync(filePath, 'utf8');
   const newContent = content.replace(update.pattern, update.replacement);
-  
+
   if (newContent !== content) {
     fs.writeFileSync(filePath, newContent, 'utf8');
     console.log(`✅ Updated: ${update.file}`);
     updated++;
   } else {
     console.warn(`⚠️  Pattern not matched: ${update.file}`);
-    failed++;
+    skipped.push(update.file);
   }
 }
 
-console.log(`\n📊 Summary: ${updated} files updated, ${failed} issues`);
+console.log(`\n📊 Summary: ${updated} files updated, ${skipped.length} issues`);
 
-if (failed > 0) {
+if (skipped.length > 0) {
   console.log('\n⚠️  Some files need manual update. Check patterns.');
   process.exit(1);
 }
