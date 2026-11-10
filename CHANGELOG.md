@@ -9,6 +9,7 @@
 - `execution_plan.schema.json`: обязательные `stage_code` и `depends_on`; 11 стабильных кодов этапов. Пример плана покрывает полный DAG, валидатор проверяет уникальность `stage_code`, непрерывность `stage_id` и корректность зависимостей.
 - `flight_log.schema.json`: счётчики `self_healing_attempt` и `legal_iteration` (0–3) для фиксации итераций доработки.
 - `scripts/validate-json.mjs` проверяет регламентные инварианты: формула `overall_score` с допуском 0.05, согласованность `passed` с порогом, агрегацию `overall_risk_score`, связку `approved_by_human` с вердиктом, вложенный артефакт в `eval_request` и совпадение `project_id`. Все схемы компилируются заранее через единый Ajv с общей схемой определений.
+- `scripts/validate-json.mjs` проверяет полные JSON-контракты в `skills/*/SKILL.md`, помеченные `<!-- validate-json: <schema> -->`; сокращённые шаблоны с плейсхолдерами остаются вне проверки.
 - `legal_compliance_report.schema.json`: поле `mitigation_status` (`OPEN`/`DONE`), `judicial_precedent` может быть `null` вместо заглушки.
 - `research_output.schema.json`: обязательный флаг `illustrative` для учебных источников.
 

@@ -5,6 +5,7 @@ import addFormats from 'ajv-formats';
 
 const schemasDir = 'schemas';
 const examplesDir = 'examples';
+const skillsDir = 'skills';
 
 const definitions = JSON.parse(
   fs.readFileSync(path.join(schemasDir, 'common', 'definitions.schema.json'), 'utf8')
@@ -272,9 +273,92 @@ for (const schemaFile of schemaFiles) {
   }
 }
 
+// Скиллы содержат много сокращённых шаблонов с плейсхолдерами. Полные JSON-инстансы
+// помечаются в Markdown явно: <!-- validate-json: <schema> --> перед fenced-блоком.
+// Такой блок проверяется тем же Ajv и теми же регламентными инвариантами, что и пример.
+const skillContractPattern =
+  /<!--\s*validate-json:\s*([a-z0-9_]+)\s*-->\s*```json\r?\n([\s\S]*?)```/g;
+
+const skillFiles = fs
+  .readdirSync(skillsDir)
+  .map((name) => path.join(skillsDir, name, 'SKILL.md'))
+  .filter((file) => fs.existsSync(file))
+  .sort();
+
+let skillBlocks = 0;
+
+for (const skillFile of skillFiles) {
+  const text = fs.readFileSync(skillFile, 'utf8');
+  const markerCount = (text.match(/<!--\s*validate-json:/g) ?? []).length;
+  let matched = 0;
+  let match;
+
+  skillContractPattern.lastIndex = 0;
+  while ((match = skillContractPattern.exec(text)) !== null) {
+    matched += 1;
+    skillBlocks += 1;
+
+    const [, base, json] = match;
+    const line = text.slice(0, match.index).split('\n').length;
+    const label = `${skillFile}:${line} (${base})`;
+    const validate = validators.get(base);
+
+    if (!validate) {
+      failed += 1;
+      console.error(`NO SCHEMA  ${label}`);
+      continue;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(json);
+    } catch (error) {
+      failed += 1;
+      console.error(`INVALID JSON ${label}`);
+      console.error(`  ${error.message}`);
+      continue;
+    }
+
+    if (!validate(data)) {
+      failed += 1;
+      console.error(`INVALID SKILL ${label}`);
+      for (const error of validate.errors ?? []) {
+        console.error(`  ${error.instancePath || '/'} ${error.message}`);
+      }
+      continue;
+    }
+
+    const check = invariantChecks[base];
+    const invariantErrors = check ? check(data, validators) : [];
+    if (invariantErrors.length > 0) {
+      failed += 1;
+      console.error(`INVALID CONTRACT ${label}`);
+      for (const error of invariantErrors) {
+        console.error(`  ${error}`);
+      }
+      continue;
+    }
+
+    console.log(`OK SKILL   ${label}`);
+  }
+
+  if (matched < markerCount) {
+    failed += 1;
+    console.error(
+      `INVALID MARKER ${skillFile}: each <!-- validate-json: ... --> must be followed by a fenced json block`
+    );
+  }
+}
+
+if (skillBlocks === 0) {
+  failed += 1;
+  console.error('NO SKILL CONTRACT  no marked JSON contracts found in skills/*/SKILL.md');
+}
+
 if (failed > 0) {
   console.error(`\nValidation failed: ${failed} problem(s).`);
   process.exit(1);
 }
 
 console.log(`\nAll ${examples.length} examples are valid and covered by schemas.`);
+console.log(`All ${skillBlocks} marked skill contract blocks are valid.`);
