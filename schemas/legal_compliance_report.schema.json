@@ -47,7 +47,8 @@
               "PASS",
               "WARNING",
               "FAIL"
-            ]
+            ],
+            "description": "Результат проверки пункта аудита."
           },
           "risk_level": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/RiskLevel"
@@ -56,13 +57,52 @@
             "type": "string"
           },
           "judicial_precedent": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/CourtRef"
+            "anyOf": [
+              {
+                "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/CourtRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Ссылка на опубликованный судебный акт или null, если практика не найдена. Заглушки недопустимы."
           },
           "required_mitigation": {
-            "type": "string"
+            "type": "string",
+            "description": "Конкретная мера смягчения риска."
+          },
+          "mitigation_status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "DONE"
+            ],
+            "description": "Статус исполнения required_mitigation. При OPEN пакет не передаётся в синтез."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "risk_level": {
+                  "enum": [
+                    "HIGH",
+                    "CRITICAL"
+                  ]
+                }
+              },
+              "required": [
+                "risk_level"
+              ]
+            },
+            "then": {
+              "required": [
+                "mitigation_status"
+              ]
+            }
+          }
+        ]
       }
     },
     "contract_disclaimers_required": {

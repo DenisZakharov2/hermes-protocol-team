@@ -9,21 +9,22 @@
       "цифровые клиенты ДБО"
     ],
     "tariff_structure": {
-      "base_rate": 0.1,
-      "welcome_rate": 0.18,
-      "mgs_rate": 0.1
+      "base_rate_percent": 10,
+      "welcome_rate_percent": 14,
+      "mgs_percent": 10
     }
   },
   "financial_model": {
     "projected_nii": 150000000,
-    "projected_nim": 0.045,
-    "cof_cost_of_funds": 0.11,
+    "projected_nim_percent": 4.5,
+    "cof_cost_of_funds_percent": 11,
     "ltv_cac_ratio": 3.8
   },
   "regulatory_guardrails": {
-    "psk_limit_check": "PASSED",
-    "mpl_limit_check": "PASSED",
-    "cbr_mgs_compliance": "PASSED"
+    "psk_limit_check": "NOT_APPLICABLE",
+    "mpl_limit_check": "NOT_APPLICABLE",
+    "cbr_mgs_compliance": "PASSED",
+    "not_applicable_reason": "Продукт — вклад до востребования, не кредит: ПСК и МПЛ не применяются."
   },
   "prioritization_rice": {
     "score": 84.5

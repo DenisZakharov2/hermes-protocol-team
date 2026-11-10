@@ -35,7 +35,8 @@
         "properties": {
           "stage": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "stage_id этапа из execution_plan, на котором проводилось утверждение."
           },
           "approved_by_human": {
             "type": "boolean"
@@ -88,7 +89,10 @@
       "if": {
         "properties": {
           "execution_status": {
-            "enum": ["COMPLETED_APPROVED", "PENDING_HUMAN"]
+            "enum": [
+              "COMPLETED_APPROVED",
+              "PENDING_HUMAN"
+            ]
           }
         },
         "required": [
@@ -122,7 +126,12 @@
       "if": {
         "properties": {
           "execution_status": {
-            "enum": ["REJECTED", "ESCALATED", "STOPPED", "PENDING_HUMAN"]
+            "enum": [
+              "REJECTED",
+              "ESCALATED",
+              "STOPPED",
+              "PENDING_HUMAN"
+            ]
           }
         },
         "required": [

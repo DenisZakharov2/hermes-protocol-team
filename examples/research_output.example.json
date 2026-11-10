@@ -30,15 +30,17 @@
   "sources": [
     {
       "source_id": "SRC_1",
-      "url": "https://cbr.ru/",
+      "url": "https://www.cbr.ru/statistics/bank_sector/",
       "tier_level": "TIER_1",
-      "reliability_score": 0.95
+      "reliability_score": 0.95,
+      "illustrative": true
     },
     {
       "source_id": "SRC_2",
-      "url": "https://www.rbc.ru/bankings/",
+      "url": "https://www.rbc.ru/banking/",
       "tier_level": "TIER_2",
-      "reliability_score": 0.8
+      "reliability_score": 0.8,
+      "illustrative": true
     }
   ]
 }

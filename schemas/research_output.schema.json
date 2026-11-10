@@ -43,7 +43,8 @@
             "type": "number"
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "Единица измерения. Для ставок используйте «% годовых», для денежных сумм — «руб.»"
           },
           "source_id": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceId"
@@ -83,7 +84,8 @@
           "source_id",
           "url",
           "tier_level",
-          "reliability_score"
+          "reliability_score",
+          "illustrative"
         ],
         "properties": {
           "source_id": {
@@ -91,7 +93,8 @@
           },
           "url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Конкретная страница источника. Корневой URL допустим только при illustrative: true."
           },
           "tier_level": {
             "type": "string",
@@ -105,6 +108,10 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1
+          },
+          "illustrative": {
+            "type": "boolean",
+            "description": "true — источник используется как учебная иллюстрация, цифры не считаются подтверждёнными этим URL."
           }
         },
         "additionalProperties": false

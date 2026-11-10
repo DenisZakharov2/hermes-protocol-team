@@ -34,7 +34,7 @@
         "PLAN_APPROVAL"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 3,
@@ -52,7 +52,7 @@
         "RESEARCH"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 4,
@@ -70,7 +70,7 @@
         "PRODUCT_STRATEGY"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 5,
@@ -89,7 +89,7 @@
         "LEGAL_CONCEPT"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 6,
@@ -107,7 +107,7 @@
         "BUSINESS_REQUIREMENTS"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 7,
@@ -127,7 +127,7 @@
         "LEGAL_BRD"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 8,
@@ -145,7 +145,7 @@
         "SYNTHESIS"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 9,
@@ -163,7 +163,7 @@
         "LEGAL_SYNTHESIS"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 10,
@@ -181,7 +181,7 @@
         "QUALITY_AUDIT"
       ],
       "approval_required": true,
-      "status": "PENDING"
+      "status": "COMPLETED"
     },
     {
       "stage_id": 11,
@@ -200,7 +200,7 @@
         "FINAL_GATE"
       ],
       "approval_required": false,
-      "status": "PENDING"
+      "status": "COMPLETED"
     }
   ],
   "approval": {

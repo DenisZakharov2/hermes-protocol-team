@@ -53,7 +53,8 @@
           "inputs",
           "outputs",
           "depends_on",
-          "approval_required"
+          "approval_required",
+          "status"
         ],
         "properties": {
           "stage_id": {
@@ -100,7 +101,8 @@
               "IN_PROGRESS",
               "COMPLETED",
               "BLOCKED"
-            ]
+            ],
+            "description": "Текущий статус этапа в жизненном цикле проекта."
           }
         },
         "additionalProperties": false

@@ -60,7 +60,7 @@ version: 2.2.0
 
 ```json
 {
-  "project_id": "SAVINGS_ACC_2026_01",
+  "project_id": "SAV_DEP_2026_01",
   "product_concept": { "ref": "product_strategy.json" },
   "business_requirements": { "ref": "business_requirements.json" },
   "target_audience": "Physical Persons (Retail)",
@@ -72,22 +72,27 @@ version: 2.2.0
 
 ### Б. Выходной контракт (`legal_compliance_report.json`):
 
+<!-- validate-json: legal_compliance_report -->
 ```json
 {
+  "project_id": "SAV_DEP_2026_01",
   "legal_status": "APPROVED_WITH_RESERVATIONS",
   "overall_risk_score": "MEDIUM",
   "compliance_audit": [
     {
-      "regulation": "353-FZ / CBR Rules on MGS",
+      "regulation": "38-ФЗ «О рекламе»",
+      "article": "ст. 5",
       "status": "WARNING",
-      "risk_level": "HIGH",
-      "issue": "Приветственная ставка 18% отображается крупным шрифтом без равнозначного раскрытия МГС 10%",
-      "judicial_precedent": "Определение ВС РФ № 305-ЭС24-XXXX",
-      "required_mitigation": "Добавить блок МГС шрифтом того же размера в карточку продукта ДБО до клика 'Открыть счет'."
+      "risk_level": "MEDIUM",
+      "issue": "В макете карточки вклада приветственная ставка 14 % и МГС 10 % отображаются шрифтом разного размера.",
+      "judicial_precedent": null,
+      "required_mitigation": "Выровнять размер шрифта приветственной ставки и МГС; зафиксировать в макете карточки ДБО.",
+      "mitigation_status": "DONE"
     }
   ],
   "contract_disclaimers_required": [
-    "Формулировка согласия на обработку ПДн по 152-ФЗ с отдельным чекбоксом."
+    "Согласие на обработку ПДн по 152-ФЗ отдельным чекбоксом.",
+    "Дисклеймер о возможности изменения ставки по вкладу до востребования."
   ]
 }
 ```

@@ -68,30 +68,34 @@ version: 2.2.0
 
 ### Б. Выходной контракт (`evaluation_report.json`):
 
+<!-- validate-json: evaluation_report -->
 ```json
 {
   "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
   "target_worker": "business-analyst",
-  "overall_score": 78.5,
+  "overall_score": 88.5,
   "quality_threshold": 85,
-  "passed": false,
+  "passed": true,
   "score_breakdown": {
     "accuracy_and_grounding": 90,
-    "security": 70,
-    "cross_artifact_consistency": 80,
+    "security": 90,
+    "cross_artifact_consistency": 90,
     "structural_completeness": 85,
-    "practical_executability": 65
+    "practical_executability": 85
   },
   "critical_findings": [
     {
-      "code": "REG_152_VIOLATION",
-      "severity": "CRITICAL",
-      "field": "classic_brd.data_flows[2].attributes",
-      "description": "В атрибутах потока передается открытый СНИЛС без маскирования.",
-      "remediation_instruction": "Добавить регулярное выражение маскирования по 152-ФЗ."
+      "code": "BRD_DISCLOSURE_DETAIL",
+      "severity": "MEDIUM",
+      "field": "classic_brd.functional_requirements[1]",
+      "description": "Требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта.",
+      "remediation_instruction": "Добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
     }
   ],
-  "actionable_fixes": ["Исправить маскирование ПДн в потоке №2."]
+  "actionable_fixes": [
+    "Уточнить classic_brd.functional_requirements[1]: добавить проверку равного размера шрифта ставки и МГС."
+  ]
 }
 ```
 

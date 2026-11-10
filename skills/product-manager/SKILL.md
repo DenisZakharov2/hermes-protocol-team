@@ -38,7 +38,7 @@ version: 2.2.0
 
 1. **Синтез идей и стратегий развития**: Product Vision, Value Proposition, целевые сегменты, CJM, Mind Map, стратегия выхода на рынок (Go-to-Market), OKR, North Star Metric, Roadmap (Gantt Chart), Non-goals.
 2. **Финансовый инжиниринг и юнит-экономика**: Моделирование объемов и динамики портфеля, P&L, расчет NII/NIM/CoF, LTV/CAC, ARPU, ROI, ROE, ROA, эластичность спроса, точка безубыточности.
-3. **Пруденциальный и регуляторный контроль ЦБ РФ**: Расчет и оценка влияния на нормативы (ПСК, Н2, Н3, Н4), макропруденциальные лимиты (МПЛ), надбавки к капиталу, правило МГС (минимальная гарантированная ставка).
+3. **Пруденциальный и регуляторный контроль ЦБ РФ**: Расчет и оценка влияния на нормативы кредитных продуктов (ПСК, Н2, Н3, Н4), макропруденциальные лимиты (МПЛ), надбавки к капиталу; для вкладов — правило МГС (минимальная гарантированная ставка) и раскрытие ставки.
 4. **Методологическое обеспечение**: Разработка стандартов, регламентов, правил продуктовых процессов.
 5. **Приоритизация бэклога**: RICE / ICE / Value vs Effort / MoSCoW.
 
@@ -68,24 +68,27 @@ version: 2.2.0
 
 ### Б. Выходной контракт (`product_strategy.json`):
 
+<!-- validate-json: product_strategy -->
 ```json
 {
   "task_id": "PM_2026_01",
+  "project_id": "SAV_DEP_2026_01",
   "product_concept": {
     "value_proposition": "STRING",
     "target_segments": ["STRING"],
-    "tariff_structure": { "base_rate": 0.12, "welcome_rate": 0.18, "mgs_rate": 0.10 }
+    "tariff_structure": { "base_rate_percent": 10, "welcome_rate_percent": 14, "mgs_percent": 10 }
   },
   "financial_model": {
     "projected_nii": 150000000,
-    "projected_nim": 0.045,
-    "cof_cost_of_funds": 0.11,
+    "projected_nim_percent": 4.5,
+    "cof_cost_of_funds_percent": 11,
     "ltv_cac_ratio": 3.8
   },
   "regulatory_guardrails": {
-    "psk_limit_check": "PASSED",
-    "mpl_limit_check": "PASSED",
-    "cbr_mgs_compliance": "PASSED"
+    "psk_limit_check": "NOT_APPLICABLE",
+    "mpl_limit_check": "NOT_APPLICABLE",
+    "cbr_mgs_compliance": "PASSED",
+    "not_applicable_reason": "Продукт — вклад до востребования, не кредит: ПСК и МПЛ не применяются."
   },
   "prioritization_rice": { "score": 84.5 }
 }

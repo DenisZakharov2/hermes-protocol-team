@@ -21,6 +21,27 @@
       "artifacts": [
         "business_requirements.json"
       ]
+    },
+    {
+      "timestamp": "2026-10-18T10:00:00Z",
+      "phase": "final_gate",
+      "event_type": "STAGE_GATE",
+      "status": "OK",
+      "details": "Человек утвердил финальный пакет; проект переведен в COMPLETED_APPROVED",
+      "artifacts": [
+        "orchestration_output.json"
+      ]
+    },
+    {
+      "timestamp": "2026-10-18T11:00:00Z",
+      "phase": "aar",
+      "event_type": "AAR",
+      "status": "OK",
+      "details": "AAR проведен, уроки проиндексированы в эпизодической памяти",
+      "artifacts": [
+        "project_aar.json",
+        "project_final_review.md"
+      ]
     }
   ]
 }

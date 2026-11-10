@@ -135,7 +135,7 @@
 
 ### Шаг 3. Продуктовая стратегия и финансовая модель
 
-`product-manager` строит концепцию продукта, целевые сегменты, тарифную структуру, финмодель (NII, NIM, CoF, LTV/CAC) и проверяет нормативы ЦБ РФ (ПСК, Н2, Н3, Н4, МПЛ, МГС).
+`product-manager` строит концепцию продукта, целевые сегменты, тарифную структуру, финмодель (NII, NIM, CoF, LTV/CAC) и проверяет применимые нормативы ЦБ РФ: для кредитных продуктов — ПСК, Н2, Н3, Н4, МПЛ; для вкладов — МГС и раскрытие ставки.
 
 Результат: `product_strategy.json`.
 
@@ -239,8 +239,8 @@
 | `brief_schema.example.json` | Бриф на синтез презентации |
 | `synthesist_output.example.json` | Результат синтеза (Marp-разметка и сноски) |
 | `eval_request.example.json` | Запрос на аудит качества |
-| `evaluation_report.example.json` | Аудит качества (балл 78,5, REJECTED, `actionable_fixes`) |
-| `orchestration_output.example.json` | Итоговый отчет оркестратора, `PENDING_HUMAN` |
+| `evaluation_report.example.json` | Аудит качества (балл 88,5, PASSED, `actionable_fixes`) |
+| `orchestration_output.example.json` | Итоговый отчет оркестратора, `COMPLETED_APPROVED` и `project_aar` |
 | `project_aar.example.json` | Постпроектная рефлексия |
 | `execution_plan.example.json` | Утвержденный план исполнения проекта |
 | `research_plan.example.json` | План исследования: подзапросы и Tier |
