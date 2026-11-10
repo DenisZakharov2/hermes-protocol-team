@@ -66,8 +66,8 @@
 │   ├── 05-aar.md            # Постпроектная рефлексия (AAR)
 │   ├── legal-stack.md       # Канонический перечень законов и актов ЦБ РФ
 │   └── diagrams/            # Mermaid: architecture, DAG, memory, quality, self-healing
-├── examples/                # 18 сквозных примеров проекта SAV_DEP_2026_01
-├── schemas/                 # 21 JSON Schema Draft-07
+├── examples/                # 21 сквозной пример проекта SAV_DEP_2026_01 + шаблон итогового отчёта
+├── schemas/                 # 21 контрактная схема Draft-07 + 1 общий файл определений
 ├── scripts/                 # validate-json.mjs, check-mermaid.mjs
 ├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
 ├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
