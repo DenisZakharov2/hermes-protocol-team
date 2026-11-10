@@ -103,8 +103,8 @@ version: 2.2.0
 4. **Многокритериальная оценка**: Провести аудит по 5 осям с учетом заключения `legal-compliance-counsel`.
 5. **Расчет балла**: Рассчитать `overall_score`.
 6. **Вердикт**:
-   - Если `overall_score >= 85`: присвоить статус `PASSED` и передать в `hermes-orchestrator`.
-   - Если `overall_score < 85`: присвоить статус `REJECTED`, сформировать `actionable_fixes` и запустить цикл Self-Healing (до 3 попыток). Если дефекты касались регуляторного контура, инициировать повторный Legal Check-in.
+   - Если `overall_score >= 85`: присвоить статус `PASSED` и передать отчёт в `hermes-orchestrator`.
+   - Если `overall_score < 85`: присвоить статус `REJECTED`, сформировать `actionable_fixes` и вернуть отчёт `hermes-orchestrator`. Цикл Self-Healing открывает оркестратор; критик не запускает его самостоятельно. Если дефекты регуляторные, оркестратор после доработки инициирует повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 
 ## 6. **Ведение бортового журнала и фиксация действий**
 

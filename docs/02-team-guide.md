@@ -12,7 +12,7 @@
 ### Входит в компетенцию
 
 - Управление DAG-графом; запрет прямой P2P-передачи артефактов между воркерами
-- Stage-Gate Control: один `execution_plan.json` утверждается на старте; повторное утверждение — финал, эскалации, этапы с `approval_required: true`
+- Stage-Gate Control: один `execution_plan.json` утверждается на `PLAN_APPROVAL`; повторное утверждение — `FINAL_GATE`, эскалации, этапы с `approval_required: true`
 - Параллельный запуск независимых задач с барьером синхронизации
 - Triple-Gate Control: синтаксис (до 3 автоисправлений) → Legal Check-in (до 3 итераций) → аудит `quality-evaluator`
 - AAR и консолидация памяти

@@ -4,6 +4,25 @@
   "title": "execution_plan.json",
   "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
   "type": "object",
+  "definitions": {
+    "StageCode": {
+      "type": "string",
+      "description": "Стабильный код этапа для ссылок и возвратов Self-Healing.",
+      "enum": [
+        "PLAN_APPROVAL",
+        "RESEARCH",
+        "PRODUCT_STRATEGY",
+        "LEGAL_CONCEPT",
+        "BUSINESS_REQUIREMENTS",
+        "LEGAL_BRD",
+        "SYNTHESIS",
+        "LEGAL_SYNTHESIS",
+        "QUALITY_AUDIT",
+        "FINAL_GATE",
+        "AAR"
+      ]
+    }
+  },
   "required": [
     "project_id",
     "plan_version",
@@ -27,20 +46,27 @@
     },
     "stages": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
         "required": [
           "stage_id",
+          "stage_code",
           "name",
           "owner_agent",
           "inputs",
           "outputs",
+          "depends_on",
           "approval_required"
         ],
         "properties": {
           "stage_id": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "Порядковый номер этапа внутри конкретного плана."
+          },
+          "stage_code": {
+            "$ref": "#/definitions/StageCode"
           },
           "name": {
             "type": "string"
@@ -68,6 +94,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/StageCode"
+            },
+            "uniqueItems": true,
+            "description": "Коды этапов, которые должны завершиться до старта этого этапа."
           },
           "approval_required": {
             "type": "boolean"

@@ -16,7 +16,7 @@
 | Схема | Артефакт | Кто производит | Кто потребляет | Описание |
 |---|---|---|---|---|
 | `execution_request.schema.json` | `execution_request.json` | Заказчик | `hermes-orchestrator` | Входной запрос: project_id, user_prompt, домен, требуемые артефакты, порог качества |
-| `execution_plan.schema.json` | `execution_plan.json` | `hermes-orchestrator` | Заказчик, воркеры | План исполнения: этапы DAG, ответственные агенты, Stage-Gate и статус утверждения |
+| `execution_plan.schema.json` | `execution_plan.json` | `hermes-orchestrator` | Заказчик, воркеры | План исполнения: этапы DAG (`stage_code`, `depends_on`), ответственные агенты, Stage-Gate и статус утверждения |
 | `research_task.schema.json` | `research_task.json` | `hermes-orchestrator` | `multi-source-researcher` | Задание исследователю: query, цель, глубина, требуемые сущности |
 | `research_plan.schema.json` | `research_plan.json` | `multi-source-researcher` | `hermes-orchestrator` | Внутренний план исследования: подзапросы, целевые Tier и статусы |
 | `research_output.schema.json` | `research_output.json` | `multi-source-researcher` | `hermes-orchestrator` → PM, BA | Исследование: выводы, метрики с source_id, конфликты данных, каталог источников с tier/reliability |

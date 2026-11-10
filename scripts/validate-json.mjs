@@ -16,6 +16,44 @@ const examples = fs
 
 let failed = 0;
 
+// Схема проверяет форму. Инварианты регламента, которые нельзя выразить в Draft-07,
+// проверяются здесь: непрерывность stage_id, уникальность stage_code и корректность DAG.
+function executionPlanInvariantErrors(data) {
+  const errors = [];
+  const stages = Array.isArray(data.stages) ? data.stages : [];
+  const stageIds = new Map();
+
+  stages.forEach((stage, index) => {
+    const expectedStageId = index + 1;
+    if (stage.stage_id !== expectedStageId) {
+      errors.push(
+        `stage_id ${stage.stage_id} at index ${index} must be ${expectedStageId} (no gaps)`
+      );
+    }
+    if (stageIds.has(stage.stage_code)) {
+      errors.push(`duplicate stage_code ${stage.stage_code}`);
+    } else {
+      stageIds.set(stage.stage_code, stage.stage_id);
+    }
+  });
+
+  for (const stage of stages) {
+    for (const dependency of stage.depends_on ?? []) {
+      if (dependency === stage.stage_code) {
+        errors.push(`${stage.stage_code} depends on itself`);
+      } else if (!stageIds.has(dependency)) {
+        errors.push(`${stage.stage_code} depends on unknown stage_code ${dependency}`);
+      } else if (stageIds.get(dependency) >= stage.stage_id) {
+        errors.push(
+          `${stage.stage_code} depends on ${dependency}, which is not an earlier stage`
+        );
+      }
+    }
+  }
+
+  return errors;
+}
+
 for (const example of examples) {
   const base = example.replace('.example.json', '');
   const schemaPath = path.join(schemasDir, `${base}.schema.json`);
@@ -32,6 +70,17 @@ for (const example of examples) {
   const validate = ajv.compile(schema);
 
   if (validate(data)) {
+    if (base === 'execution_plan') {
+      const invariantErrors = executionPlanInvariantErrors(data);
+      if (invariantErrors.length > 0) {
+        failed += 1;
+        console.error(`INVALID CONTRACT ${examplePath}`);
+        for (const error of invariantErrors) {
+          console.error(`  ${error}`);
+        }
+        continue;
+      }
+    }
     console.log(`OK         ${examplePath}`);
   } else {
     failed += 1;

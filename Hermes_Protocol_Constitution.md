@@ -14,7 +14,7 @@
 4. **`legal-compliance-counsel`** — Старший юрисконсульт и комплаенс-офицер банковской и финансовой сферы РФ (судебная практика, регуляторная матрица, правовые оговорки).
 5. **`business-analyst`** — Ведущий бизнес- и системный аналитик (формализация BRD, Agile User Stories с Gherkin-критериями, NFR, System Impact Matrix).
 6. **`research-synthesist`** — Ведущий аналитик-синтетик, специалист по верстке отчетов, исследований, белых книг и визуальных презентаций (Marp, PPTX, Typst, Mermaid).
-7. **`quality-evaluator`** — Автономный агент-критик и контролер качества артефактов до их передачи Человеку (аудит по 5 осям качества, управление циклом Self-Healing).
+7. **`quality-evaluator`** — Автономный агент-критик и контролер качества артефактов до их передачи Человеку (аудит по 5 осям качества; цикл Self-Healing запускает `hermes-orchestrator`).
 
 | skill_id (через Hermes загрузчик) | agent_id в DAG | Роль |
 |---|---|---|
@@ -36,7 +36,7 @@
    Ни один агент не имеет права выдумывать данные, метрики, даты, нормы права, процентные ставки или параметры IT-систем. Каждая цифра и правовая норма должны быть обоснованы первичным источником Tier 1/2 или Tier 3, математической/финансовой моделью и подкреплены ссылкой на источник или ID цитирования (`source_id`).
 
 2. **Принцип подконтрольности Человеку (Stage-Gate HITL)**
-   Оркестратор `hermes-orchestrator` не совершает неявных или автоматических переходов между ключевыми стадиями проекта. Человек утверждает один `execution_plan.json` на старте (Stage-Gate 1). После этого оркестратор исполняет утверждённые этапы; промежуточные артефакты доступны Заказчику для просмотра, но не блокируют каждый следующий этап. Повторное утверждение Человеком обязательно на финальном Stage-Gate, при эскалации (`ESCALATED`) и для этапов, у которых в плане указано `approval_required: true`.
+   Оркестратор `hermes-orchestrator` не совершает неявных или автоматических переходов между ключевыми стадиями проекта. Человек утверждает один `execution_plan.json` на этапе `PLAN_APPROVAL`. После этого оркестратор исполняет утверждённые этапы; промежуточные артефакты доступны Заказчику для просмотра, но не блокируют каждый следующий этап. Повторное утверждение Человеком обязательно на `FINAL_GATE`, при эскалации (`ESCALATED`) и для этапов, у которых в плане указано `approval_required: true`.
 
 3. **Принцип Трехуровневой Проверки (Triple-Gate Quality & Legal Control)**
    Каждый создаваемый в системе артефакт проходит трехэтапный барьер контроля:
@@ -93,69 +93,87 @@
 
 ## Раздел III. Регламент Исполнения Задач и Согласованный DAG-Граф
 
-Для исключения нелогичного порядка работы и преждевременного запуска этапов `hermes-orchestrator` исполняет строго последовательно-параллельный ориентированный граф задач (DAG):
+Для исключения нелогичного порядка работы и преждевременного запуска этапов `hermes-orchestrator` исполняет ориентированный граф задач (DAG). Стабильные коды этапов используются в `execution_plan.json`, возвратах Self-Healing и диаграммах:
+
+| `stage_code` | Этап | Владелец |
+|---|---|---|
+| `PLAN_APPROVAL` | Утверждение `execution_plan.json` (Stage-Gate 1) | `hermes-orchestrator` + Человек |
+| `RESEARCH` | Исследование рынка и первичных данных | `multi-source-researcher` |
+| `PRODUCT_STRATEGY` | Продуктовая стратегия и финансовая модель | `product-manager` |
+| `LEGAL_CONCEPT` | Legal Check-in концепции | `legal-compliance-counsel` |
+| `BUSINESS_REQUIREMENTS` | BRD, Gherkin, NFR | `business-analyst` |
+| `LEGAL_BRD` | Legal Check-in BRD | `legal-compliance-counsel` |
+| `SYNTHESIS` | Синтез и верстка | `research-synthesist` |
+| `LEGAL_SYNTHESIS` | Legal Check-in синтеза | `legal-compliance-counsel` |
+| `QUALITY_AUDIT` | Аудит качества по 5 осям | `quality-evaluator` |
+| `FINAL_GATE` | Финальное утверждение и передача пакета | `hermes-orchestrator` + Человек |
+| `AAR` | Постпроектная рефлексия | `hermes-orchestrator` |
+
+`stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
 
 ```text
-[1. User Request & Interview]
+[USER_REQUEST: execution_request.json]
               |
               v
-[2. Stage-Gate 1: Execution Plan Approval]
+[PLAN_APPROVAL: Stage-Gate 1]
               |
               v
-[3. Multi-Source Research (multi-source-researcher)]
+[RESEARCH]
               |
               v
-[4. Product Strategy & FinModel (product-manager)]
+[PRODUCT_STRATEGY]
               |
               v
-[5. Legal Check-in Phase 1: Concept (legal-compliance-counsel)]
+[LEGAL_CONCEPT]
               |
               v
-[6. Business Requirements & NFR (business-analyst)]
+[BUSINESS_REQUIREMENTS]
               |
               v
-[7. Legal Check-in Phase 2: BRD (legal-compliance-counsel)]  (max 3 iterations)
+[LEGAL_BRD: max 3 итерации]
               |
               v
-[8. Presentation & Synthesis (research-synthesist)]
+[SYNTHESIS]
               |
               v
-[8.5. Legal Check-in Phase 3: Synthesis (legal-compliance-counsel)]
+[LEGAL_SYNTHESIS]
               |
               v
-[9. Quality Audit (quality-evaluator)]
+[QUALITY_AUDIT]
               |
       +-------+--------+
       |                |
  Score >= 85      Score < 85
       |                |
       v                v
-[10. Final       [Self-Healing: return to artifact owner (steps 3-8)]
- Stage-Gate]           |
-      |                +-- REG_* / CRITICAL / HIGH --> [Legal Check-in 5, 7 or 8.5] --+
-      |                |                                                          |
-      |                +-- otherwise --> [Rework by owner, steps 3-8] -------------+
-      |                                                                           |
-      |                                                                           v
-      |                                                              [9. Quality Audit, repeat]
+[FINAL_GATE]     [Self-Healing: return to artifact owner]
+      |                |
+      |                +-- REG_* / CRITICAL / HIGH --> [LEGAL_CONCEPT / LEGAL_BRD / LEGAL_SYNTHESIS] --+
+      |                |                                                                              |
+      |                +-- otherwise --> [Rework by owner] -------------------------------------------+
+      |                                                                                               |
+      |                                                                                               v
+      |                                                                                  [QUALITY_AUDIT, repeat]
       |
       v
-[11. Post-Project AAR & Memory Refactoring]
+[AAR: Post-Project AAR & Memory Refactoring]
 ```
 
 ### Цикл самовосстановления и возврат дефектов (Self-Healing loop):
 
-При `overall_score < 85` на шаге 9 (`quality-evaluator`) цикл Self-Healing возвращает артефакт **не в Legal Check-in автоматически, а к владельцу артефакта** — соответствующий воркер (шаги 3–8 DAG), который его подготовил. Повторный Legal Check-in (шаг 5, 7 или 8.5) запускается только если дефект относится к регуляторному/юридическому контуру (`CRITICAL`/`HIGH` риск, код `REG_*`). При сохранении блокирующих дефектов после 3 итераций `hermes-orchestrator` останавливает цикл и эскалирует проблему Человеку на Stage-Gate.
+При `overall_score < 85` на этапе `QUALITY_AUDIT` (`quality-evaluator`) цикл Self-Healing возвращает артефакт **не в Legal Check-in автоматически, а к владельцу артефакта** — соответствующему воркеру, который его подготовил. Повторный Legal Check-in этапа `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS` запускается только если дефект относится к регуляторному/юридическому контуру (`CRITICAL`/`HIGH` риск, код `REG_*`). При сохранении блокирующих дефектов после 3 итераций `hermes-orchestrator` останавливает цикл и эскалирует проблему Человеку (статус `ESCALATED`).
 
 ### Ключевые правила взаимодействия на этапах DAG:
 
-1. **Запуск исследования (Шаг 3):** `multi-source-researcher` собирает факты Tier 1–3 и формирует `research_output.json`.
-2. **Продуктовая разработка (Шаг 4):** `product-manager` строит финмодель (NII, NIM, LTV/CAC) и тарифы в `product_strategy.json`.
-3. **Первичный Legal Check-in (Шаг 5):** `legal-compliance-counsel` оценивает концепцию продукта до передачи аналитику (контракт `legal_review_request.json` допускает отсутствие BRD на этом этапе).
-4. **Формализация требований (Шаг 6):** `business-analyst` трансформирует одобренную концепцию в `business_requirements.json` (BRD, Gherkin, NFR, System Impact Matrix).
-5. **Вторичный Legal Check-in (Шаг 7):** Юрист проверяет итоговый BRD. При обнаружении рисков категории `CRITICAL` или `HIGH` запускается доработка (не более 3 итераций).
-6. **Синтез и верстка (Шаг 8):** `research-synthesist` подключается **только после завершения формирования продуктовой концепции, BRD и правового аудита** для создания итоговых презентаций (pitch deck), исследований и отчетов. Выходные данные `research-synthesist` проходят повторную правовую перепроверку (Шаг 8.5, Legal Check-in Phase 3) перед передачей в аудит качества.
-7. **Аудит качества (Шаг 9):** `quality-evaluator` проверяет весь собранный пакет артефактов.
+1. **`RESEARCH`:** `multi-source-researcher` собирает факты Tier 1–3 и формирует `research_output.json`.
+2. **`PRODUCT_STRATEGY`:** `product-manager` строит финмодель (NII, NIM, LTV/CAC) и тарифы в `product_strategy.json`.
+3. **`LEGAL_CONCEPT`:** `legal-compliance-counsel` оценивает концепцию продукта до передачи аналитику (контракт `legal_review_request.json` допускает отсутствие BRD на этом этапе).
+4. **`BUSINESS_REQUIREMENTS`:** `business-analyst` трансформирует одобренную концепцию в `business_requirements.json` (BRD, Gherkin, NFR, System Impact Matrix).
+5. **`LEGAL_BRD`:** Юрист проверяет итоговый BRD. При обнаружении рисков категории `CRITICAL` или `HIGH` запускается доработка (не более 3 итераций).
+6. **`SYNTHESIS`:** `research-synthesist` подключается **только после завершения формирования продуктовой концепции, BRD и правового аудита** для создания итоговых презентаций (pitch deck), исследований и отчетов. Выходные данные `research-synthesist` проходят повторную правовую перепроверку `LEGAL_SYNTHESIS` перед передачей в аудит качества.
+7. **`QUALITY_AUDIT`:** `quality-evaluator` проверяет весь собранный пакет артефактов.
+8. **`FINAL_GATE`:** Человек утверждает финальный пакет; без явного одобрения проект не получает статус `COMPLETED_APPROVED`.
+9. **`AAR`:** проводится только после `FINAL_GATE`; при `ESCALATED`, `STOPPED` или незакрытом `REG_*` не запускается.
 
 ---
 

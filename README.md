@@ -21,7 +21,7 @@
 Кратко ключевые принципы:
 
 - **Ноль галлюцинаций** — каждая цифра и норма права обоснованы первичным источником
-- **Stage-Gate HITL** — план утверждается один раз на старте; повторно — финальный пакет, эскалации и этапы с `approval_required: true`
+- **Stage-Gate HITL** — план утверждается один раз на `PLAN_APPROVAL`; повторно — `FINAL_GATE`, эскалации и этапы с `approval_required: true`
 - **Triple-Gate контроль** — синтаксис → правовая экспертиза → смысловой аудит (порог ≥ 85)
 - **Централизованная диспетчеризация** — никаких прямых передач между воркерами
 - **Self-Healing** — до 3 итераций автоисправления, затем эскалация
@@ -39,7 +39,7 @@
 | `business-analyst` | Бизнес- и системный аналитик (BRD, Gherkin, NFR) | `business_requirements.json`, `ba_flight_log.json` |
 | `legal-compliance-counsel` | Старший юрисконсульт и комплаенс-офицер РФ | `legal_compliance_report.json`, `legal_flight_log.json` |
 | `research-synthesist` | Аналитик-синтетик, верстка (Marp, PPTX, Typst, Mermaid) | Презентация/отчет, `synthesist_flight_log.json` |
-| `quality-evaluator` | Критик, аудит 5 осей, Self-Healing | `evaluation_report.json`, `evaluator_flight_log.json` |
+| `quality-evaluator` | Критик, аудит 5 осей, отчёт для Self-Healing | `evaluation_report.json`, `evaluator_flight_log.json` |
 
 ---
 
@@ -48,7 +48,7 @@
 1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте папки памяти `/memory/cases/{project_id}/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`.
 2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
 3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
-4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на финальном Stage-Gate, при эскалации и для этапов с `approval_required: true`.
+4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на `FINAL_GATE`, при эскалации и для этапов с `approval_required: true`.
 5. **Примите аудит качества:** `quality-evaluator` выдаст `evaluation_report.json`. Score ≥ 85 — артефакт к вам; < 85 — Self-Healing (до 3 итераций).
 6. **Подпишите финал:** после финального Stage-Gate получите пакет `final_package` + отчет AAR.
 

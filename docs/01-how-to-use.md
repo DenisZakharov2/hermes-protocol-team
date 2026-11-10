@@ -85,6 +85,24 @@
 
 ## 5. Пошаговый сквозной путь выполнения проекта
 
+Шаги 1–11 соответствуют стабильным `stage_code` из `execution_plan.json`:
+
+| Шаг руководства | `stage_code` |
+|---|---|
+| Шаг 1. Stage-Gate 1 | `PLAN_APPROVAL` |
+| Шаг 2. Исследование | `RESEARCH` |
+| Шаг 3. Продуктовая стратегия | `PRODUCT_STRATEGY` |
+| Шаг 4. Legal Check-in №1 | `LEGAL_CONCEPT` |
+| Шаг 5. BRD и системный анализ | `BUSINESS_REQUIREMENTS` |
+| Шаг 6. Legal Check-in №2 | `LEGAL_BRD` |
+| Шаг 7. Синтез и верстка | `SYNTHESIS` |
+| Шаг 8. Legal Check-in №3 | `LEGAL_SYNTHESIS` |
+| Шаг 9. Аудит качества | `QUALITY_AUDIT` |
+| Шаг 10. Финальное одобрение | `FINAL_GATE` |
+| Шаг 11. Постпроектная рефлексия | `AAR` |
+
+Шаг 0 — подготовка `execution_request.json` — выполняется до создания плана и не входит в `stages`.
+
 ### Шаг 0. Формулировка запроса (`execution_request.json`)
 
 Заказчик составляет входной запрос:
@@ -105,9 +123,9 @@
 
 ### Шаг 1. Stage-Gate 1 — утверждение плана исполнения
 
-Оркестратор декомпозирует запрос в DAG и составляет `execution_plan.json` со всеми этапами, ответственными агентами и JSON-контрактами.
+Оркестратор декомпозирует запрос в DAG и составляет `execution_plan.json` со всеми этапами, зависимостями `depends_on`, ответственными агентами и JSON-контрактами.
 
-**Действие Заказчика:** просмотрите план, проверьте этапы и ответственных, утвердите. Без подтверждения на Stage-Gate 1 команда не начинает исследование.
+**Действие Заказчика:** просмотрите план, проверьте этапы и ответственных, утвердите на `PLAN_APPROVAL`. Без подтверждения на Stage-Gate 1 команда не начинает исследование. Это единственное обязательное утверждение плана: дальше этапы исполняются без отдельного согласования, если у них не стоит `approval_required: true`.
 
 ### Шаг 2. Исследование рынка и первичных данных
 
@@ -153,16 +171,16 @@
 4. Structural Completeness & Depth (15 %)
 5. Practical Executability & Feasibility (15 %)
 
-- Балл ≥ 85 → статус `PASSED`, артефакт переходит к Заказчику.
-- Балл < 85 → статус `REJECTED`, список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in.
+- Балл ≥ 85 → статус `PASSED`, артефакт переходит к `FINAL_GATE`.
+- Балл < 85 → статус `REJECTED`, список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 
 ### Шаг 10. Финальное одобрение и передача пакета
 
-**Действие Заказчика:** проанализируйте отчет аудита, финальные артефакты и историю Stage-Gate в `orchestration_output.json`, дайте финальное одобрение. Получите пакет `final_package` (стратегия, BRD, юрист-отчет, презентация, оценка качества).
+**Действие Заказчика:** проанализируйте отчет аудита, финальные артефакты и историю Stage-Gate в `orchestration_output.json`, дайте финальное одобрение на `FINAL_GATE`. Получите пакет `final_package` (стратегия, BRD, юрист-отчет, презентация, оценка качества).
 
 ### Шаг 11. Постпроектная рефлексия (AAR)
 
-После одобрения команда проводит AAR:
+После `FINAL_GATE` команда проводит AAR. При статусе `ESCALATED` или `STOPPED`, а также при незакрытом `REG_*` AAR не запускается:
 
 - фиксирует вашу оценку 1–5 и комментарии;
 - составляет `project_aar.json` с патчами скиллов (`skill_patches`);
@@ -173,26 +191,27 @@
 
 ## 6. Таблица взаимодействия: кто, что и когда передает
 
-| Отправитель | Получатель | Артефакт | Когда |
+| Отправитель | Получатель | Артефакт | Когда (`stage_code`) |
 |---|---|---|---|
 | Заказчик | `hermes-orchestrator` | `execution_request.json` | Старт |
-| `hermes-orchestrator` | Заказчик | `execution_plan.json` | Stage-Gate 1 |
-| `hermes-orchestrator` | `multi-source-researcher` | `research_task.json` | Шаг 2 |
-| `multi-source-researcher` | `hermes-orchestrator` | `research_output.json` | Шаг 2 завершен |
-| `hermes-orchestrator` | `product-manager` | `product_brief.json` + исследование | Шаг 3 |
-| `product-manager` | `hermes-orchestrator` | `product_strategy.json` | Шаг 3 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (концепция) | Шаг 4 |
-| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | Шаг 4 завершен |
-| `hermes-orchestrator` | `business-analyst` | `ba_input_contract.json` | Шаг 5 |
-| `business-analyst` | `hermes-orchestrator` | `business_requirements.json` | Шаг 5 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (BRD) | Шаг 6 |
-| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | Шаг 6 завершен |
-| `hermes-orchestrator` | `research-synthesist` | `brief_schema.json` | Шаг 7 |
-| `research-synthesist` | `hermes-orchestrator` | Презентация / отчет | Шаг 7 завершен |
-| `hermes-orchestrator` | `legal-compliance-counsel` | Синтез (проверка №3) | Шаг 8 |
-| `hermes-orchestrator` | `quality-evaluator` | `eval_request.json` + пакет | Шаг 9 |
-| `quality-evaluator` | `hermes-orchestrator` | `evaluation_report.json` | Шаг 9 завершен |
-| `hermes-orchestrator` | Заказчик | `orchestration_output.json` + финальный пакет | Stage-Gate финал |
+| `hermes-orchestrator` | Заказчик | `execution_plan.json` | `PLAN_APPROVAL` |
+| `hermes-orchestrator` | `multi-source-researcher` | `research_task.json` | `RESEARCH` |
+| `multi-source-researcher` | `hermes-orchestrator` | `research_output.json` | `RESEARCH` завершён |
+| `hermes-orchestrator` | `product-manager` | `product_brief.json` + исследование | `PRODUCT_STRATEGY` |
+| `product-manager` | `hermes-orchestrator` | `product_strategy.json` | `PRODUCT_STRATEGY` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (концепция) | `LEGAL_CONCEPT` |
+| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | `LEGAL_CONCEPT` завершён |
+| `hermes-orchestrator` | `business-analyst` | `ba_input_contract.json` | `BUSINESS_REQUIREMENTS` |
+| `business-analyst` | `hermes-orchestrator` | `business_requirements.json` | `BUSINESS_REQUIREMENTS` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | `legal_review_request.json` (BRD) | `LEGAL_BRD` |
+| `legal-compliance-counsel` | `hermes-orchestrator` | `legal_compliance_report.json` | `LEGAL_BRD` завершён |
+| `hermes-orchestrator` | `research-synthesist` | `brief_schema.json` | `SYNTHESIS` |
+| `research-synthesist` | `hermes-orchestrator` | Презентация / отчет | `SYNTHESIS` завершён |
+| `hermes-orchestrator` | `legal-compliance-counsel` | Синтез (проверка №3) | `LEGAL_SYNTHESIS` |
+| `hermes-orchestrator` | `quality-evaluator` | `eval_request.json` + пакет | `QUALITY_AUDIT` |
+| `quality-evaluator` | `hermes-orchestrator` | `evaluation_report.json` | `QUALITY_AUDIT` завершён |
+| `hermes-orchestrator` | Заказчик | `orchestration_output.json` + финальный пакет | `FINAL_GATE` |
+| `hermes-orchestrator` | Заказчик | `project_aar.json` + `project_final_review.md` | `AAR` |
 
 **Правило:** прямые фоновые передачи между воркерами запрещены — всё через `hermes-orchestrator`.
 

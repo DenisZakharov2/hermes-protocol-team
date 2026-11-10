@@ -5,6 +5,7 @@
   "stages": [
     {
       "stage_id": 1,
+      "stage_code": "PLAN_APPROVAL",
       "name": "Plan Approval",
       "owner_agent": "hermes-orchestrator",
       "inputs": [
@@ -13,24 +14,31 @@
       "outputs": [
         "execution_plan.json"
       ],
+      "depends_on": [],
       "approval_required": true,
       "status": "COMPLETED"
     },
     {
-      "stage_id": 3,
+      "stage_id": 2,
+      "stage_code": "RESEARCH",
       "name": "Market research",
       "owner_agent": "multi-source-researcher",
       "inputs": [
-        "research_task.json"
+        "research_task.json",
+        "research_plan.json"
       ],
       "outputs": [
         "research_output.json"
       ],
+      "depends_on": [
+        "PLAN_APPROVAL"
+      ],
       "approval_required": false,
-      "status": "COMPLETED"
+      "status": "PENDING"
     },
     {
-      "stage_id": 4,
+      "stage_id": 3,
+      "stage_code": "PRODUCT_STRATEGY",
       "name": "Product strategy",
       "owner_agent": "product-manager",
       "inputs": [
@@ -40,27 +48,165 @@
       "outputs": [
         "product_strategy.json"
       ],
+      "depends_on": [
+        "RESEARCH"
+      ],
       "approval_required": false,
-      "status": "COMPLETED"
+      "status": "PENDING"
     },
     {
-      "stage_id": 5,
-      "name": "Legal Check-in 1",
+      "stage_id": 4,
+      "stage_code": "LEGAL_CONCEPT",
+      "name": "Legal Check-in: Concept",
       "owner_agent": "legal-compliance-counsel",
       "inputs": [
-        "legal_review_request.json"
+        "legal_review_request.json",
+        "product_strategy.json"
       ],
       "outputs": [
         "legal_compliance_report.json"
       ],
+      "depends_on": [
+        "PRODUCT_STRATEGY"
+      ],
       "approval_required": false,
-      "status": "COMPLETED"
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 5,
+      "stage_code": "BUSINESS_REQUIREMENTS",
+      "name": "Business requirements",
+      "owner_agent": "business-analyst",
+      "inputs": [
+        "ba_input_contract.json",
+        "product_strategy.json",
+        "legal_compliance_report.json"
+      ],
+      "outputs": [
+        "business_requirements.json"
+      ],
+      "depends_on": [
+        "LEGAL_CONCEPT"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 6,
+      "stage_code": "LEGAL_BRD",
+      "name": "Legal Check-in: BRD",
+      "owner_agent": "legal-compliance-counsel",
+      "inputs": [
+        "legal_review_request.json",
+        "business_requirements.json"
+      ],
+      "outputs": [
+        "legal_compliance_report.json"
+      ],
+      "depends_on": [
+        "BUSINESS_REQUIREMENTS"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 7,
+      "stage_code": "SYNTHESIS",
+      "name": "Synthesis and layout",
+      "owner_agent": "research-synthesist",
+      "inputs": [
+        "brief_schema.json",
+        "product_strategy.json",
+        "business_requirements.json",
+        "legal_compliance_report.json"
+      ],
+      "outputs": [
+        "synthesist_output.json"
+      ],
+      "depends_on": [
+        "LEGAL_BRD"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 8,
+      "stage_code": "LEGAL_SYNTHESIS",
+      "name": "Legal Check-in: Synthesis",
+      "owner_agent": "legal-compliance-counsel",
+      "inputs": [
+        "legal_review_request.json",
+        "synthesist_output.json"
+      ],
+      "outputs": [
+        "legal_compliance_report.json"
+      ],
+      "depends_on": [
+        "SYNTHESIS"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 9,
+      "stage_code": "QUALITY_AUDIT",
+      "name": "Quality audit",
+      "owner_agent": "quality-evaluator",
+      "inputs": [
+        "eval_request.json",
+        "final_package"
+      ],
+      "outputs": [
+        "evaluation_report.json"
+      ],
+      "depends_on": [
+        "LEGAL_SYNTHESIS"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 10,
+      "stage_code": "FINAL_GATE",
+      "name": "Final Gate",
+      "owner_agent": "hermes-orchestrator",
+      "inputs": [
+        "orchestration_output.json",
+        "final_package"
+      ],
+      "outputs": [
+        "orchestration_output.json"
+      ],
+      "depends_on": [
+        "QUALITY_AUDIT"
+      ],
+      "approval_required": true,
+      "status": "PENDING"
+    },
+    {
+      "stage_id": 11,
+      "stage_code": "AAR",
+      "name": "Post-Project AAR",
+      "owner_agent": "hermes-orchestrator",
+      "inputs": [
+        "orchestration_output.json",
+        "project_final_review.md"
+      ],
+      "outputs": [
+        "project_aar.json",
+        "project_final_review.md"
+      ],
+      "depends_on": [
+        "FINAL_GATE"
+      ],
+      "approval_required": false,
+      "status": "PENDING"
     }
   ],
   "approval": {
     "status": "APPROVED",
     "approved_by_human": true,
     "approved_at": "2026-10-17T10:00:00Z",
-    "comments": "План утвержден на Stage-Gate 1"
+    "comments": "План утвержден на Stage-Gate 1 (PLAN_APPROVAL)"
   }
 }

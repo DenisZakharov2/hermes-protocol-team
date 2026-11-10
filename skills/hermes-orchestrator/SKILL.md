@@ -48,7 +48,7 @@ version: 2.2.0
 ### А. Входит в компетенцию:
 
 1. **Управление DAG-графом исполнения**: Декомпозиция инициатив Человека на подзадачи, делегирование задач специализированным агентам `multi-source-researcher`, `product-manager`, `business-analyst`, `legal-compliance-counsel`, `research-synthesist` и `quality-evaluator`. Запрет прямой P2P-передачи артефактов между воркерами ввиду необходимости централизованного контроля.
-2. **Stage-Gate Control (Human-in-the-Loop)**: Человек утверждает один `execution_plan.json` на Stage-Gate 1. Дальше оркестратор исполняет утверждённые этапы. Повторное утверждение обязательно на финальном Stage-Gate, при эскалации (`ESCALATED`) и для этапов с `approval_required: true`. Новый `execution_plan.json` на каждый этап не создаётся: меняются `status` этапа и `plan_version`.
+2. **Stage-Gate Control (Human-in-the-Loop)**: Человек утверждает один `execution_plan.json` на `PLAN_APPROVAL`. Дальше оркестратор исполняет утверждённые этапы. Повторное утверждение обязательно на `FINAL_GATE`, при эскалации (`ESCALATED`) и для этапов с `approval_required: true`. Новый `execution_plan.json` на каждый этап не создаётся: меняются `status` этапа и `plan_version`.
 3. **Параллелизм и асинхронность (Async & Parallel)**: Параллельные подзапросы допускаются внутри `research_plan.json`. Межагентные ветки DAG исполняются в порядке, заданном `depends_on` в `execution_plan.json`; без явных зависимостей ветки не параллелятся.
 4. **Организация Triple-Gate Control & Self-Healing Loop**:
    - Синтаксический контроль через валидацию по JSON-схеме (до 3 попыток автоисправления).
@@ -103,24 +103,27 @@ version: 2.2.0
 
 ## 6. **Алгоритм работы и порядок взаимодействия агента-оркестратора hermes-orchestrator**
 
-1. **Планирование и Stage-Gate 1**: Принять запрос Человека, сформировать единый `execution_plan.json` со всеми этапами, запросить подтверждение Человека. После утверждения план не пересоздаётся: обновляются `status` этапов и `plan_version`.
-2. **Исследовательская фаза**: Направить `research_task.json` в `multi-source-researcher`. Получить `research_output.json`.
-3. **Продуктовая концепция & Предварительный Legal Check-in**:
+1. **`PLAN_APPROVAL`**: Принять запрос Человека, сформировать единый `execution_plan.json` со всеми этапами и зависимостями, запросить подтверждение Человека. После утверждения план не пересоздаётся: обновляются `status` этапов и `plan_version`.
+2. **`RESEARCH`**: Направить `research_task.json` в `multi-source-researcher`, получить `research_output.json`.
+3. **`PRODUCT_STRATEGY` → `LEGAL_CONCEPT`**:
    - Передать данные исследования в `product-manager` для формирования `product_strategy.json`.
-   - Передать концепцию в `legal-compliance-counsel` на предварительный Legal Check-in.
-   - В случае правовых рисков запустить доработку в `product-manager` (не более 3 итераций).
-4. **Формирование требований BRD & Финальный Legal Check-in**:
+   - Передать концепцию в `legal-compliance-counsel` на Legal Check-in `LEGAL_CONCEPT`.
+   - При правовых рисках запустить доработку в `product-manager` (не более 3 итераций), затем повторить `LEGAL_CONCEPT`.
+4. **`BUSINESS_REQUIREMENTS` → `LEGAL_BRD`**:
    - Направить утвержденную стратегию в `business-analyst` для формирования `business_requirements.json`.
-   - Передать полный пакет в `legal-compliance-counsel` на итоговый Legal Check-in.
-5. **Синтез и Верстка (Research Synthesist)**:
+   - Передать полный пакет в `legal-compliance-counsel` на Legal Check-in `LEGAL_BRD`.
+   - При рисках `CRITICAL`/`HIGH` — доработка владельцем и повторный `LEGAL_BRD` (не более 3 итераций).
+5. **`SYNTHESIS` → `LEGAL_SYNTHESIS`**:
    - Передать согласованную стратегию, BRD и юридическое заключение в `research-synthesist` для верстки финальных материалов, презентаций и отчетов.
-   - **5.5. Правовая перепроверка синтеза (Legal Check-in Phase 3)**:
-     - Передать выходные данные `research-synthesist` (презентации, слайды, отчеты с тарифами и дисклеймерами) в `legal-compliance-counsel` на повторную правовую проверку перед аудитом качества.
-     - При обнаружении рисков категории `CRITICAL` или `HIGH` — доработка в `research-synthesist` (до 3 итераций), затем повторная перепроверка.
-6. **Аудит качества & Self-Healing (Triple-Gate)**:
-   - Направить скомпонованный пакет в `quality-evaluator` только после Phase 3 Legal Check-in.
-   - В случае `overall_score < 85` сформировать задачу на доработку владельцу артефакта — соответствующий воркер (шаги 3–8 DAG), не напрямую к юристу (максимум 3 цикла Self-Healing). Если дефект регуляторный/юридический (код `REG_*`, риск `CRITICAL`/`HIGH`), после доработки провести повторный Legal Check-in (шаг 5, 5.5 или 7). При исчерпании 3 итераций без устранения блока — эскалировать Человеку на Stage-Gate, статус `execution_status` = `ESCALATED`.
-7. **Финализация, сдача Человеку и AAR**: Передать результаты Человеку на утверждение. После approval запустить фазу AAR и записать уроки в память.
+   - Передать выходные данные `research-synthesist` (презентации, слайды, отчеты с тарифами и дисклеймерами) в `legal-compliance-counsel` на повторную правовую проверку `LEGAL_SYNTHESIS` перед аудитом качества.
+   - При обнаружении рисков категории `CRITICAL` или `HIGH` — доработка в `research-synthesist` (до 3 итераций), затем повторный `LEGAL_SYNTHESIS`.
+6. **`QUALITY_AUDIT` и Self-Healing**:
+   - Направить скомпонованный пакет в `quality-evaluator` только после `LEGAL_SYNTHESIS`.
+   - В случае `overall_score < 85` сформировать задачу на доработку владельцу артефакта — соответствующему воркеру, не напрямую к юристу (максимум 3 цикла Self-Healing).
+   - Если дефект регуляторный/юридический (код `REG_*`, риск `CRITICAL`/`HIGH`), после доработки повторить Legal Check-in того контура, к которому относится дефект: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`. Не запускать AAR и не считать исчерпание лимита успехом.
+   - При исчерпании 3 итераций без устранения блока — эскалировать Человеку, статус `execution_status` = `ESCALATED`.
+7. **`FINAL_GATE`**: Передать результаты Человеку на утверждение. Только после явного одобрения статус `execution_status` = `COMPLETED_APPROVED`.
+8. **`AAR`**: После `FINAL_GATE` запустить фазу AAR и записать уроки в память. При `ESCALATED` или `STOPPED`, а также при незакрытом `REG_*` AAR не запускается.
 
 ## 7. **Ведение бортового журнала и фиксация действий**
 

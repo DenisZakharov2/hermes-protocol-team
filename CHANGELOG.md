@@ -4,9 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- `execution_plan.schema.json`: обязательные `stage_code` и `depends_on`; 11 стабильных кодов этапов. Пример плана покрывает полный DAG, валидатор проверяет уникальность `stage_code`, непрерывность `stage_id` и корректность зависимостей.
+
 ### Changed
 
 - Stage-Gate: один `execution_plan.json` утверждается на старте; повторное утверждение — только финальный пакет, эскалации и этапы с `approval_required: true`. Параллелизм ограничен подзапросами `research_plan.json` и явными зависимостями `depends_on`.
+- Self-Healing использует коды `LEGAL_CONCEPT`, `LEGAL_BRD`, `LEGAL_SYNTHESIS`; цикл запускает `hermes-orchestrator`, а `quality-evaluator` только возвращает отчёт.
 
 ### Fixed
 
