@@ -12,6 +12,9 @@
 - `scripts/validate-json.mjs` проверяет полные JSON-контракты в `skills/*/SKILL.md`, помеченные `<!-- validate-json: <schema> -->`; сокращённые шаблоны с плейсхолдерами остаются вне проверки.
 - `legal_compliance_report.schema.json`: поле `mitigation_status` (`OPEN`/`DONE`), `judicial_precedent` может быть `null` вместо заглушки.
 - `research_output.schema.json`: обязательный флаг `illustrative` для учебных источников.
+- Раздел `## Learned Guardrails` во всех 7 `skills/*/SKILL.md` — единый якорь для переноса `skill_patches` из `project_aar.json`.
+- `examples/project_final_review.example.md` — Markdown-шаблон итогового отчёта AAR с разделами из `docs/05-aar.md` §4 на данных сквозного проекта `SAV_DEP_2026_01`.
+- Ссылка на шаблон итогового отчёта из `docs/03-artifacts.md` §3 и `examples/README.md`.
 
 ### Changed
 
@@ -29,6 +32,10 @@
 - Память сведена к одной трёхуровневой модели: процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`). Явно указано, кто пишет в каждый каталог: `hermes-orchestrator` после AAR, `legal-compliance-counsel` и сопровождающий домена.
 - Stage-Gate: один `execution_plan.json` утверждается на старте; повторное утверждение — только финальный пакет, эскалации и этапы с `approval_required: true`. Параллелизм ограничен подзапросами `research_plan.json` и явными зависимостями `depends_on`.
 - Self-Healing использует коды `LEGAL_CONCEPT`, `LEGAL_BRD`, `LEGAL_SYNTHESIS`; цикл запускает `hermes-orchestrator`, а `quality-evaluator` только возвращает отчёт.
+- `project_aar.schema.json`: поле `section` зафиксировано как `const: "Learned Guardrails"`; агент-владелец патча определяется полем `agent_id`. Имена `Learned BA/Product/Legal/Research/Synthesis/Evaluation Guardrails` в скиллах заменены на единое `## Learned Guardrails`.
+- Назначены владельцы `it_landscape.json` (`hermes-orchestrator`, сбор из `execution_request` и входа Заказчика) и `regulatory_checklist.json` (`legal-compliance-counsel`, на `LEGAL_CONCEPT`); `business-analyst` — потребитель обоих файлов.
+- Заголовки скиллов приведены к виду `## 1. Роль` без жирного начертания; языковые формулировки унифицированы («пороги качества», «воркер», «передачей человеку», «скиллов», «трёхуровневый»).
+- Решение по абсолютным путям `/memory/...` в полях `artifact_root` и `lessons_indexed_to` контрактов 2.2.x зафиксировано в `docs/03-artifacts.md` §5: переход на относительный путь — отдельный минорный релиз.
 
 ### Fixed
 
@@ -40,6 +47,7 @@
 - `scripts/init-memory.mjs` создаёт документированные подкаталоги памяти (`domain_knowledge/{regulatory,nfr_profiles,templates}`, `legal_precedents/{vs_rf,as_rf,ks_rf}`) и `.gitkeep` в листьях; шаблон памяти коммитится, содержимое — нет. Убрана устаревшая подсказка про `package.json`, исправлена орфография «трёхуровневая».
 - Диаграммы DAG и Self-Healing приведены в соответствие с текстом: добавлены обычный и юридический циклы доработки (правка владельцем → Legal Check-in → аудит), успех ведёт через `FINAL_GATE`, база счётчика Self-Healing задана явно (0, первичное падение не входит в лимит; 3 неудачных цикла доработки → `ESCALATED`).
 - Юридический контур: 102-ФЗ исправлен на закон об ипотеке, банковская тайна отнесена к ст. 26 395-1-ФЗ; добавлен канонический перечень `docs/legal-stack.md`; перечни в скиллах и `docs/` синхронизированы, правило маскирования карт и секретов отделено от привязки к 102-ФЗ.
+- Changelog скиллов больше не заявляет «добавлены Learned Guardrails» для версии 2.1.0: запись 2.1.0 приведена к фактическому содержанию, текущее изменение внесено строкой `Unreleased`.
 
 ## [2.2.0] - 2026-11-06
 
