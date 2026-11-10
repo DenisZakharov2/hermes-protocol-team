@@ -8,13 +8,14 @@
 
 - `execution_plan.schema.json`: обязательные `stage_code` и `depends_on`; 11 стабильных кодов этапов. Пример плана покрывает полный DAG, валидатор проверяет уникальность `stage_code`, непрерывность `stage_id` и корректность зависимостей.
 - `flight_log.schema.json`: счётчики `self_healing_attempt` и `legal_iteration` (0–3) для фиксации итераций доработки.
+- `scripts/validate-json.mjs` проверяет регламентные инварианты: формула `overall_score` с допуском 0.05, согласованность `passed` с порогом, агрегацию `overall_risk_score`, связку `approved_by_human` с вердиктом, вложенный артефакт в `eval_request` и совпадение `project_id`. Все схемы компилируются заранее через единый Ajv с общей схемой определений.
 
 ### Changed
 
 - Все 21 рабочая схема ссылаются на общие `definitions` (Draft-07) по URN: `ProjectId`, `TaskId`, `EvalId`, `AgentId`, `RiskLevel`, `TimestampISO`, `ArtifactRef` и другие. Копипаста enum'ов и паттернов удалена.
 - `definitions.schema.json`: `$defs` заменён на `definitions`, `ContactInfo` удалён (22 определения), enum'ы выровнены с рабочими схемами (`ExecutionStatus`, `StageGateVerdict`, `LegalStatus`, `OutputFormat`, `VersionString`).
 - `research_output.schema.json`: обязательный `project_id`; `SourceId` использует единый паттерн `^SRC_[A-Z0-9_]+$`.
-
+- `orchestration_output.schema.json`: `final_package` обязателен только для `COMPLETED_APPROVED` и `PENDING_HUMAN`; `project_aar` — только для `COMPLETED_APPROVED` и запрещён для остальных статусов.
 - Память сведена к одной трёхуровневой модели: процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`). Явно указано, кто пишет в каждый каталог: `hermes-orchestrator` после AAR, `legal-compliance-counsel` и сопровождающий домена.
 - Stage-Gate: один `execution_plan.json` утверждается на старте; повторное утверждение — только финальный пакет, эскалации и этапы с `approval_required: true`. Параллелизм ограничен подзапросами `research_plan.json` и явными зависимостями `depends_on`.
 - Self-Healing использует коды `LEGAL_CONCEPT`, `LEGAL_BRD`, `LEGAL_SYNTHESIS`; цикл запускает `hermes-orchestrator`, а `quality-evaluator` только возвращает отчёт.
@@ -23,6 +24,7 @@
 
 - `synthesist_output.schema.json`: убран дублирующий `type: object`, поля `visualization_specs.items` описаны (`type`, `title`, `source`).
 - `ContactInfo` удалён из общих определений; абсолютные пути `/memory/...` в `artifact_root` и `lessons_indexed_to` оставлены в контракте 2.2.x и явно задокументированы в `description`.
+- Примеры приведены к инвариантам: `legal_compliance_report` (`overall_risk_score: HIGH`), `eval_request` (валидный `regulatory_nfr`), `orchestration_output` (без `project_aar` при `PENDING_HUMAN`), `research_output` (`project_id`).
 - `scripts/init-memory.mjs` создаёт документированные подкаталоги памяти (`domain_knowledge/{regulatory,nfr_profiles,templates}`, `legal_precedents/{vs_rf,as_rf,ks_rf}`) и `.gitkeep` в листьях; шаблон памяти коммитится, содержимое — нет. Убрана устаревшая подсказка про `package.json`, исправлена орфография «трёхуровневая».
 - Диаграммы DAG и Self-Healing приведены в соответствие с текстом: добавлены обычный и юридический циклы доработки (правка владельцем → Legal Check-in → аудит), успех ведёт через `FINAL_GATE`, база счётчика Self-Healing задана явно (0, первичное падение не входит в лимит; 3 неудачных цикла доработки → `ESCALATED`).
 - Юридический контур: 102-ФЗ исправлен на закон об ипотеке, банковская тайна отнесена к ст. 26 395-1-ФЗ; добавлен канонический перечень `docs/legal-stack.md`; перечни в скиллах и `docs/` синхронизированы, правило маскирования карт и секретов отделено от привязки к 102-ФЗ.
