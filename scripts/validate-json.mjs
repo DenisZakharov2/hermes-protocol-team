@@ -225,6 +225,7 @@ const examples = fs
   .sort();
 
 let failed = 0;
+const projectIdsByExample = new Map();
 
 for (const example of examples) {
   const base = example.replace('.example.json', '');
@@ -259,7 +260,26 @@ for (const example of examples) {
     continue;
   }
 
+  if (typeof data.project_id === 'string') {
+    projectIdsByExample.set(example, data.project_id);
+  } else {
+    failed += 1;
+    console.error(`INVALID CONTRACT ${examplePath}`);
+    console.error('  project_id is required in every example');
+  }
+
   console.log(`OK         ${examplePath}`);
+}
+
+// Сквозной пример — одна история: project_id должен совпадать во всех файлах examples/.
+// Раньше расхождение между примерами проходило незамеченным.
+const distinctProjectIds = new Set(projectIdsByExample.values());
+if (distinctProjectIds.size > 1) {
+  failed += 1;
+  console.error('INVALID CONTRACT examples/: project_id differs between examples');
+  for (const [example, projectId] of projectIdsByExample) {
+    console.error(`  ${example} → ${projectId}`);
+  }
 }
 
 const exampleBases = new Set(
