@@ -30,12 +30,10 @@ Markdown-шаблон итогового отчёта: [`project_final_review.ex
 
 ## Проверка
 
+Все примеры проверяются одной командой из корня репозитория:
+
 ```bash
-for f in examples/*.example.json; do
-  name=$(basename "$f" .example.json)
-  ajv validate --spec=draft7 -c ajv-formats \
-    -s "schemas/$name.schema.json" -d "$f"
-done
+npm run validate
 ```
 
 Имена `*_flight_log.json` (`hermes_flight_log.json`, `researcher_flight_log.json`, `pm_flight_log.json`, `ba_flight_log.json`, `legal_flight_log.json`, `synthesist_flight_log.json`, `evaluator_flight_log.json`) используют общую схему `flight_log.schema.json`.
