@@ -32,7 +32,7 @@
     "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md",
     "validate:json": "node scripts/validate-json.mjs",
     "validate:mermaid": "node scripts/check-mermaid.mjs",
-    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"!.github/CODE_OF_CONDUCT.md\" \"examples/README.md\" \"SECURITY.md\" \"CHANGELOG.md\"",
+    "validate:md": "markdownlint-cli2 --config .markdownlint-cli2.jsonc \"README.md\" \"Hermes_Protocol_Constitution.md\" \"docs/**/*.md\" \"skills/**/SKILL.md\" \".github/**/*.md\" \"!.github/CODE_OF_CONDUCT.md\" \"examples/README.md\" \"examples/*.example.md\" \"SECURITY.md\" \"CHANGELOG.md\"",
     "init:memory": "node scripts/init-memory.mjs",
     "sync:version": "node scripts/sync-version.mjs",
     "generate:docs": "node scripts/generate-docs.mjs"
