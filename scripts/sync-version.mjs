@@ -95,6 +95,21 @@ const updates = [
     replacement: `> Версия: ${newVersion}.`
   },
   {
+    file: 'docs/legal-stack.md',
+    pattern: /> Версия: \d+\.\d+\.\d+\./,
+    replacement: `> Версия: ${newVersion}.`
+  },
+  {
+    file: 'docs/MAINTAINERS.md',
+    pattern: /- Версия команды — `\d+\.\d+\.\d+`/,
+    replacement: `- Версия команды — \`${newVersion}\``
+  },
+  {
+    file: 'docs/MAINTAINERS.md',
+    pattern: /- Тег: `git tag -a v\d+\.\d+\.\d+ -m "Hermes Protocol \d+\.\d+\.\d+" && git push origin v\d+\.\d+\.\d+`\./,
+    replacement: `- Тег: \`git tag -a v${newVersion} -m "Hermes Protocol ${newVersion}" && git push origin v${newVersion}\`.`
+  },
+  {
     file: 'SECURITY.md',
     // Текущая поддерживаемая версия — строка со знаком «✅ Да»
     pattern: /\|\s*\d+\.\d+\.x\s*\|\s*✅ Да\s*\|/,
