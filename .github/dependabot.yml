@@ -22,10 +22,11 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # mermaid и markdownlint-cli2 — реальные devDependencies репозитория;
-      # мажорные версии пропускаются, потому что они ломают Node 22 / CLI-контракт
+      # mermaid и markdownlint-cli2 — реальные devDependencies репозитория.
+      # Мажорные версии mermaid пропускаются: 12.x уже пробовался и откатывался
+      # из-за несовместимости с undici/Node. Рабочая версия — 11.17.2 (см. package.json).
       - dependency-name: "mermaid"
-        versions: [">= 13.0.0"]
+        versions: [">= 12.0.0"]
       - dependency-name: "markdownlint-cli2"
         versions: [">= 1.0.0"]
 
