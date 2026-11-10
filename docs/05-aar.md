@@ -30,13 +30,15 @@
   "skill_patches": [
     {
       "agent_id": "business-analyst",
-      "section": "Learned BA Guardrails",
+      "section": "Learned Guardrails",
       "patch": "STRING"
     }
   ],
   "lessons_indexed_to": "/memory/cases/SAV_DEP_2026_01/"
 }
 ```
+
+`section` всегда равно `Learned Guardrails`; агент, к которому относится патч, задаётся полем `agent_id`.
 
 ## 4. Структура `project_final_review.md`
 

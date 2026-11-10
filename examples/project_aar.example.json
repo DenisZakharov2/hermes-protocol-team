@@ -13,7 +13,7 @@
   "skill_patches": [
     {
       "agent_id": "business-analyst",
-      "section": "Learned BA Guardrails",
+      "section": "Learned Guardrails",
       "patch": "Добавить автоматическую проверку маскирования ПДн в финальной валидации business_requirements.json"
     }
   ],

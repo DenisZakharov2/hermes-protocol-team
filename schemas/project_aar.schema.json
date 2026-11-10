@@ -51,7 +51,8 @@
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "section": {
-            "type": "string"
+            "const": "Learned Guardrails",
+            "description": "Единое имя раздела скилла. Агент, к которому относится патч, задаётся полем agent_id."
           },
           "patch": {
             "type": "string"
