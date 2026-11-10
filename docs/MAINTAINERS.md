@@ -46,7 +46,12 @@ gh api -X PUT repos/DenisZakharov2/hermes-protocol-team/branches/main/protection
 JSON
 ```
 
-Требует прав администратора репозитория. Context `validate` соответствует job из workflow в `.github/workflows/validate.yml`.
+Требует прав администратора репозитория. Фактическое имя обязательного check — `validate`: это job `validate` из workflow `validate` в `.github/workflows/validate.yml` (GitHub показывает его как `validate`, без префикса workflow, потому что имя workflow совпадает с именем job). Проверяется так:
+
+```bash
+gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
+  --jq '.check_runs[] | select(.app.slug == "github-actions") | .name'
+```
 
 ## 4. Релизы и версии
 
