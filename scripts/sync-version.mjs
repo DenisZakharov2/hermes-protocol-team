@@ -133,7 +133,7 @@ for (const update of updates) {
     console.log(`✅ Updated: ${update.file}`);
     updated++;
   } else {
-    console.warn(`⚠️  Pattern not matched: ${update.file}`);
+    console.warn(`⚠️  Pattern not matched: ${update.file} — версия в файле не найдена, проверьте шаблон`);
     skipped.push(update.file);
   }
 }
@@ -141,7 +141,10 @@ for (const update of updates) {
 console.log(`\n📊 Summary: ${updated} files updated, ${skipped.length} issues`);
 
 if (skipped.length > 0) {
-  console.log('\n⚠️  Some files need manual update. Check patterns.');
+  console.log('\n⚠️  Файлы, где версия не синхронизирована (нужна ручная правка):');
+  for (const file of skipped) {
+    console.log(`   - ${file}`);
+  }
   process.exit(1);
 }
 
