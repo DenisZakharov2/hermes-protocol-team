@@ -17,6 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
+          # Актуальная ветка 22.x: jsdom и markdownlint-cli2 требуют Node >= 22.22.2
           node-version: '22'
 
       - name: Install dependencies
