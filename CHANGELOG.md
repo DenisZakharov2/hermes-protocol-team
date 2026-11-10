@@ -16,6 +16,7 @@
 
 ### Fixed
 
+- `scripts/init-memory.mjs` создаёт документированные подкаталоги памяти (`domain_knowledge/{regulatory,nfr_profiles,templates}`, `legal_precedents/{vs_rf,as_rf,ks_rf}`) и `.gitkeep` в листьях; шаблон памяти коммитится, содержимое — нет. Убрана устаревшая подсказка про `package.json`, исправлена орфография «трёхуровневая».
 - Юридический контур: 102-ФЗ исправлен на закон об ипотеке, банковская тайна отнесена к ст. 26 395-1-ФЗ; добавлен канонический перечень `docs/legal-stack.md`; перечни в скиллах и `docs/` синхронизированы, правило маскирования карт и секретов отделено от привязки к 102-ФЗ.
 
 ## [2.2.0] - 2026-11-06
@@ -24,7 +25,7 @@
 
 - `CODEOWNERS` — владельцы кода для обязательного ревью критических путей (схемы, скиллы, примеры, docs, CI)
 - `dependabot.yml` — еженедельные обновления npm (devDependencies) и GitHub Actions с игнором мажорных версий `mermaid@13` и `markdownlint-cli2@1`
-- `scripts/init-memory.mjs` — инициализация структуры трёх уровневой памяти (`memory/cases`, `memory/domain_knowledge`, `memory/legal_precedents`) + `npm run init:memory`
+- `scripts/init-memory.mjs` — инициализация структуры трёхуровневой памяти (`memory/cases`, `memory/domain_knowledge`, `memory/legal_precedents`) + `npm run init:memory`
 - `schemas/common/definitions.schema.json` — 22 переиспользуемых определения типов (ProjectId, AgentId, RiskLevel, CurrencyAmount, SourceId, CourtRef и др.)
 - `scripts/generate-docs.mjs` — автогенерация справочников из JSON-схем (`docs/03-artifacts-generated.md`, `docs/schemas-reference.md`)
 - Changelog в каждом `skills/*/SKILL.md` для отслеживания версий скиллов

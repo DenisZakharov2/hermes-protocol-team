@@ -37,8 +37,11 @@ Thumbs.db
 # Logs
 *.log
 
-# Local memory (не коммитить)
-memory/
+# Local memory: содержимое не коммитится, шаблон структуры — коммитится
+/memory/**
+!/memory/**/
+!/memory/**/.gitkeep
+!/memory/README.md
 
 # CI / Misc
 .cline-home/
