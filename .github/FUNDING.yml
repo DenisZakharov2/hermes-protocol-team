@@ -1,17 +1,9 @@
 # Funding
+#
+# Допустимые ключи GitHub: github, patreon, open_collective, ko_fi, tidelift, custom.
+# Актуальные ссылки ведут на профиль мейнтейнера — репозиторий публичный,
+# спонсорские страницы создаются на стороне GitHub.
 
-We welcome financial support to maintain and improve Hermes Protocol.
-
-## Sponsorship
-
-- **GitHub Sponsors**: https://github.com/sponsors/DenisZakharov2
-- **OpenCollective**: https://opencollective.com/hermes-protocol
-
-## Other ways to support
-
-- ⭐ Star this repository
-- 🐛 Report issues and bugs
-- 🔧 Contribute code, documentation, or schemas
-- 📢 Share the project with others
-
-Thank you for your support!
+github: [DenisZakharov2]
+custom:
+  - https://github.com/sponsors/DenisZakharov2
