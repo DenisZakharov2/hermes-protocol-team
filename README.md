@@ -58,12 +58,13 @@
 
 ```text
 ├── .github/                 # CI, issue/PR templates, CODEOWNERS
-├── docs/                    # 5 руководств + диаграммы Mermaid
+├── docs/                    # 6 руководств + диаграммы Mermaid
 │   ├── 01-how-to-use.md     # Пошаговое руководство Заказчика
 │   ├── 02-team-guide.md     # Роли, границы, контракты агентов
 │   ├── 03-artifacts.md      # Каталог артефактов и JSON-схем
 │   ├── 04-quality.md        # 5 осей качества, Triple-Gate, Self-Healing
 │   ├── 05-aar.md            # Постпроектная рефлексия (AAR)
+│   ├── legal-stack.md       # Канонический перечень законов и актов ЦБ РФ
 │   └── diagrams/            # Mermaid: architecture, DAG, memory, quality, self-healing
 ├── examples/                # 18 сквозных примеров проекта SAV_DEP_2026_01
 ├── schemas/                 # 21 JSON Schema Draft-07
