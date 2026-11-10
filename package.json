@@ -41,11 +41,12 @@
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "jsdom": "^31.0.0",
-    "markdownlint-cli2": "^0.23.3",
+    "markdownlint-cli2": "^0.24.0",
     "mermaid": "^11.17.2"
   },
   "overrides": {
-    "undici": "5.28.4",
-    "string-width": "5.1.2"
+    "re2js": "^2.10.0",
+    "fast-uri": "^4.2.3",
+    "katex": "^0.19.1"
   }
 }
