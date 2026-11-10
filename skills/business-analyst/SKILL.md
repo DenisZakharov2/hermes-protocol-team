@@ -70,6 +70,7 @@ version: 2.2.0
 ```json
 {
   "task_id": "BA_2026_01",
+  "project_id": "STRING",
   "system_impact_matrix": [
     { "system_name": "Core Banking (АБС)", "impact_type": "MODIFY", "description": "STRING" }
   ],

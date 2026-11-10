@@ -77,10 +77,9 @@ version: 2.2.0
 ```json
 {
   "task_id": "SYNTH_2026_01",
+  "project_id": "STRING",
   "output_format": "markdown_marp",
-  "deliverable_content": "--- marp: true theme: gaia ---
-# Executive Summary
-...",
+  "deliverable_content": "--- marp: true theme: gaia ---\n# Executive Summary\n...",
   "generated_diagrams": ["mermaid_graph_code"],
   "citations_index": ["Footnote 1: CBR 2026"]
 }

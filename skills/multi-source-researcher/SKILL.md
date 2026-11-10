@@ -74,6 +74,7 @@ version: 2.2.0
 ```json
 {
   "task_id": "REQ_RES_2026_01",
+  "project_id": "STRING",
   "key_takeaways": ["STRING"],
   "quantifiable_metrics": [
     { "metric_name": "STRING", "value": "NUMBER", "unit": "STRING", "source_id": "SRC_1" }
@@ -82,7 +83,13 @@ version: 2.2.0
     { "issue": "STRING", "source_a_claim": "STRING", "source_b_claim": "STRING" }
   ],
   "sources": [
-    { "source_id": "SRC_1", "url": "STRING", "tier_level": "TIER_1", "reliability_score": 0.95 }
+    {
+      "source_id": "SRC_1",
+      "url": "STRING",
+      "tier_level": "TIER_1",
+      "reliability_score": 0.95,
+      "illustrative": true
+    }
   ]
 }
 ```
