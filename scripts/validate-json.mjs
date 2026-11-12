@@ -15,17 +15,21 @@ const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: false });
 addFormats(ajv);
 ajv.addSchema(definitions);
 
-// Схема проверяет форму. Инварианты регламента, которые нельзя выразить в Draft-07,
-// проверяются здесь: формула балла, порог passed, агрегация риска, согласованность
-// вердиктов, вложенный артефакт и непрерывность DAG. Взвешенную сумму намеренно
-// не пытаемся выразить через multipleOf: схема — форма, скрипт — регламент.
-const QUALITY_WEIGHTS = {
-  accuracy_and_grounding: 0.25,
-  security: 0.25,
-  cross_artifact_consistency: 0.2,
-  structural_completeness: 0.15,
-  practical_executability: 0.15,
-};
+// Веса качеств читаем из единого источника — definitions.schema.json (QualityWeights)
+// Сумма весов должна быть равна 1 (проверяется ниже).
+const qualityWeightsDef = definitions.definitions?.QualityWeights;
+if (!qualityWeightsDef || !qualityWeightsDef.examples?.[0]) {
+  console.error('❌ QualityWeights не найден в definitions.schema.json');
+  process.exit(1);
+}
+const QUALITY_WEIGHTS = qualityWeightsDef.examples[0];
+
+// Самопроверка: сумма весов = 1 (с допуском на float)
+const weightsSum = Object.values(QUALITY_WEIGHTS).reduce((a, b) => a + b, 0);
+if (Math.abs(weightsSum - 1) > 0.0001) {
+  console.error(`❌ Сумма весов качества = ${weightsSum}, ожидается 1`);
+  process.exit(1);
+}
 
 const RISK_ORDER = {
   LOW: 0,

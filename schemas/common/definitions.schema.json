@@ -48,6 +48,57 @@
       "description": "Порог качества (0-100)",
       "examples": [85]
     },
+    "QualityWeights": {
+      "type": "object",
+      "description": "Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1.",
+      "additionalProperties": false,
+      "required": [
+        "accuracy_and_grounding",
+        "security",
+        "cross_artifact_consistency",
+        "structural_completeness",
+        "practical_executability"
+      ],
+      "properties": {
+        "accuracy_and_grounding": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Вес оси Accuracy & Fact Grounding"
+        },
+        "security": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Вес оси Security & Data Protection"
+        },
+        "cross_artifact_consistency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Вес оси Cross-Artifact Consistency"
+        },
+        "structural_completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Вес оси Structural Completeness & Depth"
+        },
+        "practical_executability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Вес оси Practical Executability & Feasibility"
+        }
+      },
+      "examples": [{
+        "accuracy_and_grounding": 0.25,
+        "security": 0.25,
+        "cross_artifact_consistency": 0.2,
+        "structural_completeness": 0.15,
+        "practical_executability": 0.15
+      }]
+    },
     "TimestampISO": {
       "type": "string",
       "format": "date-time",
@@ -73,6 +124,7 @@
     },
     "CurrencyAmount": {
       "type": "number",
+      "minimum": 0,
       "description": "Денежная сумма в рублях",
       "examples": [150000000]
     },

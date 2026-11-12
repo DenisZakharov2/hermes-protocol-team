@@ -39,7 +39,7 @@
 <!-- BEGIN GENERATED: common -->
 | Файл | Назначение | Определений |
 |---|---|---|
-| `common/definitions.schema.json` | Переиспользуемые определения типов для всех JSON-схем Hermes Protocol. Схемы ссылаются на них по абсолютному URN и якорю #/definitions/&lt;Type&gt;. | 24 |
+| `common/definitions.schema.json` | Переиспользуемые определения типов для всех JSON-схем Hermes Protocol. Схемы ссылаются на них по абсолютному URN и якорю #/definitions/&lt;Type&gt;. | 25 |
 <!-- END GENERATED: common -->
 
 ## Общие определения
@@ -56,6 +56,7 @@
 | `AgentId` | `string` (hermes-orchestrator, multi-source-researcher, product-manager, business-analyst, legal-compliance-counsel, research-synthesist, quality-evaluator) | Системный идентификатор агента |
 | `DomainContext` | `string` (RETAIL_BANKING, INVESTMENT, PAYMENTS) | Доменный контекст проекта (банковская сфера РФ) |
 | `QualityThreshold` | `integer` | Порог качества (0-100) |
+| `QualityWeights` | `object` | Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1. |
 | `TimestampISO` | `string` | Временная метка в ISO 8601 (UTC) |
 | `VersionString` | `string` | Семантическая версия (MAJOR.MINOR.PATCH) |
 | `Percentage` | `number` | Процентное значение (0-100) |

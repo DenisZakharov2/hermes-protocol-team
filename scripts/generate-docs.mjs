@@ -147,6 +147,37 @@ function renderDefinitionsTable() {
   return lines.join('\n');
 }
 
+function renderQualityWeightsTable() {
+  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
+  const definitions = JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {};
+  const weights = definitions.QualityWeights?.examples?.[0];
+  if (!weights) {
+    console.error('❌ QualityWeights не найден в definitions.schema.json');
+    process.exit(1);
+  }
+  
+  const axisLabels = {
+    accuracy_and_grounding: 'Accuracy & Fact Grounding',
+    security: 'Security & Data Protection',
+    cross_artifact_consistency: 'Cross-Artifact Consistency',
+    structural_completeness: 'Structural Completeness & Depth',
+    practical_executability: 'Practical Executability & Feasibility'
+  };
+  
+  const lines = [];
+  lines.push('| № | Ось качества | Вес |');
+  lines.push('|---|---|---|');
+  let i = 1;
+  for (const [key, label] of Object.entries(axisLabels)) {
+    const weightPct = Math.round(weights[key] * 100);
+    lines.push(`| ${i} | **${label}** | ${weightPct} % |`);
+    i++;
+  }
+  lines.push('');
+  
+  return lines.join('\n');
+}
+
 function replaceBlock(content, name, body) {
   const begin = `<!-- BEGIN GENERATED: ${name} -->`;
   const end = `<!-- END GENERATED: ${name} -->`;
@@ -181,3 +212,14 @@ content = replaceBlock(content, 'definitions', renderDefinitionsTable());
 fs.writeFileSync(referencePath, content, 'utf8');
 console.log(`✅ Обновлено: ${referencePath}`);
 console.log(`   Контрактных схем: ${schemas.filter((schema) => !schema.isCommon).length}, общих файлов: ${schemas.filter((schema) => schema.isCommon).length}`);
+
+// Генерация таблицы весов качества в docs/04-quality.md
+const qualityPath = path.join('docs', '04-quality.md');
+if (fs.existsSync(qualityPath)) {
+  let qualityContent = fs.readFileSync(qualityPath, 'utf8');
+  qualityContent = replaceBlock(qualityContent, 'quality-weights', renderQualityWeightsTable());
+  fs.writeFileSync(qualityPath, qualityContent, 'utf8');
+  console.log(`✅ Обновлено: ${qualityPath} (таблица весов качества)`);
+} else {
+  console.warn(`⚠️  Не найден ${qualityPath}, таблица весов не обновлена`);
+}
