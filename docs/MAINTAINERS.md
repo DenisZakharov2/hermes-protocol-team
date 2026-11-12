@@ -82,3 +82,7 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
 - Тег: `git tag -a v3.0.0 -m "Hermes Protocol 3.0.0" && git push origin v3.0.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
+
+## 5. Известные технические долги / плановые улучшения
+
+- **v3.1.0**: Переход на конфигурируемый `memory_root` вместо абсолютных путей `/memory/...` (см. `README.md`, `scripts/init-memory.mjs`). Требует обновления документации, скиллов и runtime Hermes Agent.
