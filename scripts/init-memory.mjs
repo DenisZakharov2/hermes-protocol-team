@@ -36,7 +36,7 @@ for (const dir of dirs) {
 for (const dir of dirs) {
   const gitkeep = path.join(dir, '.gitkeep');
   if (!fs.existsSync(gitkeep)) {
-    fs.writeFileSync(gitkeep, '# Эта папка должна существовать для структуры памяти\n');
+    fs.writeFileSync(gitkeep, '');
     console.log(`📄 Создан .gitkeep: ${gitkeep}`);
   }
 }

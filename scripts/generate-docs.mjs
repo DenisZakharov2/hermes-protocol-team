@@ -78,15 +78,26 @@ function readSchema(relativePath) {
   const content = fs.readFileSync(path.join(schemasDir, relativePath), 'utf8');
   const schema = JSON.parse(content);
   const basename = path.basename(relativePath, '.schema.json');
+  const isCommon = relativePath.startsWith('common/');
+  let agent;
+  if (isCommon) {
+    agent = 'общие определения';
+  } else {
+    agent = AGENT_BY_SCHEMA[basename];
+    if (!agent) {
+      console.error(`❌ Нет маппинга агента для схемы "${basename}". Добавьте его в AGENT_BY_SCHEMA.`);
+      process.exit(1);
+    }
+  }
   return {
     relativePath,
     basename,
-    isCommon: relativePath.startsWith('common/'),
+    isCommon,
     title: schema.title ?? basename,
     description: schema.description ?? '',
     required: Array.isArray(schema.required) ? schema.required : [],
     properties: Object.keys(schema.properties ?? {}),
-    agent: AGENT_BY_SCHEMA[basename] ?? 'все агенты'
+    agent
   };
 }
 

@@ -163,5 +163,16 @@ if (skipped.length > 0) {
   process.exit(1);
 }
 
-console.log('\n✅ Version synchronization complete!');
+console.log(`\n✅ Version synchronization complete!`);
 console.log(`💡 Don't forget to update CHANGELOG.md and create git tag: git tag -a v${newVersion} -m "Hermes Protocol ${newVersion}"`);
+
+// Пост-проверка: валидируем изменённые JSON-схемы
+console.log('\n🔍 Пост-проверка JSON-схем...');
+const { execSync } = await import('node:child_process');
+try {
+  execSync('npm run validate:json', { stdio: 'inherit', cwd: process.cwd() });
+  console.log('✅ JSON-схемы валидны после синхронизации версии');
+} catch {
+  console.error('❌ Валидация JSON-схем не прошла после синхронизации версии');
+  process.exit(1);
+}
