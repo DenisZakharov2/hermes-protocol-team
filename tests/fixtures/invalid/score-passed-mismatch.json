@@ -1,0 +1,17 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "target_worker": "business-analyst",
+  "overall_score": 90.0,
+  "quality_threshold": 85,
+  "passed": false,
+  "score_breakdown": {
+    "accuracy_and_grounding": 90,
+    "security": 90,
+    "cross_artifact_consistency": 90,
+    "structural_completeness": 85,
+    "practical_executability": 85
+  },
+  "critical_findings": [],
+  "actionable_fixes": []
+}

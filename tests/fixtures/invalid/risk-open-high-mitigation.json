@@ -1,0 +1,18 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "legal_status": "APPROVED_WITH_RESERVATIONS",
+  "overall_risk_score": "HIGH",
+  "compliance_audit": [
+    {
+      "regulation": "38-ФЗ",
+      "article": "ст. 5",
+      "status": "WARNING",
+      "risk_level": "HIGH",
+      "issue": "Рекламный макет нарушает требования о равном размере шрифта",
+      "judicial_precedent": null,
+      "required_mitigation": "Выровнять размер шрифта",
+      "mitigation_status": "OPEN"
+    }
+  ],
+  "contract_disclaimers_required": []
+}

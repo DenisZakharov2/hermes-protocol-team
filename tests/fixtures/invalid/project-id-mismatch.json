@@ -1,0 +1,19 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "target_worker": "business-analyst",
+  "artifact_type": "brd_document",
+  "artifact_data": {
+    "task_id": "BA_2026_01",
+    "project_id": "DIFFERENT_PROJECT_2026_02",
+    "system_impact_matrix": [],
+    "classic_brd": {
+      "business_process_tobe": "Test",
+      "functional_requirements": [],
+      "agile_backlog": [],
+      "regulatory_nfr": {}
+    }
+  },
+  "context_artifacts": { "ref": "PROJECT_CONTEXT" },
+  "quality_threshold": 85
+}

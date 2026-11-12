@@ -1,0 +1,18 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "legal_status": "APPROVED_WITH_RESERVATIONS",
+  "overall_risk_score": "HIGH",
+  "compliance_audit": [
+    {
+      "regulation": "152-ФЗ",
+      "article": "ст. 9",
+      "status": "FAIL",
+      "risk_level": "CRITICAL",
+      "issue": "Отсутствует согласие на обработку ПДн",
+      "judicial_precedent": "Постановление Пленума ВС РФ № 1",
+      "required_mitigation": "Добавить чекбокс согласия",
+      "mitigation_status": "DONE"
+    }
+  ],
+  "contract_disclaimers_required": []
+}

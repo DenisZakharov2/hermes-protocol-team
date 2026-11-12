@@ -1,0 +1,35 @@
+{
+  "project_id": "SAV_DEP_2026_01",
+  "plan_version": "1.0.0",
+  "created_at": "2026-10-17T09:00:00Z",
+  "stages": [
+    {
+      "stage_id": 1,
+      "stage_code": "PLAN_APPROVAL",
+      "name": "Plan Approval",
+      "owner_agent": "hermes-orchestrator",
+      "inputs": ["execution_request.json"],
+      "outputs": ["execution_plan.json"],
+      "depends_on": [],
+      "approval_required": true,
+      "status": "COMPLETED"
+    },
+    {
+      "stage_id": 3,
+      "stage_code": "RESEARCH",
+      "name": "Market research",
+      "owner_agent": "multi-source-researcher",
+      "inputs": ["research_task.json"],
+      "outputs": ["research_output.json"],
+      "depends_on": ["PLAN_APPROVAL"],
+      "approval_required": false,
+      "status": "COMPLETED"
+    }
+  ],
+  "approval": {
+    "status": "APPROVED",
+    "approved_by_human": true,
+    "approved_at": "2026-10-17T10:00:00Z",
+    "comments": "Plan approved"
+  }
+}

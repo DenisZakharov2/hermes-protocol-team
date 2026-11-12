@@ -399,3 +399,118 @@ if (failed > 0) {
 
 console.log(`\nAll ${examples.length} examples are valid and covered by schemas.`);
 console.log(`All ${skillBlocks} marked skill contract blocks are valid.`);
+
+// Self-test mode: validate negative fixtures (should fail)
+if (process.argv.includes('--self-test')) {
+  console.log('\n🔬 Self-test mode: validating negative fixtures...');
+  await runSelfTest(ajv, validators, invariantChecks);
+}
+
+async function runSelfTest(ajv, validators, invariantChecks) {
+  const invalidDir = 'tests/fixtures/invalid';
+  if (!fs.existsSync(invalidDir)) {
+    console.error(`❌ Self-test directory not found: ${invalidDir}`);
+    process.exit(1);
+  }
+
+  // Маппинг фикстуры -> имя схемы (без .schema.json)
+  const fixtureSchemaMap = {
+    'dag-self-dependency.json': 'execution_plan',
+    'dag-forward-reference.json': 'execution_plan',
+    'dag-gap-in-stage-id.json': 'execution_plan',
+    'score-wrong-weighted-sum.json': 'evaluation_report',
+    'score-passed-mismatch.json': 'evaluation_report',
+    'risk-critical-not-rejected.json': 'legal_compliance_report',
+    'risk-lower-than-max.json': 'legal_compliance_report',
+    'risk-open-high-mitigation.json': 'legal_compliance_report',
+    'approval-flag-mismatch.json': 'orchestration_output',
+    'project-id-mismatch.json': 'eval_request'
+  };
+
+  const expectedErrors = {
+    'dag-self-dependency.json': 'depends on itself',
+    'dag-forward-reference.json': 'not an earlier stage',
+    'dag-gap-in-stage-id.json': 'must be 2 \\(no gaps\\)',
+    'score-wrong-weighted-sum.json': 'overall_score.*!= weighted',
+    'score-passed-mismatch.json': 'passed must equal overall_score',
+    'risk-critical-not-rejected.json': 'legal_status must be REJECTED',
+    'risk-lower-than-max.json': 'overall_risk_score.*lower than max',
+    'risk-open-high-mitigation.json': 'mitigation_status must not be OPEN for HIGH',
+    'approval-flag-mismatch.json': 'approved_by_human must match human_verdict',
+    'project-id-mismatch.json': 'artifact_data.project_id must match'
+  };
+
+  const fixtures = fs.readdirSync(invalidDir).filter(f => f.endsWith('.json')).sort();
+  let passed = 0;
+  let failed = 0;
+
+  for (const fixture of fixtures) {
+    const fixturePath = path.join(invalidDir, fixture);
+    const data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    
+    const schemaName = fixtureSchemaMap[fixture];
+    if (!schemaName) {
+      console.error(`❌ ${fixture}: no schema mapping defined`);
+      failed++;
+      continue;
+    }
+
+    const validate = validators.get(schemaName);
+    if (!validate) {
+      console.error(`❌ ${fixture}: validator not found for schema ${schemaName}`);
+      failed++;
+      continue;
+    }
+
+    // 1. Сначала проверяем схему
+    const schemaValid = validate(data);
+    let fixtureFailed = false;
+    let errorMessage = '';
+
+    if (!schemaValid) {
+      // Ошибка схемы — это не то, что мы тестируем (фикстура должна быть валидна по схеме)
+      errorMessage = validate.errors?.map(e => `${e.instancePath || '/'} ${e.message}`).join('; ') || 'schema validation failed';
+      console.log(`⚠️  ${fixture}: schema validation failed (${errorMessage})`);
+      failed++;
+      continue;
+    }
+
+    // 2. Проверяем инварианты для этой схемы
+    const check = invariantChecks[schemaName];
+    if (check) {
+      const errors = check(data, validators);
+      if (errors.length > 0) {
+        fixtureFailed = true;
+        errorMessage = errors.join('; ');
+      }
+    }
+
+    // 3. Специфичные проверки
+    if (!fixtureFailed && schemaName === 'eval_request') {
+      // project-id-mismatch проверяется в evalRequestInvariantErrors
+      // (там уже есть проверка artifact_data.project_id)
+    }
+
+    // 4. Cross-project-id проверка (требует множества файлов, пропускаем для одиночного теста)
+
+    const expectedPattern = expectedErrors[fixture];
+    const matched = expectedPattern && new RegExp(expectedPattern).test(errorMessage);
+
+    if (fixtureFailed && matched) {
+      console.log(`✅ ${fixture}: correctly rejected (${errorMessage})`);
+      passed++;
+    } else if (fixtureFailed) {
+      console.log(`⚠️  ${fixture}: rejected but unexpected error: ${errorMessage}`);
+      console.log(`   Expected pattern: ${expectedPattern}`);
+      failed++;
+    } else {
+      console.error(`❌ ${fixture}: should have been rejected but passed!`);
+      failed++;
+    }
+  }
+
+  console.log(`\nSelf-test: ${passed} passed, ${failed} failed`);
+  if (failed > 0) {
+    process.exit(1);
+  }
+}
