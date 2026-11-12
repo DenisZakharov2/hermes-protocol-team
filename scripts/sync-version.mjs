@@ -111,9 +111,33 @@ const updates = [
   },
   {
     file: 'SECURITY.md',
-    // Текущая поддерживаемая версия — строка со знаком «✅ Да»
-    pattern: /\|\s*\d+\.\d+\.x\s*\|\s*✅ Да\s*\|/,
-    replacement: `| ${newVersion.split('.').slice(0, 2).join('.')}.x | ✅ Да |`
+    // Таблица поддерживаемых версий: понижаем текущую ✅ Да → ⚠️, обновляем/добавляем новую ✅ Да
+    pattern: /(\|\s*Версия\s*\|\s*Поддержка\s*\|\s*\r?\n\|[-|\s]*\r?\n)((?:\|.*\r?\n)*)/,
+    replacement: (match, header, rows) => {
+      const minorVersion = newVersion.split('.').slice(0, 2).join('.');
+      const minorVersionWithX = `${minorVersion}.x`;
+      
+      // 1. Понижаем текущую строку с ✅ Да → ⚠️
+      let downgradedRows = rows.replace(
+        /(\|\s*\d+\.\d+\.x\s*\|\s*)✅ Да(\s*\|)/g,
+        '$1⚠️ Только критические исправления$2'
+      );
+      
+      // 2. Проверяем, есть ли уже строка с этой минорной версией (как ⚠️)
+      const existingRowRegex = new RegExp(`(\\|\\s*${minorVersionWithX.replace('.', '\\.')}\\s*\\|\\s*)⚠️ Только критические исправления(\\s*\\|)`);
+      if (existingRowRegex.test(downgradedRows)) {
+        // Версия уже есть — поднимаем её обратно до ✅ Да
+        downgradedRows = downgradedRows.replace(
+          existingRowRegex,
+          `$1✅ Да$2`
+        );
+      } else {
+        // Версии нет — добавляем новую строку после заголовка
+        downgradedRows = `| ${minorVersionWithX} | ✅ Да |\n${downgradedRows}`;
+      }
+      
+      return `${header}${downgradedRows}`;
+    }
   },
   {
     file: 'package-lock.json',

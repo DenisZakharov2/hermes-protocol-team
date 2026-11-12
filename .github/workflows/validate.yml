@@ -27,6 +27,28 @@ jobs:
       - name: Validate JSON examples, Mermaid diagrams and Markdown
         run: npm run validate
 
+      - name: Check SECURITY.md supported versions table
+        run: |
+          # Extract version from package.json
+          PKG_VERSION=$(node -e "console.log(require('./package.json').version)")
+          MINOR_VERSION="${PKG_VERSION%.*}.x"
+          
+          # Count ✅ Да rows in SECURITY.md table
+          CHECK_COUNT=$(grep -c "✅ Да" SECURITY.md || true)
+          if [ "$CHECK_COUNT" -ne 1 ]; then
+            echo "❌ SECURITY.md must have exactly one '✅ Да' row, found $CHECK_COUNT"
+            exit 1
+          fi
+          
+          # Verify the ✅ Да row matches package.json minor version
+          if ! grep -q "| $MINOR_VERSION | ✅ Да |" SECURITY.md; then
+            echo "❌ SECURITY.md '✅ Да' row must match package.json version ($MINOR_VERSION)"
+            grep "✅ Да" SECURITY.md
+            exit 1
+          fi
+          
+          echo "✅ SECURITY.md supported versions table is correct"
+
   docs:
     runs-on: ubuntu-latest
     steps:
