@@ -18,7 +18,9 @@
     "projected_nii": 150000000,
     "projected_nim_percent": 4.5,
     "cof_cost_of_funds_percent": 11,
-    "ltv_cac_ratio": 3.8
+    "ltv_cac_ratio": 3.8,
+    "allocation_assumption": "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых (ключевая ставка ЦБ РФ + спред ликвидности)",
+    "illustrative": true
   },
   "regulatory_guardrails": {
     "psk_limit_check": "NOT_APPLICABLE",

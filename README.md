@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/github/package-json/v/DenisZakharov2/hermes-protocol-team?label=version&color=blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Node](https://img.shields.io/badge/node-%3E%3D22.22-brightgreen)
+![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
 > **Статус:** версия 3.0.0 — действующая
@@ -47,7 +47,7 @@
 
 ## Быстрый старт для Заказчика
 
-1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `/memory/cases/{project_id}/` и её подразделе `/memory/legal_precedents/`; семантическая — в `/memory/domain_knowledge/`.
+1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `/memory/cases/{project_id}/` и её подразделе `/memory/legal_precedents/`; семантическая — в `/memory/domain_knowledge/`. *Примечание: в v3.0.0 пути абсолютные; в v3.1.0+ станут относительными от конфигурируемого `memory_root`.*
 2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
 3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
 4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на `FINAL_GATE`, при эскалации и для этапов с `approval_required: true`.
@@ -103,10 +103,10 @@
 
 - **Hermes Agent** с активным профилем
 - **Загрузчик скиллов** — `skills/<agent>/SKILL.md`
-- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`)
+- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`). *Примечание: в v3.0.0 пути абсолютные; в v3.1.0+ станут относительными от конфигурируемого `memory_root`.*
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
-- **Node.js 22.22+** — только для локальной валидации: `npm ci && npm run validate` (в CI используется Node 22)
+- **Node.js 22.22.2+** — только для локальной валидации: `npm ci && npm run validate` (в CI используется Node 22)
 
 ---
 

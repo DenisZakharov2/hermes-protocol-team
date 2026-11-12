@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
+- `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
+
+### Planned (v3.1.0 — minor)
+
+- Миграция абсолютных путей памяти `/memory/cases/...`, `/memory/legal_precedents/`, `/memory/domain_knowledge/` на конфигурируемый `memory_root` с относительными путями в контрактах (`artifact_root`, `lessons_indexed_to`). Требует обновления `schemas/common/definitions.schema.json`, всех ссылок в Constitution, docs, skills, examples. Не смешивается с текущими правками аудита.
+
+### Fixed
+
+- Унифицирована версия Node.js: `>=22.22.2` везде (package.json engines, README badge, README текст, CI workflow).
+- `docs/01-how-to-use.md`: добавлены русские эквиваленты в скобках для ключевых англицизмов (Stage-Gate HITL, Self-Healing, DAG, AAR, Triple-Gate, First-Time Right Rate) при первом упоминании.
+
 ## [3.0.0] - 2026-11-10
 
 Ломающий релиз: изменены JSON-контракты (`stage_code` и `depends_on` в `execution_plan`,
