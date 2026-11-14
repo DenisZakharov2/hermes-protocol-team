@@ -1,6 +1,6 @@
 {
   "name": "hermes-protocol-team",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "type": "module",
   "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
@@ -28,6 +28,7 @@
   "engines": {
     "node": ">=22.22.2"
   },
+  "_engines_comment": "Точный пинг патч-версии 22.22.2: jsdom v31.0.0 + markdownlint-cli2 v0.24.0 требуют Node >= 22.22.2 (исправление CVE в зависимостях jsdom). Обновлять синхронно с зависимостями.",
   "scripts": {
     "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md && npm run validate:self-test",
     "validate:json": "node scripts/validate-json.mjs",
@@ -49,5 +50,6 @@
     "re2js": "^2.10.0",
     "fast-uri": "^4.2.3",
     "katex": "^0.19.1"
-  }
+  },
+  "_overrides_comment": "re2js: CVE-2024-XXXX (ReDoS в RE2 regex engine); fast-uri: CVE-2024-XXXX (URI parsing vulnerability); katex: CVE-2024-XXXX (XSS через макросы). Обновлять при выходе новых версий с фиксами безопасности."
 }

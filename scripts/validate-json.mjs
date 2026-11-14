@@ -16,7 +16,8 @@ addFormats(ajv);
 ajv.addSchema(definitions);
 
 // Веса качеств читаем из единого источника — definitions.schema.json (QualityWeights)
-// Сумма весов должна быть равна 1 (проверяется ниже).
+// НОРМАТИВНЫЙ ИСТОЧНИК: examples[0] в QualityWeights используется и валидатором, и генератором docs.
+// Не редактируйте вручную — меняйте только через правку схемы и запуск npm run validate.
 const qualityWeightsDef = definitions.definitions?.QualityWeights;
 if (!qualityWeightsDef || !qualityWeightsDef.examples?.[0]) {
   console.error('❌ QualityWeights не найден в definitions.schema.json');
@@ -26,7 +27,7 @@ const QUALITY_WEIGHTS = qualityWeightsDef.examples[0];
 
 // Самопроверка: сумма весов = 1 (с допуском на float)
 const weightsSum = Object.values(QUALITY_WEIGHTS).reduce((a, b) => a + b, 0);
-if (Math.abs(weightsSum - 1) > 0.0001) {
+if (!Number.isFinite(weightsSum) || Math.abs(weightsSum - 1) > 0.0001) {
   console.error(`❌ Сумма весов качества = ${weightsSum}, ожидается 1`);
   process.exit(1);
 }
@@ -104,7 +105,7 @@ function evaluationReportInvariantErrors(data) {
     expected += breakdown[axis] * weight;
   }
 
-  if (complete && Math.abs(data.overall_score - expected) > 0.05) {
+  if (complete && Number.isFinite(expected) && Math.abs(data.overall_score - expected) > 0.05) {
     errors.push(
       `overall_score ${data.overall_score} != weighted ${expected.toFixed(2)} (tolerance 0.05)`
     );
@@ -413,48 +414,33 @@ async function runSelfTest(ajv, validators, invariantChecks) {
     process.exit(1);
   }
 
-  // Маппинг фикстуры -> имя схемы (без .schema.json)
-  const fixtureSchemaMap = {
-    'dag-self-dependency.json': 'execution_plan',
-    'dag-forward-reference.json': 'execution_plan',
-    'dag-gap-in-stage-id.json': 'execution_plan',
-    'score-wrong-weighted-sum.json': 'evaluation_report',
-    'score-passed-mismatch.json': 'evaluation_report',
-    'risk-critical-not-rejected.json': 'legal_compliance_report',
-    'risk-lower-than-max.json': 'legal_compliance_report',
-    'risk-open-high-mitigation.json': 'legal_compliance_report',
-    'approval-flag-mismatch.json': 'orchestration_output',
-    'project-id-mismatch.json': 'eval_request'
-  };
+  // Загружаем декларативный манифест фикстур
+  const manifestPath = path.join(invalidDir, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    console.error(`❌ Manifest not found: ${manifestPath}`);
+    process.exit(1);
+  }
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const fixtureMap = manifest.fixtures ?? {};
 
-  const expectedErrors = {
-    'dag-self-dependency.json': 'depends on itself',
-    'dag-forward-reference.json': 'not an earlier stage',
-    'dag-gap-in-stage-id.json': 'must be 2 \\(no gaps\\)',
-    'score-wrong-weighted-sum.json': 'overall_score.*!= weighted',
-    'score-passed-mismatch.json': 'passed must equal overall_score',
-    'risk-critical-not-rejected.json': 'legal_status must be REJECTED',
-    'risk-lower-than-max.json': 'overall_risk_score.*lower than max',
-    'risk-open-high-mitigation.json': 'mitigation_status must not be OPEN for HIGH',
-    'approval-flag-mismatch.json': 'approved_by_human must match human_verdict',
-    'project-id-mismatch.json': 'artifact_data.project_id must match'
-  };
-
-  const fixtures = fs.readdirSync(invalidDir).filter(f => f.endsWith('.json')).sort();
+  const fixtures = fs.readdirSync(invalidDir)
+    .filter(f => f.endsWith('.json') && f !== 'manifest.json')
+    .sort();
   let passed = 0;
   let failed = 0;
 
   for (const fixture of fixtures) {
     const fixturePath = path.join(invalidDir, fixture);
     const data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-    
-    const schemaName = fixtureSchemaMap[fixture];
-    if (!schemaName) {
-      console.error(`❌ ${fixture}: no schema mapping defined`);
+
+    const fixtureMeta = fixtureMap[fixture];
+    if (!fixtureMeta) {
+      console.error(`❌ ${fixture}: no entry in manifest.json`);
       failed++;
       continue;
     }
 
+    const schemaName = fixtureMeta.schema;
     const validate = validators.get(schemaName);
     if (!validate) {
       console.error(`❌ ${fixture}: validator not found for schema ${schemaName}`);
@@ -485,15 +471,7 @@ async function runSelfTest(ajv, validators, invariantChecks) {
       }
     }
 
-    // 3. Специфичные проверки
-    if (!fixtureFailed && schemaName === 'eval_request') {
-      // project-id-mismatch проверяется в evalRequestInvariantErrors
-      // (там уже есть проверка artifact_data.project_id)
-    }
-
-    // 4. Cross-project-id проверка (требует множества файлов, пропускаем для одиночного теста)
-
-    const expectedPattern = expectedErrors[fixture];
+    const expectedPattern = fixtureMeta.expectedErrorPattern;
     const matched = expectedPattern && new RegExp(expectedPattern).test(errorMessage);
 
     if (fixtureFailed && matched) {

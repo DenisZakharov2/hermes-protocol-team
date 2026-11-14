@@ -155,6 +155,8 @@ function renderQualityWeightsTable() {
     console.error('❌ QualityWeights не найден в definitions.schema.json');
     process.exit(1);
   }
+  // НОРМАТИВНЫЙ ИСТОЧНИК: examples[0] в QualityWeights используется и валидатором, и генератором docs.
+  // Не редактируйте вручную — меняйте только через правку схемы и запуск npm run validate.
   
   const axisLabels = {
     accuracy_and_grounding: 'Accuracy & Fact Grounding',
@@ -186,6 +188,21 @@ function replaceBlock(content, name, body) {
 
   if (beginIndex === -1 || endIndex === -1) {
     console.error(`❌ Не найден блок маркеров "${name}" в ${referencePath}. Добавьте ${begin} и ${end}.`);
+    process.exit(1);
+  }
+
+  if (endIndex < beginIndex) {
+    console.error(`❌ Маркеры в неправильном порядке: END GENERATED встречается раньше BEGIN GENERATED для блока "${name}"`);
+    process.exit(1);
+  }
+
+  // Проверка единственности маркеров
+  if (content.indexOf(begin, beginIndex + 1) !== -1) {
+    console.error(`❌ Дублированный маркер BEGIN GENERATED: ${name}`);
+    process.exit(1);
+  }
+  if (content.indexOf(end, endIndex + 1) !== -1) {
+    console.error(`❌ Дублированный маркер END GENERATED: ${name}`);
     process.exit(1);
   }
 

@@ -41,6 +41,23 @@ for (const dir of dirs) {
   }
 }
 
+// Добавляем правило в .gitignore для memory/ содержимого (кроме структуры)
+const gitignorePath = path.join(process.cwd(), '.gitignore');
+const memoryIgnoreRule = '\n# Hermes Protocol memory runtime content\nmemory/cases/*\n!memory/cases/.gitkeep\nmemory/domain_knowledge/*\n!memory/domain_knowledge/*/.gitkeep\nmemory/legal_precedents/*\n!memory/legal_precedents/*/.gitkeep\n';
+
+if (fs.existsSync(gitignorePath)) {
+  const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+  if (!gitignoreContent.includes('memory/cases/*')) {
+    fs.appendFileSync(gitignorePath, memoryIgnoreRule);
+    console.log(`📄 Добавлены правила в .gitignore для memory/`);
+  } else {
+    console.log(`⏭️  .gitignore уже содержит правила для memory/`);
+  }
+} else {
+  fs.writeFileSync(gitignorePath, memoryIgnoreRule.trimStart() + '\n');
+  console.log(`📄 Создан .gitignore с правилами для memory/`);
+}
+
 // Пример README для памяти
 const readmePath = path.join(memoryRoot, 'README.md');
 if (!fs.existsSync(readmePath)) {
@@ -71,7 +88,7 @@ memory/
 
 Каталоги рассчитаны на рантайм Hermes Agent: агент читает и пишет в них во время
 исполнения проектов. Этот репозиторий только создаёт шаблон структуры; содержимое
-памяти не коммитится.
+памяти не коммитится (см. \`.gitignore\`).
 
 ## Инициализация
 

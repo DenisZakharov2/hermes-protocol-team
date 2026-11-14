@@ -2,14 +2,20 @@ name: validate
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -26,31 +32,39 @@ jobs:
 
       - name: Validate JSON examples, Mermaid diagrams and Markdown
         run: npm run validate
+        timeout-minutes: 10
 
       - name: Check SECURITY.md supported versions table
         run: |
           # Extract version from package.json
           PKG_VERSION=$(node -e "console.log(require('./package.json').version)")
           MINOR_VERSION="${PKG_VERSION%.*}.x"
-          
-          # Count ✅ Да rows in SECURITY.md table
-          CHECK_COUNT=$(grep -c "✅ Да" SECURITY.md || true)
+
+          # Extract only the version support table from SECURITY.md
+          # Table starts with "| Версия | Поддержка |" and ends at first empty line or non-table line
+          TABLE=$(sed -n '/| Версия | Поддержка |/,/^[^|]/p' SECURITY.md | head -n -1)
+
+          # Count ✅ Да rows in the extracted table only
+          CHECK_COUNT=$(echo "$TABLE" | grep -c "✅ Да" || true)
+          CHECK_COUNT=${CHECK_COUNT:-0}
+
           if [ "$CHECK_COUNT" -ne 1 ]; then
-            echo "❌ SECURITY.md must have exactly one '✅ Да' row, found $CHECK_COUNT"
+            echo "❌ SECURITY.md must have exactly one '✅ Да' row in version table, found $CHECK_COUNT"
             exit 1
           fi
-          
+
           # Verify the ✅ Да row matches package.json minor version
-          if ! grep -q "| $MINOR_VERSION | ✅ Да |" SECURITY.md; then
+          if ! echo "$TABLE" | grep -q "| $MINOR_VERSION | ✅ Да |"; then
             echo "❌ SECURITY.md '✅ Да' row must match package.json version ($MINOR_VERSION)"
-            grep "✅ Да" SECURITY.md
+            echo "$TABLE" | grep "✅ Да"
             exit 1
           fi
-          
+
           echo "✅ SECURITY.md supported versions table is correct"
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v7

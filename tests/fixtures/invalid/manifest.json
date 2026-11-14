@@ -1,0 +1,54 @@
+{
+  "fixtures": {
+    "dag-self-dependency.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "depends on itself",
+      "description": "Этап не может зависеть от самого себя (цикл длины 1)"
+    },
+    "dag-forward-reference.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "not an earlier stage",
+      "description": "Зависимость на этап, который идёт позже (forward reference)"
+    },
+    "dag-gap-in-stage-id.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "no gaps",
+      "description": "Пропуск в нумерации stage_id (должен быть последовательным от 1)"
+    },
+    "score-wrong-weighted-sum.json": {
+      "schema": "evaluation_report",
+      "expectedErrorPattern": "overall_score.*!= weighted",
+      "description": "overall_score не совпадает с взвешенной суммой score_breakdown"
+    },
+    "score-passed-mismatch.json": {
+      "schema": "evaluation_report",
+      "expectedErrorPattern": "passed must equal overall_score",
+      "description": "Поле passed не соответствует сравнению overall_score >= quality_threshold"
+    },
+    "risk-critical-not-rejected.json": {
+      "schema": "legal_compliance_report",
+      "expectedErrorPattern": "legal_status must be REJECTED",
+      "description": "CRITICAL риск в аудите требует legal_status = REJECTED"
+    },
+    "risk-lower-than-max.json": {
+      "schema": "legal_compliance_report",
+      "expectedErrorPattern": "overall_risk_score.*lower than max",
+      "description": "overall_risk_score ниже максимального риска в аудите"
+    },
+    "risk-open-high-mitigation.json": {
+      "schema": "legal_compliance_report",
+      "expectedErrorPattern": "mitigation_status must not be OPEN for HIGH",
+      "description": "OPEN mitigation_status для HIGH/CRITICAL риска недопустим"
+    },
+    "approval-flag-mismatch.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "approved_by_human must match human_verdict",
+      "description": "approved_by_human должен соответствовать human_verdict = APPROVED"
+    },
+    "project-id-mismatch.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "artifact_data.project_id must match",
+      "description": "project_id в artifact_data должен совпадать с project_id запроса"
+    }
+  }
+}

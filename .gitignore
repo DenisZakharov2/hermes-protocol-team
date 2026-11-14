@@ -46,3 +46,11 @@ Thumbs.db
 # CI / Misc
 .cline-home/
 .actions/
+
+# Hermes Protocol memory runtime content
+memory/cases/*
+!memory/cases/.gitkeep
+memory/domain_knowledge/*
+!memory/domain_knowledge/*/.gitkeep
+memory/legal_precedents/*
+!memory/legal_precedents/*/.gitkeep

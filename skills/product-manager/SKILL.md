@@ -1,7 +1,7 @@
 ---
 name: product-manager
 description: "Разработчик финансовых продуктов, услуг и стратегий"
-version: 3.0.0
+version: 3.0.1
 ---
 
 # Product Manager & Financial Strategist skill (product-manager)

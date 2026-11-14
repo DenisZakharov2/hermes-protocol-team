@@ -51,6 +51,7 @@
     "QualityWeights": {
       "type": "object",
       "description": "Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1.",
+      "$comment": "НОРМАТИВНЫЙ ИСТОЧНИК весов качества. Не редактируйте examples вручную — они используются валидатором (scripts/validate-json.mjs) и генератором документации (scripts/generate-docs.mjs). Для изменения весов обновите этот пример и запустите npm run validate.",
       "additionalProperties": false,
       "required": [
         "accuracy_and_grounding",
@@ -109,7 +110,7 @@
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
-      "examples": ["3.0.0"]
+      "examples": ["3.0.1"]
     },
     "Percentage": {
       "type": "number",

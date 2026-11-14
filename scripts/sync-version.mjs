@@ -18,11 +18,61 @@ if (!newVersion || !/^\d+\.\d+\.\d+$/.test(newVersion)) {
 
 console.log(`🔄 Synchronizing version to ${newVersion}...\n`);
 
+/**
+ * Update version in a JSON file using JSON.parse/stringify to preserve formatting.
+ * @param {string} filePath - Path to JSON file
+ * @param {string} newVersion - New version string
+ * @param {boolean} isPackageLock - Whether it's package-lock.json (different structure)
+ * @returns {boolean} - True if updated
+ */
+function updateJsonVersion(filePath, newVersion, isPackageLock = false) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let json;
+  try {
+    json = JSON.parse(content);
+  } catch (e) {
+    console.error(`❌ Failed to parse JSON in ${filePath}: ${e.message}`);
+    return false;
+  }
+
+  if (isPackageLock) {
+    // package-lock.json: update root package version at packages[""].version
+    if (json.packages && json.packages[''] && json.packages[''].version) {
+      json.packages[''].version = newVersion;
+    } else if (json.version) {
+      // Fallback for older lockfile format
+      json.version = newVersion;
+    } else {
+      console.error(`❌ Could not find version field in ${filePath}`);
+      return false;
+    }
+  } else {
+    // package.json: update root version
+    if (json.version) {
+      json.version = newVersion;
+    } else {
+      console.error(`❌ Could not find version field in ${filePath}`);
+      return false;
+    }
+  }
+
+  // Preserve original indentation (detect from first line after {)
+  const indentMatch = content.match(/^\{\n(\s+)/);
+  const indent = indentMatch ? indentMatch[1] : '  ';
+  const newContent = JSON.stringify(json, null, indent) + '\n';
+
+  if (newContent !== content) {
+    fs.writeFileSync(filePath, newContent, 'utf8');
+    return true;
+  }
+  return false;
+}
+
 const updates = [
   {
     file: 'package.json',
-    pattern: /"version":\s*"[\d.]+"/,
-    replacement: `"version": "${newVersion}"`
+    // Special handling: use JSON.parse/stringify
+    useJsonUpdate: true
   },
   {
     file: 'README.md',
@@ -110,40 +160,44 @@ const updates = [
     replacement: `- Тег: \`git tag -a v${newVersion} -m "Hermes Protocol ${newVersion}" && git push origin v${newVersion}\`.`
   },
   {
-    file: 'SECURITY.md',
-    // Таблица поддерживаемых версий: понижаем текущую ✅ Да → ⚠️, обновляем/добавляем новую ✅ Да
-    pattern: /(\|\s*Версия\s*\|\s*Поддержка\s*\|\s*\r?\n\|[-|\s]*\r?\n)((?:\|.*\r?\n)*)/,
-    replacement: (match, header, rows) => {
-      const minorVersion = newVersion.split('.').slice(0, 2).join('.');
-      const minorVersionWithX = `${minorVersion}.x`;
-      
-      // 1. Понижаем текущую строку с ✅ Да → ⚠️
-      let downgradedRows = rows.replace(
-        /(\|\s*\d+\.\d+\.x\s*\|\s*)✅ Да(\s*\|)/g,
-        '$1⚠️ Только критические исправления$2'
-      );
-      
-      // 2. Проверяем, есть ли уже строка с этой минорной версией (как ⚠️)
-      const existingRowRegex = new RegExp(`(\\|\\s*${minorVersionWithX.replace('.', '\\.')}\\s*\\|\\s*)⚠️ Только критические исправления(\\s*\\|)`);
-      if (existingRowRegex.test(downgradedRows)) {
-        // Версия уже есть — поднимаем её обратно до ✅ Да
-        downgradedRows = downgradedRows.replace(
-          existingRowRegex,
-          `$1✅ Да$2`
+      file: 'SECURITY.md',
+      // Таблица поддерживаемых версий: понижаем текущую ✅ Да → ⚠️, обновляем/добавляем новую ✅ Да
+      pattern: /(\|\s*Версия\s*\|\s*Поддержка\s*\|\s*\r?\n\|[-|\s]*\r?\n)((?:\|.*\r?\n)*)/,
+      replacement: (match, header, rows) => {
+        const minorVersion = newVersion.split('.').slice(0, 2).join('.');
+        const minorVersionWithX = `${minorVersion}.x`;
+
+        // 1. Понижаем текущую строку с ✅ Да → ⚠️
+        let downgradedRows = rows.replace(
+          /(\|\s*\d+\.\d+\.x\s*\|\s*)✅ Да(\s*\|)/g,
+          '$1⚠️ Только критические исправления$2'
         );
-      } else {
-        // Версии нет — добавляем новую строку после заголовка
-        downgradedRows = `| ${minorVersionWithX} | ✅ Да |\n${downgradedRows}`;
+
+        // 2. Проверяем, есть ли уже строка с этой минорной версией (как ⚠️)
+        const existingRowRegex = new RegExp(`(\\\\|\\s*${minorVersionWithX.replaceAll('.', '\\.')}\\\\s*\\\\|\\\\s*)⚠️ Только критические исправления(\\\\s*\\\\|)`);
+        if (existingRowRegex.test(downgradedRows)) {
+          // Версия уже есть — поднимаем её обратно до ✅ Да
+          downgradedRows = downgradedRows.replace(
+            existingRowRegex,
+            `$1✅ Да$2`
+          );
+        } else {
+          // Версии нет — добавляем новую строку после заголовка
+          downgradedRows = `| ${minorVersionWithX} | ✅ Да |\n${downgradedRows}`;
+        }
+
+        // Отмечаем, что паттерн сработал (даже если контент не изменился при patch-бампе)
+        // Используем замыкание над изменяемым объектом
+        securityPatternMatched.matched = true;
+
+        return `${header}${downgradedRows}`;
       }
-      
-      return `${header}${downgradedRows}`;
-    }
-  },
+    },
   {
     file: 'package-lock.json',
-    // Только корневая запись пакета: "name": "hermes-protocol-team" + следующая строка "version"
-    pattern: /("name": "hermes-protocol-team",\n\s*"version": ")\d+\.\d+\.\d+(")/g,
-    replacement: `$1${newVersion}$2`
+    // Special handling: use JSON.parse/stringify
+    useJsonUpdate: true,
+    isPackageLock: true
   },
   {
     file: 'schemas/common/definitions.schema.json',
@@ -151,6 +205,9 @@ const updates = [
     replacement: `"examples": ["${newVersion}"]`
   }
 ];
+
+// Флаг для отслеживания срабатывания паттерна SECURITY.md (нужен для patch-бампов, когда контент не меняется)
+const securityPatternMatched = { matched: false };
 
 let updated = 0;
 const skipped = [];
@@ -164,11 +221,28 @@ for (const update of updates) {
     continue;
   }
 
-  const content = fs.readFileSync(filePath, 'utf8');
-  const newContent = content.replace(update.pattern, update.replacement);
+  let success = false;
 
-  if (newContent !== content) {
-    fs.writeFileSync(filePath, newContent, 'utf8');
+  if (update.useJsonUpdate) {
+    success = updateJsonVersion(filePath, newVersion, update.isPackageLock === true);
+  } else {
+    const content = fs.readFileSync(filePath, 'utf8');
+    // Сбрасываем флаг перед заменой для SECURITY.md
+    if (update.file === 'SECURITY.md') {
+      securityPatternMatched.matched = false;
+    }
+    const newContent = content.replace(update.pattern, update.replacement);
+    // Успех, если контент изменился ИЛИ паттерн сработал (для SECURITY.md при patch-бампе)
+    const patternMatched = update.file === 'SECURITY.md' ? securityPatternMatched.matched : false;
+    if (newContent !== content || patternMatched) {
+      if (newContent !== content) {
+        fs.writeFileSync(filePath, newContent, 'utf8');
+      }
+      success = true;
+    }
+  }
+
+  if (success) {
     console.log(`✅ Updated: ${update.file}`);
     updated++;
   } else {

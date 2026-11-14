@@ -60,7 +60,7 @@
           "stage_id": {
             "type": "integer",
             "minimum": 1,
-            "description": "Порядковый номер этапа внутри конкретного плана."
+            "description": "Порядковый номер этапа внутри конкретного плана. Должен начинаться с 1 и идти последовательно без пропусков (stage_id === index + 1)."
           },
           "stage_code": {
             "$ref": "#/definitions/StageCode"
