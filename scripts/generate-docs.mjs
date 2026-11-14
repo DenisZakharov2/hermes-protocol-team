@@ -157,7 +157,14 @@ function renderQualityWeightsTable() {
   }
   // НОРМАТИВНЫЙ ИСТОЧНИК: examples[0] в QualityWeights используется и валидатором, и генератором docs.
   // Не редактируйте вручную — меняйте только через правку схемы и запуск npm run validate.
-  
+
+  // Та же проверка суммы, что и в validate-json.mjs: генератор не должен рендерить невалидные веса.
+  const weightsSum = Object.values(weights).reduce((a, b) => a + b, 0);
+  if (!Number.isFinite(weightsSum) || Math.abs(weightsSum - 1) > 0.0001) {
+    console.error(`❌ Сумма весов качества = ${weightsSum}, ожидается 1`);
+    process.exit(1);
+  }
+
   const axisLabels = {
     accuracy_and_grounding: 'Accuracy & Fact Grounding',
     security: 'Security & Data Protection',
@@ -165,13 +172,19 @@ function renderQualityWeightsTable() {
     structural_completeness: 'Structural Completeness & Depth',
     practical_executability: 'Practical Executability & Feasibility'
   };
-  
+
   const lines = [];
   lines.push('| № | Ось качества | Вес |');
   lines.push('|---|---|---|');
   let i = 1;
-  for (const [key, label] of Object.entries(axisLabels)) {
-    const weightPct = Math.round(weights[key] * 100);
+  // Итерация по ключам весов (а не по axisLabels): новая ось в схеме не может молча потеряться в docs.
+  for (const [key, weight] of Object.entries(weights)) {
+    const label = axisLabels[key];
+    if (!label) {
+      console.error(`❌ Нет подписи для оси "${key}" в axisLabels (renderQualityWeightsTable)`);
+      process.exit(1);
+    }
+    const weightPct = Math.round(weight * 100);
     lines.push(`| ${i} | **${label}** | ${weightPct} % |`);
     i++;
   }

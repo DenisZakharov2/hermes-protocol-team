@@ -61,11 +61,12 @@ function updateJsonVersion(filePath, newVersion, isPackageLock = false) {
   const indent = indentMatch ? indentMatch[1] : '  ';
   const newContent = JSON.stringify(json, null, indent) + '\n';
 
+  // Успех = версия найдена и записана. Повторный запуск с той же версией —
+  // легитимный no-op (идемпотентность), а не ошибка.
   if (newContent !== content) {
     fs.writeFileSync(filePath, newContent, 'utf8');
-    return true;
   }
-  return false;
+  return true;
 }
 
 const updates = [
@@ -232,9 +233,12 @@ for (const update of updates) {
       securityPatternMatched.matched = false;
     }
     const newContent = content.replace(update.pattern, update.replacement);
-    // Успех, если контент изменился ИЛИ паттерн сработал (для SECURITY.md при patch-бампе)
-    const patternMatched = update.file === 'SECURITY.md' ? securityPatternMatched.matched : false;
-    if (newContent !== content || patternMatched) {
+    // Успех = паттерн найден в файле (а не «контент изменился»): иначе повторный запуск
+    // с той же версией считал бы все файлы пропущенными и падал с exit 1.
+    const patternMatched = update.file === 'SECURITY.md'
+      ? securityPatternMatched.matched || update.pattern.test(content)
+      : update.pattern.test(content);
+    if (patternMatched) {
       if (newContent !== content) {
         fs.writeFileSync(filePath, newContent, 'utf8');
       }

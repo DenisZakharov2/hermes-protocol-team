@@ -55,5 +55,5 @@
     "fast-uri": "^4.2.3",
     "katex": "^0.19.1"
   },
-  "_overrides_comment": "re2js: CVE-2024-XXXX (ReDoS в RE2 regex engine); fast-uri: CVE-2024-XXXX (URI parsing vulnerability); katex: CVE-2024-XXXX (XSS через макросы). Обновлять при выходе новых версий с фиксами безопасности."
+  "_overrides_comment": "re2js, fast-uri, katex: пины из-за уязвимостей в транзитивных зависимостях (ReDoS в regex-движке, разбор URI, XSS через макросы). Конкретные идентификаторы CVE сверять с advisory БД при обновлении. Обновлять при выходе новых версий с исправлениями безопасности."
 }

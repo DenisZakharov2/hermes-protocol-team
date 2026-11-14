@@ -1,0 +1,11 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "target_worker": "product-manager",
+  "artifact_type": "presentation",
+  "artifact_data": {
+    "project_id": "SAV_DEP_2026_01"
+  },
+  "context_artifacts": { "ref": "PROJECT_CONTEXT" },
+  "quality_threshold": 85
+}

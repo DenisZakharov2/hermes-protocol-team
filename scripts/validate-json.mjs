@@ -96,16 +96,28 @@ function evaluationReportInvariantErrors(data) {
   const breakdown = data.score_breakdown ?? {};
 
   let expected = 0;
-  let complete = true;
+  const missingAxes = [];
   for (const [axis, weight] of Object.entries(QUALITY_WEIGHTS)) {
     if (typeof breakdown[axis] !== 'number') {
-      complete = false;
-      break;
+      missingAxes.push(axis);
+      continue;
     }
     expected += breakdown[axis] * weight;
   }
 
-  if (complete && Number.isFinite(expected) && Math.abs(data.overall_score - expected) > 0.05) {
+  // Неполный breakdown не должен тихо отключать проверку формулы:
+  // это признак дрейфа между QualityWeights и evaluation_report.schema.json.
+  if (missingAxes.length > 0) {
+    errors.push(
+      `score_breakdown is missing axes required by QualityWeights: ${missingAxes.join(', ')}`
+    );
+  }
+
+  if (
+    missingAxes.length === 0 &&
+    Number.isFinite(expected) &&
+    Math.abs(data.overall_score - expected) > 0.05
+  ) {
     errors.push(
       `overall_score ${data.overall_score} != weighted ${expected.toFixed(2)} (tolerance 0.05)`
     );
@@ -190,6 +202,9 @@ function evalRequestInvariantErrors(data, validators) {
   const errors = [];
   const schemaBase = ARTIFACT_SCHEMA_BY_TYPE[data.artifact_type];
   if (!schemaBase) {
+    // Тихий пропуск здесь означает, что artifact_data не валидируется вообще —
+    // двойная валидация деградирует до одинарной. Такое расхождение должно ронять проверку.
+    errors.push(`no artifact schema mapping for artifact_type "${data.artifact_type}"`);
     return errors;
   }
 
@@ -231,10 +246,28 @@ const schemaFiles = fs
   .sort();
 
 const validators = new Map();
+const rawSchemas = new Map();
 for (const schemaFile of schemaFiles) {
   const base = schemaFile.replace('.schema.json', '');
   const schema = JSON.parse(fs.readFileSync(path.join(schemasDir, schemaFile), 'utf8'));
+  rawSchemas.set(base, schema);
   validators.set(base, ajv.compile(schema));
+}
+
+// Кросс-чек: оси QualityWeights и свойства score_breakdown в evaluation_report должны совпадать,
+// иначе инвариант взвешенной суммы теряет смысл (см. CODE_REVIEW.md, W2/W3).
+const breakdownProps = rawSchemas.get('evaluation_report')?.properties?.score_breakdown?.properties;
+if (!breakdownProps) {
+  console.error('❌ evaluation_report.schema.json: не найден properties.score_breakdown.properties');
+  process.exit(1);
+}
+const weightKeys = Object.keys(QUALITY_WEIGHTS).sort();
+const breakdownKeys = Object.keys(breakdownProps).sort();
+if (JSON.stringify(weightKeys) !== JSON.stringify(breakdownKeys)) {
+  console.error(
+    `❌ Оси QualityWeights [${weightKeys.join(', ')}] не совпадают со свойствами score_breakdown [${breakdownKeys.join(', ')}]`
+  );
+  process.exit(1);
 }
 
 const examples = fs
@@ -423,6 +456,44 @@ async function runSelfTest(ajv, validators, invariantChecks) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const fixtureMap = manifest.fixtures ?? {};
 
+  // Пре-валидация манифеста: схема существует, инвариант зарегистрирован, паттерн компилируется,
+  // файл фикстуры на месте. Без этого ошибки манифеста всплывают непонятными сообщениями в рантайме.
+  let manifestProblems = 0;
+  for (const [fixture, meta] of Object.entries(fixtureMap)) {
+    if (!validators.get(meta.schema)) {
+      console.error(`❌ manifest: ${fixture}: unknown schema ${meta.schema}`);
+      manifestProblems += 1;
+    }
+    const failLayer = meta.failLayer ?? 'invariant';
+    if (failLayer !== 'schema' && failLayer !== 'invariant') {
+      console.error(`❌ manifest: ${fixture}: unknown failLayer "${failLayer}" (expected "schema" or "invariant")`);
+      manifestProblems += 1;
+    }
+    if (failLayer === 'invariant' && !invariantChecks[meta.schema]) {
+      console.error(`❌ manifest: ${fixture}: schema ${meta.schema} has no invariant check — fixture can never be rejected`);
+      manifestProblems += 1;
+    }
+    if (typeof meta.expectedErrorPattern !== 'string' || meta.expectedErrorPattern.length === 0) {
+      console.error(`❌ manifest: ${fixture}: expectedErrorPattern is required`);
+      manifestProblems += 1;
+    } else {
+      try {
+        new RegExp(meta.expectedErrorPattern);
+      } catch (error) {
+        console.error(`❌ manifest: ${fixture}: invalid expectedErrorPattern: ${error.message}`);
+        manifestProblems += 1;
+      }
+    }
+    if (!fs.existsSync(path.join(invalidDir, fixture))) {
+      console.error(`❌ manifest: ${fixture}: fixture file not found`);
+      manifestProblems += 1;
+    }
+  }
+  if (manifestProblems > 0) {
+    console.error(`\nSelf-test manifest: ${manifestProblems} problem(s).`);
+    process.exit(1);
+  }
+
   const fixtures = fs.readdirSync(invalidDir)
     .filter(f => f.endsWith('.json') && f !== 'manifest.json')
     .sort();
@@ -452,11 +523,32 @@ async function runSelfTest(ajv, validators, invariantChecks) {
     const schemaValid = validate(data);
     let fixtureFailed = false;
     let errorMessage = '';
+    const schemaErrors =
+      validate.errors?.map(e => `${e.instancePath || '/'} ${e.message}`).join('; ') ||
+      'schema validation failed';
+    const failLayer = fixtureMeta.failLayer ?? 'invariant';
+
+    // Слой "schema": фикстура обязана быть ОТКЛОНЕНА схемой (негативный тест первого слоя)
+    if (failLayer === 'schema') {
+      if (!schemaValid) {
+        if (new RegExp(fixtureMeta.expectedErrorPattern).test(schemaErrors)) {
+          console.log(`✅ ${fixture}: correctly rejected by schema (${schemaErrors})`);
+          passed++;
+        } else {
+          console.log(`⚠️  ${fixture}: rejected by schema but unexpected error: ${schemaErrors}`);
+          console.log(`   Expected pattern: ${fixtureMeta.expectedErrorPattern}`);
+          failed++;
+        }
+      } else {
+        console.error(`❌ ${fixture}: should have been rejected by schema but passed!`);
+        failed++;
+      }
+      continue;
+    }
 
     if (!schemaValid) {
       // Ошибка схемы — это не то, что мы тестируем (фикстура должна быть валидна по схеме)
-      errorMessage = validate.errors?.map(e => `${e.instancePath || '/'} ${e.message}`).join('; ') || 'schema validation failed';
-      console.log(`⚠️  ${fixture}: schema validation failed (${errorMessage})`);
+      console.log(`⚠️  ${fixture}: schema validation failed (${schemaErrors})`);
       failed++;
       continue;
     }

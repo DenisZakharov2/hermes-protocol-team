@@ -38,6 +38,26 @@ const FILES_TO_UPDATE = [
 // Expected file count (21 updates - docs/MAINTAINERS.md has 2 patterns)
 const EXPECTED_FILE_COUNT = 21;
 
+// Целевые версии вычисляются из текущей версии репозитория: константы ломались
+// после каждого релиза (bump до той же версии = no-op и exit 1 у sync-version.mjs).
+const CURRENT_VERSION = JSON.parse(getFileContent(REPO_ROOT, 'package.json')).version;
+
+function bumpVersion(version, level) {
+  const [major, minor, patch] = version.split('.').map(Number);
+  if (level === 'major') return `${major + 1}.0.0`;
+  if (level === 'minor') return `${major}.${minor + 1}.0`;
+  return `${major}.${minor}.${patch + 1}`;
+}
+
+function minorLine(version) {
+  return `${version.split('.').slice(0, 2).join('.')}.x`;
+}
+
+const PATCH_TARGET = bumpVersion(CURRENT_VERSION, 'patch');
+const MINOR_TARGET = bumpVersion(CURRENT_VERSION, 'minor');
+const MAJOR_TARGET = bumpVersion(CURRENT_VERSION, 'major');
+const CURRENT_MINOR = minorLine(CURRENT_VERSION);
+
 function runSyncVersion(cwd, newVersion) {
   const scriptPath = path.join(cwd, 'scripts/sync-version.mjs');
   const result = execSync(`node ${scriptPath} ${newVersion}`, {
@@ -146,7 +166,7 @@ describe('sync-version.mjs snapshot tests', () => {
     }
   }, 120000);
 
-  describe('patch bump (3.0.1 -> 3.0.2)', () => {
+  describe(`patch bump (${CURRENT_VERSION} -> ${PATCH_TARGET})`, () => {
     let cwd;
     let cleanup;
 
@@ -156,7 +176,7 @@ describe('sync-version.mjs snapshot tests', () => {
     }, 120000);
 
     it('should update all 21 files', () => {
-      const output = runSyncVersion(cwd, '3.0.2');
+      const output = runSyncVersion(cwd, PATCH_TARGET);
 
       // Check summary says 21 files updated
       expect(output).toContain(`${EXPECTED_FILE_COUNT} files updated`);
@@ -168,22 +188,22 @@ describe('sync-version.mjs snapshot tests', () => {
         expect(content, `File ${file} should exist`).not.toBeNull();
         // SECURITY.md only contains minor version (e.g., 3.0.x) in the table, not full patch version
         if (file === 'SECURITY.md') {
-          const minorVersion = '3.0.x';
+          const minorVersion = minorLine(PATCH_TARGET);
           expect(content, `File ${file} should contain minor version ${minorVersion}`).toMatch(new RegExp(minorVersion.replace('.', '\\.')));
         } else {
-          expect(content, `File ${file} should contain version 3.0.2`).toMatch(/3\.0\.2/);
+          expect(content, `File ${file} should contain version ${PATCH_TARGET}`).toMatch(new RegExp(PATCH_TARGET.replaceAll('.', '\\.')));
         }
       }
     });
 
     it('should update package.json version correctly', () => {
       const version = getVersionFromPackageJson(cwd);
-      expect(version).toBe('3.0.2');
+      expect(version).toBe(PATCH_TARGET);
     });
 
     it('should update package-lock.json version correctly', () => {
       const version = getVersionFromPackageLock(cwd);
-      expect(version).toBe('3.0.2');
+      expect(version).toBe(PATCH_TARGET);
     });
 
     it('should preserve package-lock.json structure', () => {
@@ -193,7 +213,7 @@ describe('sync-version.mjs snapshot tests', () => {
       // Should have packages object with root package
       expect(lock.packages).toBeDefined();
       expect(lock.packages['']).toBeDefined();
-      expect(lock.packages[''].version).toBe('3.0.2');
+      expect(lock.packages[''].version).toBe(PATCH_TARGET);
 
       // Should preserve lockfileVersion
       expect(lock.lockfileVersion).toBeDefined();
@@ -206,15 +226,13 @@ describe('sync-version.mjs snapshot tests', () => {
       const checkmarkCount = countCheckmarks(rows);
       expect(checkmarkCount).toBe(1);
 
-      // The ✅ Да row should match minor version 3.0.x
+      // Patch bump keeps the same minor version supported (✅ Да)
       const checkmarkVersion = getCheckmarkVersion(rows);
-      expect(checkmarkVersion).toBe('3.0.x');
+      expect(checkmarkVersion).toBe(minorLine(PATCH_TARGET));
 
-      // Should have downgraded previous 3.0.x to ⚠️
+      // Older unsupported versions remain downgraded to ⚠️
       const warningRows = rows.filter(r => r.includes('⚠️ Только критические исправления'));
       expect(warningRows.length).toBeGreaterThanOrEqual(1);
-      const hasDowngraded = warningRows.some(r => r.includes('3.0.x'));
-      expect(hasDowngraded).toBe(true);
     });
 
     it('should pass npm run validate after bump', () => {
@@ -228,7 +246,7 @@ describe('sync-version.mjs snapshot tests', () => {
     });
   });
 
-  describe('minor bump (3.0.1 -> 3.1.0)', () => {
+  describe(`minor bump (${CURRENT_VERSION} -> ${MINOR_TARGET})`, () => {
     let cwd;
     let cleanup;
 
@@ -238,7 +256,7 @@ describe('sync-version.mjs snapshot tests', () => {
     }, 120000);
 
     it('should update all 21 files', () => {
-      const output = runSyncVersion(cwd, '3.1.0');
+      const output = runSyncVersion(cwd, MINOR_TARGET);
       expect(output).toContain(`${EXPECTED_FILE_COUNT} files updated`);
       expect(output).not.toMatch(/[1-9]\d* issues/);
 
@@ -247,17 +265,17 @@ describe('sync-version.mjs snapshot tests', () => {
         expect(content, `File ${file} should exist`).not.toBeNull();
         // SECURITY.md only contains minor version (e.g., 3.1.x) in the table, not full patch version
         if (file === 'SECURITY.md') {
-          const minorVersion = '3.1.x';
+          const minorVersion = minorLine(MINOR_TARGET);
           expect(content, `File ${file} should contain minor version ${minorVersion}`).toMatch(new RegExp(minorVersion.replace('.', '\\.')));
         } else {
-          expect(content, `File ${file} should contain version 3.1.0`).toMatch(/3\.1\.0/);
+          expect(content, `File ${file} should contain version ${MINOR_TARGET}`).toMatch(new RegExp(MINOR_TARGET.replaceAll('.', '\\.')));
         }
       }
     });
 
     it('should update package.json and package-lock.json', () => {
-      expect(getVersionFromPackageJson(cwd)).toBe('3.1.0');
-      expect(getVersionFromPackageLock(cwd)).toBe('3.1.0');
+      expect(getVersionFromPackageJson(cwd)).toBe(MINOR_TARGET);
+      expect(getVersionFromPackageLock(cwd)).toBe(MINOR_TARGET);
     });
 
     it('should update SECURITY.md table correctly for minor bump', () => {
@@ -266,13 +284,13 @@ describe('sync-version.mjs snapshot tests', () => {
       // Should have exactly one ✅ Да row
       expect(countCheckmarks(rows)).toBe(1);
 
-      // The ✅ Да row should match new minor version 3.1.x
-      expect(getCheckmarkVersion(rows)).toBe('3.1.x');
+      // The ✅ Да row should match new minor version
+      expect(getCheckmarkVersion(rows)).toBe(minorLine(MINOR_TARGET));
 
-      // Should have 3.0.x downgraded to ⚠️
+      // Should have previous minor version downgraded to ⚠️
       const warningRows = rows.filter(r => r.includes('⚠️ Только критические исправления'));
-      const has30xDowngraded = warningRows.some(r => r.includes('3.0.x'));
-      expect(has30xDowngraded).toBe(true);
+      const hasPreviousDowngraded = warningRows.some(r => r.includes(CURRENT_MINOR));
+      expect(hasPreviousDowngraded).toBe(true);
     });
 
     it('should pass npm run validate after bump', () => {
@@ -286,7 +304,7 @@ describe('sync-version.mjs snapshot tests', () => {
     });
   });
 
-  describe('major bump (3.0.1 -> 4.0.0)', () => {
+  describe(`major bump (${CURRENT_VERSION} -> ${MAJOR_TARGET})`, () => {
     let cwd;
     let cleanup;
 
@@ -296,7 +314,7 @@ describe('sync-version.mjs snapshot tests', () => {
     }, 120000);
 
     it('should update all 21 files', () => {
-      const output = runSyncVersion(cwd, '4.0.0');
+      const output = runSyncVersion(cwd, MAJOR_TARGET);
       expect(output).toContain(`${EXPECTED_FILE_COUNT} files updated`);
       expect(output).not.toMatch(/[1-9]\d* issues/);
 
@@ -305,17 +323,17 @@ describe('sync-version.mjs snapshot tests', () => {
         expect(content, `File ${file} should exist`).not.toBeNull();
         // SECURITY.md only contains minor version (e.g., 4.0.x) in the table, not full patch version
         if (file === 'SECURITY.md') {
-          const minorVersion = '4.0.x';
+          const minorVersion = minorLine(MAJOR_TARGET);
           expect(content, `File ${file} should contain minor version ${minorVersion}`).toMatch(new RegExp(minorVersion.replace('.', '\\.')));
         } else {
-          expect(content, `File ${file} should contain version 4.0.0`).toMatch(/4\.0\.0/);
+          expect(content, `File ${file} should contain version ${MAJOR_TARGET}`).toMatch(new RegExp(MAJOR_TARGET.replaceAll('.', '\\.')));
         }
       }
     });
 
     it('should update package.json and package-lock.json', () => {
-      expect(getVersionFromPackageJson(cwd)).toBe('4.0.0');
-      expect(getVersionFromPackageLock(cwd)).toBe('4.0.0');
+      expect(getVersionFromPackageJson(cwd)).toBe(MAJOR_TARGET);
+      expect(getVersionFromPackageLock(cwd)).toBe(MAJOR_TARGET);
     });
 
     it('should update SECURITY.md table correctly for major bump', () => {
@@ -324,13 +342,13 @@ describe('sync-version.mjs snapshot tests', () => {
       // Should have exactly one ✅ Да row
       expect(countCheckmarks(rows)).toBe(1);
 
-      // The ✅ Да row should match new minor version 4.0.x
-      expect(getCheckmarkVersion(rows)).toBe('4.0.x');
+      // The ✅ Да row should match new minor version
+      expect(getCheckmarkVersion(rows)).toBe(minorLine(MAJOR_TARGET));
 
-      // Should have 3.0.x and 3.1.x downgraded to ⚠️
+      // Should have previous minor version downgraded to ⚠️
       const warningRows = rows.filter(r => r.includes('⚠️ Только критические исправления'));
-      const has30xDowngraded = warningRows.some(r => r.includes('3.0.x'));
-      expect(has30xDowngraded).toBe(true);
+      const hasPreviousDowngraded = warningRows.some(r => r.includes(CURRENT_MINOR));
+      expect(hasPreviousDowngraded).toBe(true);
     });
 
     it('should pass npm run validate after bump', () => {

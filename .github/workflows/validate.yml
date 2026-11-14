@@ -15,7 +15,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -33,6 +33,10 @@ jobs:
       - name: Validate JSON examples, Mermaid diagrams and Markdown
         run: npm run validate
         timeout-minutes: 10
+
+      - name: Run unit and snapshot tests
+        run: npm test
+        timeout-minutes: 8
 
       - name: Check SECURITY.md supported versions table
         run: |
@@ -82,4 +86,4 @@ jobs:
         run: npm run generate:docs
 
       - name: Check that generated docs are up to date
-        run: git diff --exit-code -- docs/schemas-reference.md
+        run: git diff --exit-code -- docs/
