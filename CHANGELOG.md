@@ -8,6 +8,7 @@
 
 - `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
 - `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
+- 5 новых негативных фикстур self-test: дубликат `stage_code`, mismatch approval-флага `execution_plan`, немаппенный `artifact_type` в `eval_request`, `overall_score` вне диапазона (слой схемы), неизвестный `risk_level` (слой схемы).
 
 ### Planned (v3.1.0 — minor)
 
@@ -15,6 +16,14 @@
 
 ### Fixed
 
+- `scripts/validate-json.mjs`: инвариант `eval_request` больше не молча пропускает валидацию `artifact_data` для `artifact_type` без маппинга схемы — теперь это ошибка контракта (`no artifact schema mapping`).
+- `scripts/validate-json.mjs`: проверка взвешенной суммы `overall_score` падает с ошибкой, если в `score_breakdown` отсутствует ось из `QualityWeights` (раньше проверка тихо отключалась); добавлен стартовый кросс-чек осей `QualityWeights` и `score_breakdown`.
+- `scripts/validate-json.mjs`: self-test пре-валидирует `manifest.json` (неизвестная схема, отсутствие инвариант-функции, некомпилируемый `expectedErrorPattern`, отсутствие файла) и поддерживает `failLayer: "schema"` — негативные тесты первого слоя двойной валидации.
+- `scripts/sync-version.mjs`: идемпотентность — повторный запуск с той же версией завершается с exit 0 (успех = «паттерн найден», а не «контент изменился»).
+- `tests/snapshot/sync-version.test.mjs`: целевые версии вычисляются из текущей версии `package.json` (patch+1 / minor+1 / major+1) — snapshot-тесты больше не ломаются после каждого релиза.
+- `.github/workflows/validate.yml`: добавлен шаг `npm test` (snapshot-тесты теперь гоняются в CI); docs-job проверяет свежесть всего `docs/`, включая таблицу весов в `04-quality.md`.
+- `scripts/generate-docs.mjs`: добавлена проверка суммы весов и подписей осей; таблица весов строится по ключам `QualityWeights`, а не по захардкоженному списку.
+- `package.json`: из `_overrides_comment` убраны несуществующие идентификаторы CVE-2024-XXXX.
 - Унифицирована версия Node.js: `>=22.22.2` везде (package.json engines, README badge, README текст, CI workflow).
 - `docs/01-how-to-use.md`: добавлены русские эквиваленты в скобках для ключевых англицизмов (Stage-Gate HITL, Self-Healing, DAG, AAR, Triple-Gate, First-Time Right Rate) при первом упоминании.
 

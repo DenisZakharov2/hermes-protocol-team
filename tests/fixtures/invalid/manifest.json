@@ -15,6 +15,16 @@
       "expectedErrorPattern": "no gaps",
       "description": "Пропуск в нумерации stage_id (должен быть последовательным от 1)"
     },
+    "duplicate-stage-code.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "duplicate stage_code",
+      "description": "Дублирование stage_code в плане"
+    },
+    "plan-approval-flag-mismatch.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "approved_by_human must be true only when",
+      "description": "approval.approved_by_human=true при status != APPROVED"
+    },
     "score-wrong-weighted-sum.json": {
       "schema": "evaluation_report",
       "expectedErrorPattern": "overall_score.*!= weighted",
@@ -24,6 +34,12 @@
       "schema": "evaluation_report",
       "expectedErrorPattern": "passed must equal overall_score",
       "description": "Поле passed не соответствует сравнению overall_score >= quality_threshold"
+    },
+    "score-out-of-range.json": {
+      "schema": "evaluation_report",
+      "failLayer": "schema",
+      "expectedErrorPattern": "overall_score must be <= 100",
+      "description": "overall_score вне диапазона 0-100 — отклонение на слое схемы (первый слой двойной валидации)"
     },
     "risk-critical-not-rejected.json": {
       "schema": "legal_compliance_report",
@@ -40,6 +56,12 @@
       "expectedErrorPattern": "mitigation_status must not be OPEN for HIGH",
       "description": "OPEN mitigation_status для HIGH/CRITICAL риска недопустим"
     },
+    "unknown-risk-level.json": {
+      "schema": "legal_compliance_report",
+      "failLayer": "schema",
+      "expectedErrorPattern": "must be equal to one of the allowed values",
+      "description": "Неизвестный risk_level — отклонение на слое схемы (первый слой двойной валидации)"
+    },
     "approval-flag-mismatch.json": {
       "schema": "orchestration_output",
       "expectedErrorPattern": "approved_by_human must match human_verdict",
@@ -49,6 +71,11 @@
       "schema": "eval_request",
       "expectedErrorPattern": "artifact_data.project_id must match",
       "description": "project_id в artifact_data должен совпадать с project_id запроса"
+    },
+    "artifact-type-unmapped.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "no artifact schema mapping",
+      "description": "artifact_type без маппинга на схему не может пройти двойную валидацию молча"
     }
   }
 }
