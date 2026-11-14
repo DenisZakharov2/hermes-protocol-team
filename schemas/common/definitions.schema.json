@@ -110,7 +110,7 @@
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
-      "examples": ["3.0.1"]
+      "examples": ["3.0.2"]
     },
     "Percentage": {
       "type": "number",

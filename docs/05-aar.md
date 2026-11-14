@@ -1,7 +1,7 @@
 # Постпроектная рефлексия (After Action Review — AAR) Hermes Protocol
 
 > Источник: Раздел VI Конституции Hermes Protocol.  
-> Версия: 3.0.1.
+> Версия: 3.0.2.
 
 ## 1. Назначение
 

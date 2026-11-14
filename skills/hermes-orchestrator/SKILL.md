@@ -1,7 +1,7 @@
 ---
 name: hermes-orchestrator
 description: "Ведущий агент-оркестратор мультиагентной команды Hermes Protocol"
-version: 3.0.1
+version: 3.0.2
 ---
 
 # Hermes Orchestrator Agent skill (hermes-orchestrator)

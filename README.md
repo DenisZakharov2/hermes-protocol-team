@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 3.0.1 — действующая
+> **Статус:** версия 3.0.2 — действующая
 >
 > **Лицензия:** MIT
 >
