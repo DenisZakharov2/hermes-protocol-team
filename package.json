@@ -48,7 +48,7 @@
     "markdownlint-cli2": "^0.24.0",
     "mermaid": "^11.17.2",
     "tmp-promise": "^3.0.3",
-    "vitest": "^3.0.0"
+    "vitest": "^5.1.0"
   },
   "overrides": {
     "re2js": "^2.10.0",
