@@ -49,6 +49,21 @@
       "schema": "eval_request",
       "expectedErrorPattern": "artifact_data.project_id must match",
       "description": "project_id в artifact_data должен совпадать с project_id запроса"
+    },
+    "completed-approved-empty-history.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "COMPLETED_APPROVED requires APPROVED verdict on stage_code PLAN_APPROVAL",
+      "description": "COMPLETED_APPROVED с пустым stage_gate_history должен быть отклонён"
+    },
+    "single-stage-plan.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "execution plan must have exactly 11 stages",
+      "description": "План из одного этапа (AAR) должен быть отклонён — обязателен полный пайплайн из 11 этапов"
+    },
+    "rejected-after-approved.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "REJECTED verdict found after final APPROVED",
+      "description": "REJECTED после финального APPROVED в stage_gate_history недопустим"
     }
   }
 }

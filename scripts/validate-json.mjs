@@ -48,11 +48,27 @@ const ARTIFACT_SCHEMA_BY_TYPE = {
   synthesist_output: 'synthesist_output',
 };
 
-function executionPlanInvariantErrors(data) {
+// Mandatory pipeline definition (mirror of schema const for validation)
+const MANDATORY_PIPELINE = [
+  { stage_code: 'PLAN_APPROVAL', approval_required: true, minimal_depends_on: [] },
+  { stage_code: 'RESEARCH', approval_required: false, minimal_depends_on: ['PLAN_APPROVAL'] },
+  { stage_code: 'PRODUCT_STRATEGY', approval_required: false, minimal_depends_on: ['RESEARCH'] },
+  { stage_code: 'LEGAL_CONCEPT', approval_required: false, minimal_depends_on: ['PRODUCT_STRATEGY'] },
+  { stage_code: 'BUSINESS_REQUIREMENTS', approval_required: false, minimal_depends_on: ['LEGAL_CONCEPT'] },
+  { stage_code: 'LEGAL_BRD', approval_required: false, minimal_depends_on: ['BUSINESS_REQUIREMENTS'] },
+  { stage_code: 'SYNTHESIS', approval_required: false, minimal_depends_on: ['LEGAL_BRD'] },
+  { stage_code: 'LEGAL_SYNTHESIS', approval_required: false, minimal_depends_on: ['SYNTHESIS'] },
+  { stage_code: 'QUALITY_AUDIT', approval_required: false, minimal_depends_on: ['LEGAL_SYNTHESIS'] },
+  { stage_code: 'FINAL_GATE', approval_required: true, minimal_depends_on: ['QUALITY_AUDIT'] },
+  { stage_code: 'AAR', approval_required: false, minimal_depends_on: ['FINAL_GATE'] },
+];
+
+function executionPlanInvariantErrors(data, validators, orchestrationOutput) {
   const errors = [];
   const stages = Array.isArray(data.stages) ? data.stages : [];
   const stageIds = new Map();
 
+  // Check stage_id continuity and uniqueness
   stages.forEach((stage, index) => {
     const expectedStageId = index + 1;
     if (stage.stage_id !== expectedStageId) {
@@ -67,6 +83,7 @@ function executionPlanInvariantErrors(data) {
     }
   });
 
+  // Check dependencies (DAG properties)
   for (const stage of stages) {
     for (const dependency of stage.depends_on ?? []) {
       if (dependency === stage.stage_code) {
@@ -81,11 +98,94 @@ function executionPlanInvariantErrors(data) {
     }
   }
 
+  // Check plan-level approval flag consistency
   if (
     data.approval &&
     data.approval.approved_by_human !== (data.approval.status === 'APPROVED')
   ) {
     errors.push('approval.approved_by_human must be true only when approval.status is APPROVED');
+  }
+
+  // === MANDATORY PIPELINE INVARIANT ===
+  // 1. All 11 codes present exactly once
+  const mandatoryCodes = MANDATORY_PIPELINE.map((p) => p.stage_code);
+  const presentCodes = stages.map((s) => s.stage_code);
+  
+  // Check all mandatory codes are present
+  for (const code of mandatoryCodes) {
+    if (!presentCodes.includes(code)) {
+      errors.push(`mandatory pipeline stage missing: ${code}`);
+    }
+  }
+  
+  // Check no extra codes (exactly 11 stages)
+  if (stages.length !== 11) {
+    errors.push(`execution plan must have exactly 11 stages (mandatory pipeline), found ${stages.length}`);
+  }
+  
+  // Check no non-mandatory codes
+  for (const code of presentCodes) {
+    if (!mandatoryCodes.includes(code)) {
+      errors.push(`unknown stage_code in plan: ${code} (only mandatory pipeline stages allowed)`);
+    }
+  }
+
+  // 2. Relative order fixed: stage_id must match mandatory order (1..11)
+  for (let i = 0; i < MANDATORY_PIPELINE.length; i++) {
+    const expectedCode = MANDATORY_PIPELINE[i].stage_code;
+    const expectedStageId = i + 1;
+    const stage = stages.find((s) => s.stage_code === expectedCode);
+    if (stage && stage.stage_id !== expectedStageId) {
+      errors.push(`${expectedCode} must have stage_id ${expectedStageId} (fixed pipeline order)`);
+    }
+  }
+
+  // 3. PLAN_APPROVAL.approval_required = true, FINAL_GATE.approval_required = true
+  const planApprovalStage = stages.find((s) => s.stage_code === 'PLAN_APPROVAL');
+  if (planApprovalStage && planApprovalStage.approval_required !== true) {
+    errors.push('PLAN_APPROVAL must have approval_required: true');
+  }
+  
+  const finalGateStage = stages.find((s) => s.stage_code === 'FINAL_GATE');
+  if (finalGateStage && finalGateStage.approval_required !== true) {
+    errors.push('FINAL_GATE must have approval_required: true');
+  }
+
+  // 4. Minimal depends_on edges
+  for (const pipe of MANDATORY_PIPELINE) {
+    const stage = stages.find((s) => s.stage_code === pipe.stage_code);
+    if (!stage) continue; // Already reported as missing
+    
+    // Check that all minimal dependencies are present
+    for (const minDep of pipe.minimal_depends_on) {
+      if (!stage.depends_on?.includes(minDep)) {
+        errors.push(`${pipe.stage_code} must depend on ${minDep} (minimal pipeline dependency)`);
+      }
+    }
+    
+    // Check that depends_on doesn't contain extra dependencies beyond minimal + transitive
+    // For simplicity, we only enforce that minimal deps are present
+    // (transitive deps are allowed but not required to be checked here)
+  }
+
+  // 5. Cross-check with orchestration output stage_gate_history for approval_required stages
+  if (orchestrationOutput && orchestrationOutput.stage_gate_history) {
+    const gates = orchestrationOutput.stage_gate_history;
+    
+    for (const stage of stages) {
+      if (stage.approval_required && stage.status === 'COMPLETED') {
+        // Check if orchestration history has APPROVED for this stage_code
+        const gateApproved = gates.some(
+          (g) => g.stage_code === stage.stage_code && g.human_verdict === 'APPROVED'
+        );
+        
+        if (!gateApproved) {
+          errors.push(
+            `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output has no APPROVED verdict for this stage_code`
+          );
+        }
+      }
+    }
   }
 
   return errors;
@@ -174,6 +274,7 @@ function orchestrationOutputInvariantErrors(data) {
   const errors = [];
   const gates = Array.isArray(data.stage_gate_history) ? data.stage_gate_history : [];
 
+  // Check approved_by_human matches human_verdict
   gates.forEach((gate, index) => {
     const approved = gate.human_verdict === 'APPROVED';
     if (gate.approved_by_human !== approved) {
@@ -182,6 +283,39 @@ function orchestrationOutputInvariantErrors(data) {
       );
     }
   });
+
+  // Invariant for COMPLETED_APPROVED: must have APPROVED on PLAN_APPROVAL and FINAL_GATE
+  if (data.execution_status === 'COMPLETED_APPROVED') {
+    const planApprovalApproved = gates.some(
+      (g) => g.stage_code === 'PLAN_APPROVAL' && g.human_verdict === 'APPROVED'
+    );
+    const finalGateApproved = gates.some(
+      (g) => g.stage_code === 'FINAL_GATE' && g.human_verdict === 'APPROVED'
+    );
+
+    if (!planApprovalApproved) {
+      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code PLAN_APPROVAL in stage_gate_history');
+    }
+    if (!finalGateApproved) {
+      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code FINAL_GATE in stage_gate_history');
+    }
+
+    // No REJECTED after final APPROVED
+    // Find the last APPROVED gate (by timestamp)
+    const approvedGates = gates
+      .filter((g) => g.human_verdict === 'APPROVED')
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    
+    if (approvedGates.length > 0) {
+      const lastApprovedTime = new Date(approvedGates[approvedGates.length - 1].timestamp).getTime();
+      const rejectedAfterLastApproved = gates.some(
+        (g) => g.human_verdict === 'REJECTED' && new Date(g.timestamp).getTime() > lastApprovedTime
+      );
+      if (rejectedAfterLastApproved) {
+        errors.push('REJECTED verdict found after final APPROVED in stage_gate_history');
+      }
+    }
+  }
 
   return errors;
 }
@@ -242,6 +376,19 @@ const examples = fs
   .filter((file) => file.endsWith('.example.json'))
   .sort();
 
+// First pass: collect orchestration_output data by project_id for cross-checking
+const orchestrationOutputsByProject = new Map();
+for (const example of examples) {
+  const base = example.replace('.example.json', '');
+  if (base === 'orchestration_output') {
+    const examplePath = path.join(examplesDir, example);
+    const data = JSON.parse(fs.readFileSync(examplePath, 'utf8'));
+    if (data.project_id) {
+      orchestrationOutputsByProject.set(data.project_id, data);
+    }
+  }
+}
+
 let failed = 0;
 const projectIdsByExample = new Map();
 
@@ -267,8 +414,13 @@ for (const example of examples) {
     continue;
   }
 
+  // Pass orchestration output for cross-check if this is execution_plan
+  const orchestrationOutput = data.project_id 
+    ? orchestrationOutputsByProject.get(data.project_id) 
+    : undefined;
+
   const check = invariantChecks[base];
-  const invariantErrors = check ? check(data, validators) : [];
+  const invariantErrors = check ? check(data, validators, orchestrationOutput) : [];
   if (invariantErrors.length > 0) {
     failed += 1;
     console.error(`INVALID CONTRACT ${examplePath}`);
