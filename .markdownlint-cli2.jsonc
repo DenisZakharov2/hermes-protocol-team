@@ -54,5 +54,13 @@
     // Файл Contributor Covenant — привезён из templates/verbatim, правила оформления
     // (отступы, стиль списков) заданы его автором, а не этим репозиторием.
     ".github/CODE_OF_CONDUCT.md"
+  ],
+  "overrides": [
+    {
+      "files": ["CHANGELOG.md"],
+      "config": {
+        "MD024": false
+      }
+    }
   ]
 }
