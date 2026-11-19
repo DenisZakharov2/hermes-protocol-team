@@ -37,7 +37,9 @@ Thumbs.db
 # Logs
 *.log
 
-# Local memory: содержимое не коммитится, шаблон структуры — коммитится
+# Local memory: runtime-содержимое не коммитится, шаблон структуры — коммитится.
+# Политика allow-list живёт в schemas/common/source-allowlist.json;
+# memory/domain_knowledge/sources/allowlist.json — только runtime-копия.
 /memory/**
 !/memory/**/
 !/memory/**/.gitkeep
@@ -46,11 +48,3 @@ Thumbs.db
 # CI / Misc
 .cline-home/
 .actions/
-
-# Hermes Protocol memory runtime content
-memory/cases/*
-!memory/cases/.gitkeep
-memory/domain_knowledge/*
-!memory/domain_knowledge/*/.gitkeep
-memory/legal_precedents/*
-!memory/legal_precedents/*/.gitkeep

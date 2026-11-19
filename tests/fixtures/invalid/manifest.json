@@ -57,8 +57,14 @@
     },
     "artifact-root-traversal.json": {
       "schema": "orchestration_output",
+      "expectedSchemaErrorPattern": "must match pattern",
       "expectedErrorPattern": "artifact_root must not contain \"\\.\\.\" path segments",
-      "description": "artifact_root с сегментом '..' должен быть отклонён (path traversal)"
+      "description": "artifact_root с сегментом '..' отклоняется схемой (относительный путь) и defense-in-depth инвариантом"
+    },
+    "artifact-root-project-mismatch.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "artifact_root must equal \"cases/.*project_id.*artifacts/\"",
+      "description": "artifact_root должен указывать на каталог текущего project_id, а не другого проекта"
     },
     "plan-completed-without-approval.json": {
       "schema": "execution_plan",
@@ -74,6 +80,98 @@
       "schema": "orchestration_output",
       "expectedErrorPattern": "REJECTED verdict found after final APPROVED",
       "description": "REJECTED после финального APPROVED в stage_gate_history недопустим"
+    },
+    "research-output-ssrf-localhost.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: loopback 127.0.0.1 в sources[].url"
+    },
+    "research-output-ssrf-linklocal.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: link-local 169.254.169.254 в sources[].url"
+    },
+    "research-output-ssrf-private-ip.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: private IP 192.168.1.1 в sources[].url"
+    },
+    "research-output-ssrf-ipv4-mapped.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: IPv4-mapped IPv6 (::ffff:127.0.0.1) в sources[].url"
+    },
+    "research-output-ssrf-cgnat.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: CGNAT 100.64.0.0/10 в sources[].url"
+    },
+    "research-output-ssrf-unique-local-v6.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: unique local IPv6 fc00::/7 в sources[].url"
+    },
+    "research-output-ssrf-linklocal-v6.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: link-local IPv6 fe80::/10 в sources[].url"
+    },
+    "research-output-ssrf-unspecified.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: unspecified 0.0.0.0 в sources[].url"
+    },
+    "research-output-url-userinfo.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "must not contain userinfo",
+      "description": "userinfo (user:pass@) в sources[].url"
+    },
+    "research-output-url-ip-literal.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "must not use IP literal",
+      "description": "IP-литерал в sources[].url"
+    },
+    "research-output-url-http-not-https.json": {
+      "schema": "research_output",
+      "expectedSchemaErrorPattern": "must match pattern",
+      "expectedErrorPattern": "must use HTTPS",
+      "description": "HTTP вместо HTTPS в sources[].url (schema-negative + defense-in-depth инвариант)"
+    },
+    "research-output-url-not-in-allowlist.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "not in allow-list",
+      "description": "Домен вне коммитируемой allow-list schemas/common/source-allowlist.json"
+    },
+    "research-output-url-allowlist-lookalike.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "not in allow-list",
+      "description": "Обход allow-list подстрокой: cbr.ru.evil.example не является поддоменом cbr.ru"
+    },
+    "eval-request-unknown-artifact-type.json": {
+      "schema": "eval_request",
+      "expectedSchemaErrorPattern": "must be equal to one of the allowed values",
+      "expectedErrorPattern": "unknown artifact_type",
+      "description": "Неизвестный artifact_type отклоняется enum схемы и явной ошибкой инварианта"
+    },
+    "eval-request-non-json-missing-project-id.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "project_id is required for non-JSON artifact_type",
+      "description": "Не-JSON artifact_type (presentation) требует минимальный контракт с project_id"
+    },
+    "eval-request-non-json-project-id-mismatch.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "artifact_data.project_id must match eval_request.project_id",
+      "description": "project_id не-JSON артефакта должен совпадать с project_id запроса"
+    },
+    "project-aar-lessons-path-mismatch.json": {
+      "schema": "project_aar",
+      "expectedErrorPattern": "lessons_indexed_to must equal \"cases/.*project_id.*/\"",
+      "description": "lessons_indexed_to должен указывать на каталог текущего project_id"
+    },
+    "execution-request-prompt-too-long.json": {
+      "schema": "execution_request",
+      "expectedSchemaErrorPattern": "must NOT have more than 5000 characters",
+      "description": "user_prompt длиннее 5000 символов (schema-negative)"
     }
   }
 }

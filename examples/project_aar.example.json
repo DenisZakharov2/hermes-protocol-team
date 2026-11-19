@@ -17,5 +17,5 @@
       "patch": "Добавить автоматическую проверку маскирования ПДн в финальной валидации business_requirements.json"
     }
   ],
-  "lessons_indexed_to": "/memory/cases/SAV_DEP_2026_01/"
+  "lessons_indexed_to": "cases/SAV_DEP_2026_01/"
 }

@@ -1,6 +1,6 @@
 {
   "project_id": "SAV_DEP_2026_01",
-  "artifact_root": "/memory/cases/SAV_DEP_2026_01/artifacts/",
+  "artifact_root": "cases/SAV_DEP_2026_01/artifacts/",
   "execution_status": "COMPLETED_APPROVED",
   "stage_gate_history": [
     {
@@ -20,17 +20,29 @@
     {
       "stage": 11,
       "stage_code": "AAR",
-      "approved_by_human": true,
+      "approved_by_human": false,
       "human_verdict": "REJECTED",
       "timestamp": "2026-10-19T10:00:00Z"
     }
   ],
   "final_package": {
-    "product_strategy": { "ref": "product_strategy.json" },
-    "business_requirements": { "ref": "business_requirements.json" },
-    "legal_compliance_report": { "ref": "legal_compliance_report.json" },
-    "quality_evaluation": { "ref": "evaluation_report.json" },
-    "synthesist_output": { "ref": "synthesist_output.json" }
+    "product_strategy": {
+      "ref": "product_strategy.json"
+    },
+    "business_requirements": {
+      "ref": "business_requirements.json"
+    },
+    "legal_compliance_report": {
+      "ref": "legal_compliance_report.json"
+    },
+    "quality_evaluation": {
+      "ref": "evaluation_report.json"
+    },
+    "synthesist_output": {
+      "ref": "synthesist_output.json"
+    }
   },
-  "project_aar": { "ref": "project_aar.json" }
+  "project_aar": {
+    "ref": "project_aar.json"
+  }
 }

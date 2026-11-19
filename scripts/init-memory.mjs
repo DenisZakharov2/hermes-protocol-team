@@ -2,6 +2,8 @@
 /**
  * Инициализация структуры памяти Hermes Protocol.
  * Создаёт шаблон каталогов рантайма для эпизодической, семантической памяти и прецедентов.
+ * Пути относительные: memory/cases/{project_id}/, memory/domain_knowledge/, memory/legal_precedents/
+ * ProjectId — UPPER_SNAKE_CASE (^[A-Z0-9_]+$)
  */
 
 import fs from 'node:fs';
@@ -15,6 +17,7 @@ const dirs = [
   path.join(memoryRoot, 'domain_knowledge', 'regulatory'),
   path.join(memoryRoot, 'domain_knowledge', 'nfr_profiles'),
   path.join(memoryRoot, 'domain_knowledge', 'templates'),
+  path.join(memoryRoot, 'domain_knowledge', 'sources'),
   // Подраздел эпизодической памяти — судебные прецеденты
   path.join(memoryRoot, 'legal_precedents', 'vs_rf'),
   path.join(memoryRoot, 'legal_precedents', 'as_rf'),
@@ -41,54 +44,41 @@ for (const dir of dirs) {
   }
 }
 
-// Добавляем правило в .gitignore для memory/ содержимого (кроме структуры)
-const gitignorePath = path.join(process.cwd(), '.gitignore');
-const memoryIgnoreRule = '\n# Hermes Protocol memory runtime content\nmemory/cases/*\n!memory/cases/.gitkeep\nmemory/domain_knowledge/*\n!memory/domain_knowledge/*/.gitkeep\nmemory/legal_precedents/*\n!memory/legal_precedents/*/.gitkeep\n';
-
-if (fs.existsSync(gitignorePath)) {
-  const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
-  if (!gitignoreContent.includes('memory/cases/*')) {
-    fs.appendFileSync(gitignorePath, memoryIgnoreRule);
-    console.log(`📄 Добавлены правила в .gitignore для memory/`);
-  } else {
-    console.log(`⏭️  .gitignore уже содержит правила для memory/`);
-  }
-} else {
-  fs.writeFileSync(gitignorePath, memoryIgnoreRule.trimStart() + '\n');
-  console.log(`📄 Создан .gitignore с правилами для memory/`);
-}
-
 // Пример README для памяти
 const readmePath = path.join(memoryRoot, 'README.md');
 if (!fs.existsSync(readmePath)) {
   const readmeContent = `# Структура памяти Hermes Protocol
 
-Эта директория содержит шаблон трёхуровневой памяти мультиагентной системы.
+Эта директория содержит локальный шаблон трёхуровневой памяти мультиагентной системы.
 Процедурная память хранится в репозитории — \`skills/*/SKILL.md\` и \`schemas/\`.
 Эпизодическая память — \`cases/\`, её подраздел — \`legal_precedents/\`.
 Семантическая память — \`domain_knowledge/\`.
+В контрактах пути задаются относительно сконфигурированного \`memory_root\` Hermes.
 
 ## Структура
 
 \`\`\`text
 memory/
-├── README.md              # этот файл
-├── cases/                 # эпизодическая память; {project_id} создаёт hermes-orchestrator
-├── domain_knowledge/      # семантическая память
-│   ├── regulatory/        # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
-│   ├── nfr_profiles/      # профили NFR (SLA, RPO/RTO)
-│   └── templates/         # шаблоны правовых оговорок и дисклеймеров
-└── legal_precedents/      # подраздел эпизодической памяти — судебная практика
-    ├── vs_rf/             # ВС РФ
-    ├── as_rf/             # АС РФ
-    └── ks_rf/             # КС РФ
+├── README.md                  # этот файл
+├── cases/                     # эпизодическая память; {project_id} создаёт hermes-orchestrator
+├── domain_knowledge/          # семантическая память
+│   ├── regulatory/            # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
+│   ├── nfr_profiles/          # профили NFR (SLA, RPO/RTO)
+│   ├── templates/             # шаблоны правовых оговорок и дисклеймеров
+│   └── sources/               # runtime-копия allow-list (allowlist.json)
+└── legal_precedents/          # подраздел эпизодической памяти — судебная практика
+    ├── vs_rf/                 # ВС РФ
+    ├── as_rf/                 # АС РФ
+    └── ks_rf/                 # КС РФ
 \`\`\`
 
 ## Использование
 
 Каталоги рассчитаны на рантайм Hermes Agent: агент читает и пишет в них во время
-исполнения проектов. Этот репозиторий только создаёт шаблон структуры; содержимое
-памяти не коммитится (см. \`.gitignore\`).
+исполнения проектов. Этот репозиторий только создаёт шаблон структуры; runtime-содержимое
+памяти не коммитится (см. \`.gitignore\` в корне репозитория). Коммитируемая политика
+allow-list находится в \`schemas/common/source-allowlist.json\`; \`domain_knowledge/sources/allowlist.json\` —
+только её runtime-копия.
 
 ## Инициализация
 
@@ -98,6 +88,21 @@ npm run init:memory
 `;
   fs.writeFileSync(readmePath, readmeContent);
   console.log(`📄 Создан README: ${readmePath}`);
+}
+
+// Runtime-копия allow-list создаётся из коммитируемой политики schemas/common/source-allowlist.json.
+// Скрипт не изменяет .gitignore и другие файлы репозитория.
+const allowlistSourcePath = path.join('schemas', 'common', 'source-allowlist.json');
+const allowlistPath = path.join(memoryRoot, 'domain_knowledge', 'sources', 'allowlist.json');
+if (!fs.existsSync(allowlistSourcePath)) {
+  console.error(`❌ Не найден источник allow-list: ${allowlistSourcePath}`);
+  process.exit(1);
+}
+if (!fs.existsSync(allowlistPath)) {
+  fs.copyFileSync(allowlistSourcePath, allowlistPath);
+  console.log(`📄 Создана runtime-копия allow-list: ${allowlistPath}`);
+} else {
+  console.log(`⏭️  Уже существует: ${allowlistPath}`);
 }
 
 console.log('\n✅ Структура памяти инициализирована!');

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -47,6 +48,120 @@ const ARTIFACT_SCHEMA_BY_TYPE = {
   legal_compliance_report: 'legal_compliance_report',
   synthesist_output: 'synthesist_output',
 };
+
+// Не-JSON артефакты (презентации, резюме, записки, whitepaper) не имеют JSON-схемы,
+// но обязаны нести минимальный контракт: project_id для сквозной трассировки.
+const NON_JSON_ARTIFACT_TYPES = new Set([
+  'presentation',
+  'executive_summary',
+  'analytical_memo',
+  'market_research_whitepaper',
+]);
+
+const PROJECT_ID_PATTERN = /^[A-Z0-9_]+$/;
+
+// Политика allow-list источников хранится в репозитории и коммитится — иначе проверка
+// SSRF не воспроизводима в CI. Runtime-копию в memory/... создаёт npm run init:memory.
+const SOURCE_ALLOWLIST_PATH = path.join(schemasDir, 'common', 'source-allowlist.json');
+
+function loadSourceAllowlist() {
+  if (!fs.existsSync(SOURCE_ALLOWLIST_PATH)) {
+    console.error(`❌ Не найден allow-list источников: ${SOURCE_ALLOWLIST_PATH}`);
+    process.exit(1);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(SOURCE_ALLOWLIST_PATH, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${SOURCE_ALLOWLIST_PATH}: ${error.message}`);
+    process.exit(1);
+  }
+
+  const domains = parsed.allowed_domains;
+  if (!Array.isArray(domains) || domains.length === 0) {
+    console.error(`❌ ${SOURCE_ALLOWLIST_PATH}: allowed_domains должен быть непустым массивом`);
+    process.exit(1);
+  }
+
+  const normalized = new Set();
+  for (const domain of domains) {
+    if (
+      typeof domain !== 'string' ||
+      domain.length === 0 ||
+      domain.startsWith('.') ||
+      domain.endsWith('.') ||
+      !/^[a-z0-9.-]+$/i.test(domain)
+    ) {
+      console.error(`❌ ${SOURCE_ALLOWLIST_PATH}: недопустимый домен "${domain}"`);
+      process.exit(1);
+    }
+    normalized.add(domain.toLowerCase());
+  }
+
+  return normalized;
+}
+
+const SOURCE_ALLOWLIST = loadSourceAllowlist();
+
+function hostWithoutBrackets(hostname) {
+  return hostname.replace(/^\[|\]$/g, '').toLowerCase();
+}
+
+function isForbiddenIpv4(ip) {
+  const parts = ip.split('.').map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+    return false;
+  }
+  const [a, b] = parts;
+  return (
+    a === 0 || // 0.0.0.0/8 (включая 0.0.0.0)
+    a === 10 || // 10.0.0.0/8
+    a === 127 || // 127.0.0.0/8
+    (a === 100 && b >= 64 && b <= 127) || // 100.64.0.0/10 (CGNAT)
+    (a === 169 && b === 254) || // 169.254.0.0/16
+    (a === 172 && b >= 16 && b <= 31) || // 172.16.0.0/12
+    (a === 192 && b === 168) // 192.168.0.0/16
+  );
+}
+
+function ipv4FromMappedIpv6(ip) {
+  const lower = ip.toLowerCase();
+  if (!lower.startsWith('::ffff:')) return null;
+
+  const tail = lower.slice('::ffff:'.length);
+  if (net.isIP(tail) === 4) return tail;
+
+  const match = /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(tail);
+  if (!match) return null;
+
+  const high = parseInt(match[1], 16);
+  const low = parseInt(match[2], 16);
+  return [high >> 8, high & 0xff, low >> 8, low & 0xff].join('.');
+}
+
+function isForbiddenIpv6(ip) {
+  const lower = ip.toLowerCase();
+  if (lower === '::' || lower === '::1') return true;
+
+  // IPv4-mapped IPv6 (::ffff:a.b.c.d / ::ffff:xxxx:xxxx) — проверяем вложенный IPv4.
+  const mapped = ipv4FromMappedIpv6(lower);
+  if (mapped) return isForbiddenIpv4(mapped);
+
+  const first = lower.split(':')[0];
+  const firstHextet = first === '' ? 0 : parseInt(first, 16);
+  if (!Number.isInteger(firstHextet)) return false;
+
+  // fc00::/7 (unique local) и fe80::/10 (link-local).
+  return (firstHextet >= 0xfc00 && firstHextet <= 0xfdff) ||
+    (firstHextet >= 0xfe80 && firstHextet <= 0xfebf);
+}
+
+function isAllowedSourceHost(host) {
+  return Array.from(SOURCE_ALLOWLIST).some(
+    (allowed) => host === allowed || host.endsWith(`.${allowed}`)
+  );
+}
 
 // Нормативный пайплайн читаем из execution_plan.schema.json — единственного источника истины.
 // Копия массива в коде запрещена: расхождение схемы и валидатора должно быть невозможно.
@@ -321,6 +436,16 @@ function orchestrationOutputInvariantErrors(data) {
     }
   }
 
+  // Относительный путь памяти должен указывать на каталог текущего проекта.
+  if (typeof data.artifact_root === 'string' && typeof data.project_id === 'string') {
+    const expectedArtifactRoot = `cases/${data.project_id}/artifacts/`;
+    if (data.artifact_root !== expectedArtifactRoot) {
+      errors.push(
+        `artifact_root must equal "cases/{project_id}/artifacts/" for this project (expected "${expectedArtifactRoot}")`
+      );
+    }
+  }
+
   // Invariant for COMPLETED_APPROVED: must have APPROVED on PLAN_APPROVAL and FINAL_GATE
   if (data.execution_status === 'COMPLETED_APPROVED') {
     const planApprovalApproved = gates.some(
@@ -353,34 +478,160 @@ function orchestrationOutputInvariantErrors(data) {
   return errors;
 }
 
-function evalRequestInvariantErrors(data, validators) {
+function nonJsonArtifactInvariantErrors(data) {
   const errors = [];
-  const schemaBase = ARTIFACT_SCHEMA_BY_TYPE[data.artifact_type];
-  if (!schemaBase) {
+  const artifact = data.artifact_data;
+
+  if (!artifact || typeof artifact !== 'object' || Array.isArray(artifact)) {
+    errors.push(
+      `artifact_data must be an object for non-JSON artifact_type "${data.artifact_type}"`
+    );
     return errors;
   }
 
-  const validateArtifact = validators.get(schemaBase);
-  if (!validateArtifact) {
-    errors.push(`no validator for artifact_type ${data.artifact_type} (${schemaBase})`);
-    return errors;
-  }
-
-  if (!validateArtifact(data.artifact_data)) {
-    for (const error of validateArtifact.errors ?? []) {
-      errors.push(
-        `artifact_data${error.instancePath || '/'} ${error.message} (${schemaBase})`
-      );
-    }
-  }
-
-  if (
-    data.artifact_data?.project_id &&
-    data.artifact_data.project_id !== data.project_id
-  ) {
+  if (typeof artifact.project_id !== 'string' || artifact.project_id.length === 0) {
+    errors.push(
+      `artifact_data.project_id is required for non-JSON artifact_type "${data.artifact_type}"`
+    );
+  } else if (!PROJECT_ID_PATTERN.test(artifact.project_id)) {
+    errors.push(
+      `artifact_data.project_id must match ${PROJECT_ID_PATTERN} for non-JSON artifact_type "${data.artifact_type}"`
+    );
+  } else if (artifact.project_id !== data.project_id) {
     errors.push('artifact_data.project_id must match eval_request.project_id');
   }
 
+  return errors;
+}
+
+function evalRequestInvariantErrors(data, validators) {
+  const errors = [];
+  const schemaBase = ARTIFACT_SCHEMA_BY_TYPE[data.artifact_type];
+
+  if (schemaBase) {
+    const validateArtifact = validators.get(schemaBase);
+    if (!validateArtifact) {
+      errors.push(`no validator for artifact_type ${data.artifact_type} (${schemaBase})`);
+      return errors;
+    }
+
+    if (!validateArtifact(data.artifact_data)) {
+      for (const error of validateArtifact.errors ?? []) {
+        errors.push(
+          `artifact_data${error.instancePath || '/'} ${error.message} (${schemaBase})`
+        );
+      }
+    } else {
+      // Schema valid — now run invariant checks for this artifact type (рекурсия инвариантов).
+      const invariantCheck = invariantChecks[schemaBase];
+      if (invariantCheck) {
+        const invariantErrors = invariantCheck(data.artifact_data, validators);
+        for (const err of invariantErrors) {
+          errors.push(`artifact_data ${err} (${schemaBase} invariant)`);
+        }
+      }
+    }
+  } else if (NON_JSON_ARTIFACT_TYPES.has(data.artifact_type)) {
+    errors.push(...nonJsonArtifactInvariantErrors(data));
+  } else {
+    // Unknown artifact_type — explicit error instead of silent pass
+    const known = [...Object.keys(ARTIFACT_SCHEMA_BY_TYPE), ...NON_JSON_ARTIFACT_TYPES];
+    errors.push(
+      `unknown artifact_type: ${data.artifact_type} (expected one of: ${known.join(', ')})`
+    );
+    return errors;
+  }
+
+  if (
+    typeof data.artifact_data?.project_id === 'string' &&
+    data.artifact_data.project_id !== data.project_id
+  ) {
+    const alreadyReported = errors.includes(
+      'artifact_data.project_id must match eval_request.project_id'
+    );
+    if (!alreadyReported) {
+      errors.push('artifact_data.project_id must match eval_request.project_id');
+    }
+  }
+
+  return errors;
+}
+
+function researchOutputInvariantErrors(data) {
+  const errors = [];
+  const sources = Array.isArray(data.sources) ? data.sources : [];
+
+  sources.forEach((source, index) => {
+    const url = source?.url;
+    if (typeof url !== 'string' || url.length === 0) return;
+
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      errors.push(`sources[${index}].url is not a valid URL`);
+      return;
+    }
+
+    // 1. HTTPS обязателен (pattern в схеме — первый барьер, здесь defense-in-depth).
+    if (parsed.protocol !== 'https:') {
+      errors.push(`sources[${index}].url must use HTTPS`);
+    }
+
+    // 2. Userinfo (user:pass@host) маскирует реальный хост — запрещён.
+    if (parsed.username || parsed.password) {
+      errors.push(`sources[${index}].url must not contain userinfo (user:pass@)`);
+    }
+
+    // 3. Host сравниваем после new URL(), а не по подстроке.
+    const host = hostWithoutBrackets(parsed.hostname).replace(/\.$/, '');
+    if (host.length === 0) {
+      errors.push(`sources[${index}].url has an empty host`);
+      return;
+    }
+
+    // 4. Любой IP-литерал запрещён; приватные/loopback/link-local — отдельная ошибка.
+    const ipVersion = net.isIP(host);
+    if (ipVersion !== 0) {
+      errors.push(`sources[${index}].url must not use IP literal as host`);
+      const forbidden = ipVersion === 4 ? isForbiddenIpv4(host) : isForbiddenIpv6(host);
+      if (forbidden) {
+        errors.push(
+          `sources[${index}].url host "${host}" is forbidden (localhost/link-local/private IP)`
+        );
+      }
+      return;
+    }
+
+    // 5. localhost и его поддомены запрещены даже без IP-литерала.
+    if (host === 'localhost' || host.endsWith('.localhost')) {
+      errors.push(
+        `sources[${index}].url host "${host}" is forbidden (localhost/link-local/private IP)`
+      );
+      return;
+    }
+
+    // 6. Allow-list доменов: точное совпадение или поддомен (не подстрока).
+    if (!isAllowedSourceHost(host)) {
+      errors.push(
+        `sources[${index}].url host "${host}" not in allow-list (${SOURCE_ALLOWLIST_PATH})`
+      );
+    }
+  });
+
+  return errors;
+}
+
+function projectAarInvariantErrors(data) {
+  const errors = [];
+  if (typeof data.lessons_indexed_to === 'string' && typeof data.project_id === 'string') {
+    const expected = `cases/${data.project_id}/`;
+    if (data.lessons_indexed_to !== expected) {
+      errors.push(
+        `lessons_indexed_to must equal "cases/{project_id}/" for this project (expected "${expected}")`
+      );
+    }
+  }
   return errors;
 }
 
@@ -390,6 +641,8 @@ const invariantChecks = {
   legal_compliance_report: legalComplianceInvariantErrors,
   orchestration_output: orchestrationOutputInvariantErrors,
   eval_request: evalRequestInvariantErrors,
+  research_output: researchOutputInvariantErrors,
+  project_aar: projectAarInvariantErrors,
 };
 
 const schemaFiles = fs
@@ -605,18 +858,42 @@ async function runSelfTest(ajv, validators, invariantChecks) {
     console.error(`❌ Manifest not found: ${manifestPath}`);
     process.exit(1);
   }
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${manifestPath}: ${error.message}`);
+    process.exit(1);
+  }
   const fixtureMap = manifest.fixtures ?? {};
 
   const fixtures = fs.readdirSync(invalidDir)
-    .filter(f => f.endsWith('.json') && f !== 'manifest.json')
+    .filter((file) => file.endsWith('.json') && file !== 'manifest.json')
     .sort();
+
+  // Каждая запись манифеста должна указывать на существующую фикстуру.
+  for (const manifestFixture of Object.keys(fixtureMap)) {
+    if (!fixtures.includes(manifestFixture)) {
+      console.error(`❌ ${manifestFixture}: есть в manifest.json, но файл фикстуры отсутствует`);
+      process.exit(1);
+    }
+  }
+
   let passed = 0;
   let failed = 0;
 
   for (const fixture of fixtures) {
     const fixturePath = path.join(invalidDir, fixture);
-    const data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+
+    let data;
+    try {
+      data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    } catch (error) {
+      console.error(`❌ ${fixture}: invalid JSON (${error.message})`);
+      failed++;
+      continue;
+    }
 
     const fixtureMeta = fixtureMap[fixture];
     if (!fixtureMeta) {
@@ -633,46 +910,80 @@ async function runSelfTest(ajv, validators, invariantChecks) {
       continue;
     }
 
-    // 1. Сначала проверяем схему
+    // 1. Схема.
     const schemaValid = validate(data);
-    let fixtureFailed = false;
-    let errorMessage = '';
+    const schemaErrorText = schemaValid
+      ? ''
+      : (validate.errors ?? [])
+          .map((error) => `${error.instancePath || '/'} ${error.message}`)
+          .join('; ') || 'schema validation failed';
 
-    if (!schemaValid) {
-      // Ошибка схемы — это не то, что мы тестируем (фикстура должна быть валидна по схеме)
-      errorMessage = validate.errors?.map(e => `${e.instancePath || '/'} ${e.message}`).join('; ') || 'schema validation failed';
-      console.log(`⚠️  ${fixture}: schema validation failed (${errorMessage})`);
+    // 2. Инварианты запускаются всегда — даже для schema-negative фикстур,
+    //    чтобы defense-in-depth проверки (traversal, SSRF, allow-list) оставались покрытыми.
+    // Для execution_plan передаём orchestration_output того же project_id — это делает
+    // self-test эквивалентным сквозной проверке examples/.
+    let invariantErrorText = '';
+    const check = invariantChecks[schemaName];
+    if (check) {
+      try {
+        const orchestrationOutput = data.project_id
+          ? orchestrationOutputsByProject.get(data.project_id)
+          : undefined;
+        invariantErrorText = check(data, validators, orchestrationOutput).join('; ');
+      } catch (error) {
+        invariantErrorText = `invariant check threw: ${error.message}`;
+      }
+    }
+
+    const expectedSchemaPattern = fixtureMeta.expectedSchemaErrorPattern;
+    const expectedPattern = fixtureMeta.expectedErrorPattern;
+
+    if (!expectedSchemaPattern && !expectedPattern) {
+      console.error(
+        `❌ ${fixture}: укажите expectedErrorPattern и/или expectedSchemaErrorPattern в manifest.json`
+      );
       failed++;
       continue;
     }
 
-    // 2. Проверяем инварианты для этой схемы.
-    // Для execution_plan передаём orchestration_output того же project_id — это делает
-    // self-test эквивалентным сквозной проверке examples/.
-    const check = invariantChecks[schemaName];
-    if (check) {
-      const orchestrationOutput = data.project_id
-        ? orchestrationOutputsByProject.get(data.project_id)
-        : undefined;
-      const errors = check(data, validators, orchestrationOutput);
-      if (errors.length > 0) {
-        fixtureFailed = true;
-        errorMessage = errors.join('; ');
-      }
+    const expectations = [];
+
+    if (expectedSchemaPattern) {
+      const schemaMatched =
+        !schemaValid && new RegExp(expectedSchemaPattern).test(schemaErrorText);
+      expectations.push({
+        ok: schemaMatched,
+        label: `schema error matching /${expectedSchemaPattern}/`,
+        actual: schemaValid ? 'schema passed' : schemaErrorText,
+      });
+    } else {
+      expectations.push({
+        ok: schemaValid,
+        label: 'schema validation to pass',
+        actual: schemaValid ? 'schema passed' : schemaErrorText,
+      });
     }
 
-    const expectedPattern = fixtureMeta.expectedErrorPattern;
-    const matched = expectedPattern && new RegExp(expectedPattern).test(errorMessage);
+    if (expectedPattern) {
+      const invariantMatched = new RegExp(expectedPattern).test(invariantErrorText);
+      expectations.push({
+        ok: invariantMatched,
+        label: `invariant error matching /${expectedPattern}/`,
+        actual: invariantErrorText || 'no invariant errors',
+      });
+    }
 
-    if (fixtureFailed && matched) {
-      console.log(`✅ ${fixture}: correctly rejected (${errorMessage})`);
+    const failedExpectations = expectations.filter((expectation) => !expectation.ok);
+
+    if (failedExpectations.length === 0) {
+      const details = [schemaErrorText, invariantErrorText].filter(Boolean).join('; ');
+      console.log(`✅ ${fixture}: correctly rejected (${details || 'expected negative'})`);
       passed++;
-    } else if (fixtureFailed) {
-      console.log(`⚠️  ${fixture}: rejected but unexpected error: ${errorMessage}`);
-      console.log(`   Expected pattern: ${expectedPattern}`);
-      failed++;
     } else {
-      console.error(`❌ ${fixture}: should have been rejected but passed!`);
+      console.error(`❌ ${fixture}: negative test expectations not met`);
+      for (const expectation of failedExpectations) {
+        console.error(`   expected ${expectation.label}; got: ${expectation.actual}`);
+      }
       failed++;
     }
   }

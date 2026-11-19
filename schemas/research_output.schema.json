@@ -94,7 +94,8 @@
           "url": {
             "type": "string",
             "format": "uri",
-            "description": "Конкретная страница источника. Корневой URL допустим только при illustrative: true."
+            "pattern": "^https://",
+            "description": "Конкретная страница источника (HTTPS). Корневой URL допустим только при illustrative: true. Запрещены localhost, link-local, private IP, userinfo и IP-литералы. Allow-list доменов — schemas/common/source-allowlist.json (проверяется scripts/validate-json.mjs)."
           },
           "tier_level": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"

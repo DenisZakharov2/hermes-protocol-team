@@ -16,6 +16,12 @@
     "agent_id": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
     },
+    "sanitized_user_prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000,
+      "description": "Очищенный от потенциальных инъекций запрос Заказчика. Макс. 5000 символов. Заполняется оркестратором перед стартом."
+    },
     "entries": {
       "type": "array",
       "items": {

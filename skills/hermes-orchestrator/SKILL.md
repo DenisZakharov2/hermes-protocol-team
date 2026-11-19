@@ -85,7 +85,7 @@ version: 3.0.2
 ```json
 {
   "project_id": "STRING",
-  "artifact_root": "/memory/cases/{project_id}/artifacts/",
+  "artifact_root": "cases/{project_id}/artifacts/",
   "execution_status": "COMPLETED_APPROVED | REJECTED | ESCALATED | STOPPED | PENDING_HUMAN",
   "stage_gate_history": [
     { "stage": 1, "approved_by_human": true, "human_verdict": "APPROVED | REJECTED | NEEDS_REWORK", "timestamp": "2026-10-03T10:00:00Z" }
@@ -140,8 +140,8 @@ version: 3.0.2
 
 `hermes-orchestrator` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.
 
-- **Episodic Case Memory**: `/memory/cases/{project_id}/` (сохранение успешных DAG и планов).
-- **Semantic Memory**: `/memory/domain_knowledge/` (чек-листы контроля процессов).
+- **Episodic Case Memory**: `cases/{project_id}/` (сохранение успешных DAG и планов; путь относительно `memory_root`).
+- **Semantic Memory**: `domain_knowledge/` (чек-листы контроля процессов; путь относительно `memory_root`).
 - **AAR & Refactoring**: Проводит рефлексию после завершения проекта и переносит `skill_patches` из `project_aar.json` в раздел `## Learned Guardrails` соответствующего скилла воркера при плановом рефакторинге.
 
 ## Learned Guardrails
@@ -166,12 +166,12 @@ version: 3.0.2
 
 ### 3. Границы Tool-Use для `multi-source-researcher`
 
-- **Разрешённые источники (Tier 1–3):** Официальные госсайты (cbr.ru, gov.ru, суды), авторитетные СМИ/консалтинг, открытая отчётность. Доменные списки — в семантической памяти `/memory/domain_knowledge/sources/`.
+- **Разрешённые источники (Tier 1–3):** Официальные госсайты (cbr.ru, gov.ru, суды), авторитетные СМИ/консалтинг, открытая отчётность. Коммитируемая allow-list — `schemas/common/source-allowlist.json`; runtime-копия — `domain_knowledge/sources/allowlist.json`.
 - **Запрещено:**
   - Поиск/переход на ресурсы с динамическим исполнением кода, подозрительными редиректами, файловые хостинги.
   - Data exfiltration: синтез/агрегация данных с последующей отправкой во внешние эндпоинты (webhook, API, email) — только возврат структурированного `research_output.json` оркестратору.
   - Использование инструментов поиска для сканирования внутренней инфраструктуры, localhost, приватных IP-диапазонов.
-- Валидация URL перед fetch: схема `https://`, домен в allow-list Tier 1–2, отсутствие в block-list.
+- Валидация URL перед fetch: схема `https://`, отсутствие userinfo и IP-литералов, host в allow-list (точное совпадение или поддомен), отсутствие в block-list.
 
 ### 4. Границы Tool-Use для остальных воркеров
 
