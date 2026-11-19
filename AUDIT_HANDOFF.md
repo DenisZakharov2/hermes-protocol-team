@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCK 0 COMPLETE** — Block 1 next
+**Status:** 🟢 **BLOCKS 0–1 COMPLETE** — Block 2 next
 
 ---
 
@@ -48,7 +48,9 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🔴 BLOCK 1: Close HITL & Pipeline Bypasses (Protocol Core)
+## 🔴 BLOCK 1: Close HITL & Pipeline Bypasses (Protocol Core) — ✅ **COMPLETE**
+
+**Completed 2026-11-19.** Commits: `9255a6e` (invariants + fixtures), `0d890d1` (hardening: schema-derived pipeline, plan-level HITL, final-gate ordering, path traversal). Verified on merged `main`: `npm test` 15/15, `npm run validate` 15/15 negative fixtures.
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -108,7 +110,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🛠️ Current Session: Block 0 (PR #1)
+## ✅ Completed Session: Block 0 (PR #1)
 
 ### Immediate Tasks
 
