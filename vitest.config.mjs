@@ -11,11 +11,8 @@ export default defineConfig({
     testTimeout: 60000,
     include: ['tests/**/*.test.mjs'],
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    // Vitest 4+ removed poolOptions; maxWorkers=1 is the equivalent of singleFork.
+    maxWorkers: 1,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
