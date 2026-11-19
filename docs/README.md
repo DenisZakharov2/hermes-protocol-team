@@ -12,6 +12,8 @@
 | [`schemas-reference.md`](schemas-reference.md) | Справочник JSON-схем: обязательные поля и общие определения (генерируется из `schemas/`) |
 | [`04-quality.md`](04-quality.md) | Пять осей качества, пороги, Triple-Gate и Self-Healing |
 | [`05-aar.md`](05-aar.md) | Постпроектная рефлексия (After Action Review) |
+| [`blocks-0-1-report.md`](blocks-0-1-report.md) | Отчёт о завершении Blocks 0–1 и текущий статус Block 2 |
+| [`block-2-session-prompt.md`](block-2-session-prompt.md) | Промт и план работ для продолжения Block 2 |
 | [`legal-stack.md`](legal-stack.md) | Канонический перечень федеральных законов, актов ЦБ РФ и стандартов |
 | [`MAINTAINERS.md`](MAINTAINERS.md) | Настройки GitHub, защита ветки, релизы и обслуживание репозитория |
 

@@ -8,6 +8,13 @@
 
 - `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
 - `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
+- `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
+- Негативные фикстуры Block 1: пустая `stage_gate_history` при `COMPLETED_APPROVED`, одноэтапный план, `REJECTED` после финального `APPROVED`, план без утверждения, path traversal в `artifact_root`.
+
+### Changed
+
+- `orchestration_output.schema.json`: `stage_gate_history[].stage_code` стал обязательным. `COMPLETED_APPROVED` требует `APPROVED` на `PLAN_APPROVAL` и `FINAL_GATE`; `REJECTED` после финального `APPROVED` запрещён. Ломающее изменение для потребителей контракта.
+- `vitest` обновлён до 5.1.1; конфиг переведён с удалённого `poolOptions` на `maxWorkers: 1`. Закрыты critical/moderate уязвимости `tinypool` и `@vitest/mocker`.
 
 ### Planned (v3.1.0 — minor)
 
@@ -15,6 +22,11 @@
 
 ### Fixed
 
+- `scripts/sync-version.mjs`: идемпотентная работа, дедупликация таблицы `SECURITY.md`, атомарная запись; `package-lock.json` синхронизирован с `package.json`.
+- CI запускает `npm test` и `npm audit --audit-level=high`; таблица поддержки `SECURITY.md` содержит одну строку на версию и одну `✅ Да`.
+- Закрыт HITL-байпас: `COMPLETED_APPROVED` больше не проходит с пустой историей гейтов; план со всеми `COMPLETED` и `approval.status: PENDING` отклоняется; `REJECTED` после финального `APPROVED` запрещён.
+- `artifact_root` с сегментом `..` отклоняется (path traversal).
+- `npm audit --audit-level=high` — 0 уязвимостей.
 - Унифицирована версия Node.js: `>=22.22.2` везде (package.json engines, README badge, README текст, CI workflow).
 - `docs/01-how-to-use.md`: добавлены русские эквиваленты в скобках для ключевых англицизмов (Stage-Gate HITL, Self-Healing, DAG, AAR, Triple-Gate, First-Time Right Rate) при первом упоминании.
 

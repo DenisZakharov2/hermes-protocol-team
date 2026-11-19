@@ -61,7 +61,9 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟠 BLOCK 2: Memory Paths & Input Security (High)
+## 🟠 BLOCK 2: Memory Paths & Input Security (High) — 🚧 **WIP**
+
+**Status:** WIP на ветке `fix/block-2-security-paths` (коммит `78bcbab`, запушен в `origin`). Продолжение — по промту [`docs/block-2-session-prompt.md`](docs/block-2-session-prompt.md). Отчёт по завершённым блокам — [`docs/blocks-0-1-report.md`](docs/blocks-0-1-report.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -163,6 +165,20 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 - [x] CI workflow updated (runs `npm test`, `npm audit --audit-level=high`)
 - [x] `SECURITY.md` matches target table exactly
 - [ ] CHANGELOG.md has `[3.0.3]` section (sync-version should verify header exists) — *deferred to release process*
+
+---
+
+## ✅ Verification log (2026-11-19)
+
+Итоговый `main` после merge Blocks 0–1 и обновления `vitest`:
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 24 md (0 issues), 3 контрактных блока, self-test 15/15 |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| Таблица версий `SECURITY.md` | ✅ `3.0.x` — одна строка `✅ Да` |
 
 ---
 
