@@ -55,6 +55,16 @@
       "expectedErrorPattern": "COMPLETED_APPROVED requires APPROVED verdict on stage_code PLAN_APPROVAL",
       "description": "COMPLETED_APPROVED с пустым stage_gate_history должен быть отклонён"
     },
+    "artifact-root-traversal.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "artifact_root must not contain \"\\.\\.\" path segments",
+      "description": "artifact_root с сегментом '..' должен быть отклонён (path traversal)"
+    },
+    "plan-completed-without-approval.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "PLAN_APPROVAL is COMPLETED but plan approval",
+      "description": "Все этапы COMPLETED, но план не утверждён человеком (approval.status = PENDING)"
+    },
     "single-stage-plan.json": {
       "schema": "execution_plan",
       "expectedErrorPattern": "execution plan must have exactly 11 stages",

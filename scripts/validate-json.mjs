@@ -48,20 +48,18 @@ const ARTIFACT_SCHEMA_BY_TYPE = {
   synthesist_output: 'synthesist_output',
 };
 
-// Mandatory pipeline definition (mirror of schema const for validation)
-const MANDATORY_PIPELINE = [
-  { stage_code: 'PLAN_APPROVAL', approval_required: true, minimal_depends_on: [] },
-  { stage_code: 'RESEARCH', approval_required: false, minimal_depends_on: ['PLAN_APPROVAL'] },
-  { stage_code: 'PRODUCT_STRATEGY', approval_required: false, minimal_depends_on: ['RESEARCH'] },
-  { stage_code: 'LEGAL_CONCEPT', approval_required: false, minimal_depends_on: ['PRODUCT_STRATEGY'] },
-  { stage_code: 'BUSINESS_REQUIREMENTS', approval_required: false, minimal_depends_on: ['LEGAL_CONCEPT'] },
-  { stage_code: 'LEGAL_BRD', approval_required: false, minimal_depends_on: ['BUSINESS_REQUIREMENTS'] },
-  { stage_code: 'SYNTHESIS', approval_required: false, minimal_depends_on: ['LEGAL_BRD'] },
-  { stage_code: 'LEGAL_SYNTHESIS', approval_required: false, minimal_depends_on: ['SYNTHESIS'] },
-  { stage_code: 'QUALITY_AUDIT', approval_required: false, minimal_depends_on: ['LEGAL_SYNTHESIS'] },
-  { stage_code: 'FINAL_GATE', approval_required: true, minimal_depends_on: ['QUALITY_AUDIT'] },
-  { stage_code: 'AAR', approval_required: false, minimal_depends_on: ['FINAL_GATE'] },
-];
+// Нормативный пайплайн читаем из execution_plan.schema.json — единственного источника истины.
+// Копия массива в коде запрещена: расхождение схемы и валидатора должно быть невозможно.
+const executionPlanSchema = JSON.parse(
+  fs.readFileSync(path.join(schemasDir, 'execution_plan.schema.json'), 'utf8')
+);
+const MANDATORY_PIPELINE = executionPlanSchema.definitions?.MandatoryPipeline?.const;
+if (!Array.isArray(MANDATORY_PIPELINE) || MANDATORY_PIPELINE.length !== 11) {
+  console.error(
+    '❌ execution_plan.schema.json: definitions.MandatoryPipeline.const должен содержать 11 этапов'
+  );
+  process.exit(1);
+}
 
 function executionPlanInvariantErrors(data, validators, orchestrationOutput) {
   const errors = [];
@@ -140,15 +138,15 @@ function executionPlanInvariantErrors(data, validators, orchestrationOutput) {
     }
   }
 
-  // 3. PLAN_APPROVAL.approval_required = true, FINAL_GATE.approval_required = true
-  const planApprovalStage = stages.find((s) => s.stage_code === 'PLAN_APPROVAL');
-  if (planApprovalStage && planApprovalStage.approval_required !== true) {
-    errors.push('PLAN_APPROVAL must have approval_required: true');
-  }
-  
-  const finalGateStage = stages.find((s) => s.stage_code === 'FINAL_GATE');
-  if (finalGateStage && finalGateStage.approval_required !== true) {
-    errors.push('FINAL_GATE must have approval_required: true');
+  // 3. Флаги approval_required должны точно совпадать с нормативным пайплайном:
+  //    true только у PLAN_APPROVAL и FINAL_GATE, false у остальных этапов.
+  for (const pipe of MANDATORY_PIPELINE) {
+    const stage = stages.find((s) => s.stage_code === pipe.stage_code);
+    if (stage && stage.approval_required !== pipe.approval_required) {
+      errors.push(
+        `${pipe.stage_code} must have approval_required: ${pipe.approval_required} (mandatory pipeline)`
+      );
+    }
   }
 
   // 4. Minimal depends_on edges
@@ -168,22 +166,52 @@ function executionPlanInvariantErrors(data, validators, orchestrationOutput) {
     // (transitive deps are allowed but not required to be checked here)
   }
 
-  // 5. Cross-check with orchestration output stage_gate_history for approval_required stages
-  if (orchestrationOutput && orchestrationOutput.stage_gate_history) {
-    const gates = orchestrationOutput.stage_gate_history;
-    
-    for (const stage of stages) {
-      if (stage.approval_required && stage.status === 'COMPLETED') {
-        // Check if orchestration history has APPROVED for this stage_code
-        const gateApproved = gates.some(
-          (g) => g.stage_code === stage.stage_code && g.human_verdict === 'APPROVED'
+  // 5. HITL: approval_required=true + status=COMPLETED требует человеческого утверждения.
+  //    PLAN_APPROVAL подтверждается блоком approval самого плана; остальные гейты —
+  //    записью APPROVED в stage_gate_history оркестратора для того же project_id.
+  const planApproved =
+    data.approval?.status === 'APPROVED' && data.approval?.approved_by_human === true;
+  const gates = Array.isArray(orchestrationOutput?.stage_gate_history)
+    ? orchestrationOutput.stage_gate_history
+    : [];
+
+  for (const stage of stages) {
+    if (!stage.approval_required || stage.status !== 'COMPLETED') continue;
+
+    if (stage.stage_code === 'PLAN_APPROVAL') {
+      if (!planApproved) {
+        errors.push(
+          'PLAN_APPROVAL is COMPLETED but plan approval.status is not APPROVED by human'
         );
-        
-        if (!gateApproved) {
-          errors.push(
-            `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output has no APPROVED verdict for this stage_code`
-          );
-        }
+      }
+      continue;
+    }
+
+    if (!orchestrationOutput) {
+      errors.push(
+        `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output for ${data.project_id} is unavailable`
+      );
+      continue;
+    }
+
+    const gateApproved = gates.some(
+      (g) => g.stage_code === stage.stage_code && g.human_verdict === 'APPROVED'
+    );
+    if (!gateApproved) {
+      errors.push(
+        `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output has no APPROVED verdict for this stage_code`
+      );
+    }
+  }
+
+  // 6. Сверка ссылок истории гейтов с планом: stage_code должен указывать на тот же stage_id.
+  if (orchestrationOutput) {
+    for (const gate of gates) {
+      const planStage = stages.find((s) => s.stage_code === gate.stage_code);
+      if (planStage && gate.stage !== planStage.stage_id) {
+        errors.push(
+          `orchestration_output stage_gate_history stage_code ${gate.stage_code} references stage ${gate.stage}, but plan stage_id is ${planStage.stage_id}`
+        );
       }
     }
   }
@@ -284,36 +312,41 @@ function orchestrationOutputInvariantErrors(data) {
     }
   });
 
+  // Path traversal: artifact_root не должен содержать сегмент "..".
+  // Проверка не зависит от выбранной модели путей (абсолютной или относительной).
+  if (typeof data.artifact_root === 'string') {
+    const segments = data.artifact_root.split('/');
+    if (segments.includes('..')) {
+      errors.push('artifact_root must not contain ".." path segments (path traversal)');
+    }
+  }
+
   // Invariant for COMPLETED_APPROVED: must have APPROVED on PLAN_APPROVAL and FINAL_GATE
   if (data.execution_status === 'COMPLETED_APPROVED') {
     const planApprovalApproved = gates.some(
       (g) => g.stage_code === 'PLAN_APPROVAL' && g.human_verdict === 'APPROVED'
     );
-    const finalGateApproved = gates.some(
-      (g) => g.stage_code === 'FINAL_GATE' && g.human_verdict === 'APPROVED'
-    );
 
     if (!planApprovalApproved) {
       errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code PLAN_APPROVAL in stage_gate_history');
     }
-    if (!finalGateApproved) {
-      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code FINAL_GATE in stage_gate_history');
-    }
 
-    // No REJECTED after final APPROVED
-    // Find the last APPROVED gate (by timestamp)
-    const approvedGates = gates
-      .filter((g) => g.human_verdict === 'APPROVED')
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    
-    if (approvedGates.length > 0) {
-      const lastApprovedTime = new Date(approvedGates[approvedGates.length - 1].timestamp).getTime();
-      const rejectedAfterLastApproved = gates.some(
-        (g) => g.human_verdict === 'REJECTED' && new Date(g.timestamp).getTime() > lastApprovedTime
-      );
-      if (rejectedAfterLastApproved) {
-        errors.push('REJECTED verdict found after final APPROVED in stage_gate_history');
-      }
+    // Берём последний APPROVED именно на FINAL_GATE: история упорядочена хронологически.
+    const finalGateApprovedIndex = gates.reduce(
+      (lastIndex, gate, index) =>
+        gate.stage_code === 'FINAL_GATE' && gate.human_verdict === 'APPROVED'
+          ? index
+          : lastIndex,
+      -1
+    );
+
+    if (finalGateApprovedIndex === -1) {
+      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code FINAL_GATE in stage_gate_history');
+    } else if (
+      gates.slice(finalGateApprovedIndex + 1).some((g) => g.human_verdict === 'REJECTED')
+    ) {
+      // После финального утверждения не может быть отклонений: проект уже сдан.
+      errors.push('REJECTED verdict found after final APPROVED in stage_gate_history');
     }
   }
 
@@ -613,10 +646,15 @@ async function runSelfTest(ajv, validators, invariantChecks) {
       continue;
     }
 
-    // 2. Проверяем инварианты для этой схемы
+    // 2. Проверяем инварианты для этой схемы.
+    // Для execution_plan передаём orchestration_output того же project_id — это делает
+    // self-test эквивалентным сквозной проверке examples/.
     const check = invariantChecks[schemaName];
     if (check) {
-      const errors = check(data, validators);
+      const orchestrationOutput = data.project_id
+        ? orchestrationOutputsByProject.get(data.project_id)
+        : undefined;
+      const errors = check(data, validators, orchestrationOutput);
       if (errors.length > 0) {
         fixtureFailed = true;
         errorMessage = errors.join('; ');
