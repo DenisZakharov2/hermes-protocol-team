@@ -88,6 +88,8 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High)
 
+**Промт сессии:** [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
+
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
 | **3.1** | Legal invariant rejects `HIGH`/`CRITICAL` + `mitigation_status: OPEN` **including `legal_status: REJECTED`**. Rejection *is* the honest record of open risk. Forcing `DONE` or downgrading risk = falsification. | `scripts/validate-json.mjs` (`legalComplianceInvariantErrors` lines 157-168) | Rule: `HIGH`/`CRITICAL` + `OPEN` ⇒ `legal_status` **cannot be** `APPROVED` or `APPROVED_WITH_RESERVATIONS`. `REJECTED` **allowed**. `required_mitigation.trim()` non-empty always (not just for reservations). Update schema `description` to match code. Add negative fixture: `REJECTED` + `HIGH` + `OPEN` = pass; `APPROVED_WITH_RESERVATIONS` + `HIGH` + `OPEN` = fail. |
