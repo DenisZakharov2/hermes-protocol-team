@@ -5,12 +5,14 @@
   "stage_gate_history": [
     {
       "stage": 1,
+      "stage_code": "PLAN_APPROVAL",
       "approved_by_human": true,
       "human_verdict": "APPROVED",
       "timestamp": "2026-10-17T10:00:00Z"
     },
     {
       "stage": 10,
+      "stage_code": "FINAL_GATE",
       "approved_by_human": true,
       "human_verdict": "APPROVED",
       "timestamp": "2026-10-18T10:00:00Z"

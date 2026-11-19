@@ -28,6 +28,7 @@
         "type": "object",
         "required": [
           "stage",
+          "stage_code",
           "approved_by_human",
           "human_verdict",
           "timestamp"
@@ -37,6 +38,10 @@
             "type": "integer",
             "minimum": 1,
             "description": "stage_id этапа из execution_plan, на котором проводилось утверждение."
+          },
+          "stage_code": {
+            "$ref": "urn:hermes-protocol:schemas:execution_plan.schema.json#/definitions/StageCode",
+            "description": "Стабильный код этапа (PLAN_APPROVAL, FINAL_GATE и т.д.) для инвариантной проверки."
           },
           "approved_by_human": {
             "type": "boolean"

@@ -48,11 +48,25 @@ const ARTIFACT_SCHEMA_BY_TYPE = {
   synthesist_output: 'synthesist_output',
 };
 
-function executionPlanInvariantErrors(data) {
+// Нормативный пайплайн читаем из execution_plan.schema.json — единственного источника истины.
+// Копия массива в коде запрещена: расхождение схемы и валидатора должно быть невозможно.
+const executionPlanSchema = JSON.parse(
+  fs.readFileSync(path.join(schemasDir, 'execution_plan.schema.json'), 'utf8')
+);
+const MANDATORY_PIPELINE = executionPlanSchema.definitions?.MandatoryPipeline?.const;
+if (!Array.isArray(MANDATORY_PIPELINE) || MANDATORY_PIPELINE.length !== 11) {
+  console.error(
+    '❌ execution_plan.schema.json: definitions.MandatoryPipeline.const должен содержать 11 этапов'
+  );
+  process.exit(1);
+}
+
+function executionPlanInvariantErrors(data, validators, orchestrationOutput) {
   const errors = [];
   const stages = Array.isArray(data.stages) ? data.stages : [];
   const stageIds = new Map();
 
+  // Check stage_id continuity and uniqueness
   stages.forEach((stage, index) => {
     const expectedStageId = index + 1;
     if (stage.stage_id !== expectedStageId) {
@@ -67,6 +81,7 @@ function executionPlanInvariantErrors(data) {
     }
   });
 
+  // Check dependencies (DAG properties)
   for (const stage of stages) {
     for (const dependency of stage.depends_on ?? []) {
       if (dependency === stage.stage_code) {
@@ -81,11 +96,124 @@ function executionPlanInvariantErrors(data) {
     }
   }
 
+  // Check plan-level approval flag consistency
   if (
     data.approval &&
     data.approval.approved_by_human !== (data.approval.status === 'APPROVED')
   ) {
     errors.push('approval.approved_by_human must be true only when approval.status is APPROVED');
+  }
+
+  // === MANDATORY PIPELINE INVARIANT ===
+  // 1. All 11 codes present exactly once
+  const mandatoryCodes = MANDATORY_PIPELINE.map((p) => p.stage_code);
+  const presentCodes = stages.map((s) => s.stage_code);
+  
+  // Check all mandatory codes are present
+  for (const code of mandatoryCodes) {
+    if (!presentCodes.includes(code)) {
+      errors.push(`mandatory pipeline stage missing: ${code}`);
+    }
+  }
+  
+  // Check no extra codes (exactly 11 stages)
+  if (stages.length !== 11) {
+    errors.push(`execution plan must have exactly 11 stages (mandatory pipeline), found ${stages.length}`);
+  }
+  
+  // Check no non-mandatory codes
+  for (const code of presentCodes) {
+    if (!mandatoryCodes.includes(code)) {
+      errors.push(`unknown stage_code in plan: ${code} (only mandatory pipeline stages allowed)`);
+    }
+  }
+
+  // 2. Relative order fixed: stage_id must match mandatory order (1..11)
+  for (let i = 0; i < MANDATORY_PIPELINE.length; i++) {
+    const expectedCode = MANDATORY_PIPELINE[i].stage_code;
+    const expectedStageId = i + 1;
+    const stage = stages.find((s) => s.stage_code === expectedCode);
+    if (stage && stage.stage_id !== expectedStageId) {
+      errors.push(`${expectedCode} must have stage_id ${expectedStageId} (fixed pipeline order)`);
+    }
+  }
+
+  // 3. Флаги approval_required должны точно совпадать с нормативным пайплайном:
+  //    true только у PLAN_APPROVAL и FINAL_GATE, false у остальных этапов.
+  for (const pipe of MANDATORY_PIPELINE) {
+    const stage = stages.find((s) => s.stage_code === pipe.stage_code);
+    if (stage && stage.approval_required !== pipe.approval_required) {
+      errors.push(
+        `${pipe.stage_code} must have approval_required: ${pipe.approval_required} (mandatory pipeline)`
+      );
+    }
+  }
+
+  // 4. Minimal depends_on edges
+  for (const pipe of MANDATORY_PIPELINE) {
+    const stage = stages.find((s) => s.stage_code === pipe.stage_code);
+    if (!stage) continue; // Already reported as missing
+    
+    // Check that all minimal dependencies are present
+    for (const minDep of pipe.minimal_depends_on) {
+      if (!stage.depends_on?.includes(minDep)) {
+        errors.push(`${pipe.stage_code} must depend on ${minDep} (minimal pipeline dependency)`);
+      }
+    }
+    
+    // Check that depends_on doesn't contain extra dependencies beyond minimal + transitive
+    // For simplicity, we only enforce that minimal deps are present
+    // (transitive deps are allowed but not required to be checked here)
+  }
+
+  // 5. HITL: approval_required=true + status=COMPLETED требует человеческого утверждения.
+  //    PLAN_APPROVAL подтверждается блоком approval самого плана; остальные гейты —
+  //    записью APPROVED в stage_gate_history оркестратора для того же project_id.
+  const planApproved =
+    data.approval?.status === 'APPROVED' && data.approval?.approved_by_human === true;
+  const gates = Array.isArray(orchestrationOutput?.stage_gate_history)
+    ? orchestrationOutput.stage_gate_history
+    : [];
+
+  for (const stage of stages) {
+    if (!stage.approval_required || stage.status !== 'COMPLETED') continue;
+
+    if (stage.stage_code === 'PLAN_APPROVAL') {
+      if (!planApproved) {
+        errors.push(
+          'PLAN_APPROVAL is COMPLETED but plan approval.status is not APPROVED by human'
+        );
+      }
+      continue;
+    }
+
+    if (!orchestrationOutput) {
+      errors.push(
+        `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output for ${data.project_id} is unavailable`
+      );
+      continue;
+    }
+
+    const gateApproved = gates.some(
+      (g) => g.stage_code === stage.stage_code && g.human_verdict === 'APPROVED'
+    );
+    if (!gateApproved) {
+      errors.push(
+        `stage ${stage.stage_code} has approval_required=true and status=COMPLETED but orchestration_output has no APPROVED verdict for this stage_code`
+      );
+    }
+  }
+
+  // 6. Сверка ссылок истории гейтов с планом: stage_code должен указывать на тот же stage_id.
+  if (orchestrationOutput) {
+    for (const gate of gates) {
+      const planStage = stages.find((s) => s.stage_code === gate.stage_code);
+      if (planStage && gate.stage !== planStage.stage_id) {
+        errors.push(
+          `orchestration_output stage_gate_history stage_code ${gate.stage_code} references stage ${gate.stage}, but plan stage_id is ${planStage.stage_id}`
+        );
+      }
+    }
   }
 
   return errors;
@@ -174,6 +302,7 @@ function orchestrationOutputInvariantErrors(data) {
   const errors = [];
   const gates = Array.isArray(data.stage_gate_history) ? data.stage_gate_history : [];
 
+  // Check approved_by_human matches human_verdict
   gates.forEach((gate, index) => {
     const approved = gate.human_verdict === 'APPROVED';
     if (gate.approved_by_human !== approved) {
@@ -182,6 +311,44 @@ function orchestrationOutputInvariantErrors(data) {
       );
     }
   });
+
+  // Path traversal: artifact_root не должен содержать сегмент "..".
+  // Проверка не зависит от выбранной модели путей (абсолютной или относительной).
+  if (typeof data.artifact_root === 'string') {
+    const segments = data.artifact_root.split('/');
+    if (segments.includes('..')) {
+      errors.push('artifact_root must not contain ".." path segments (path traversal)');
+    }
+  }
+
+  // Invariant for COMPLETED_APPROVED: must have APPROVED on PLAN_APPROVAL and FINAL_GATE
+  if (data.execution_status === 'COMPLETED_APPROVED') {
+    const planApprovalApproved = gates.some(
+      (g) => g.stage_code === 'PLAN_APPROVAL' && g.human_verdict === 'APPROVED'
+    );
+
+    if (!planApprovalApproved) {
+      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code PLAN_APPROVAL in stage_gate_history');
+    }
+
+    // Берём последний APPROVED именно на FINAL_GATE: история упорядочена хронологически.
+    const finalGateApprovedIndex = gates.reduce(
+      (lastIndex, gate, index) =>
+        gate.stage_code === 'FINAL_GATE' && gate.human_verdict === 'APPROVED'
+          ? index
+          : lastIndex,
+      -1
+    );
+
+    if (finalGateApprovedIndex === -1) {
+      errors.push('COMPLETED_APPROVED requires APPROVED verdict on stage_code FINAL_GATE in stage_gate_history');
+    } else if (
+      gates.slice(finalGateApprovedIndex + 1).some((g) => g.human_verdict === 'REJECTED')
+    ) {
+      // После финального утверждения не может быть отклонений: проект уже сдан.
+      errors.push('REJECTED verdict found after final APPROVED in stage_gate_history');
+    }
+  }
 
   return errors;
 }
@@ -242,6 +409,19 @@ const examples = fs
   .filter((file) => file.endsWith('.example.json'))
   .sort();
 
+// First pass: collect orchestration_output data by project_id for cross-checking
+const orchestrationOutputsByProject = new Map();
+for (const example of examples) {
+  const base = example.replace('.example.json', '');
+  if (base === 'orchestration_output') {
+    const examplePath = path.join(examplesDir, example);
+    const data = JSON.parse(fs.readFileSync(examplePath, 'utf8'));
+    if (data.project_id) {
+      orchestrationOutputsByProject.set(data.project_id, data);
+    }
+  }
+}
+
 let failed = 0;
 const projectIdsByExample = new Map();
 
@@ -267,8 +447,13 @@ for (const example of examples) {
     continue;
   }
 
+  // Pass orchestration output for cross-check if this is execution_plan
+  const orchestrationOutput = data.project_id 
+    ? orchestrationOutputsByProject.get(data.project_id) 
+    : undefined;
+
   const check = invariantChecks[base];
-  const invariantErrors = check ? check(data, validators) : [];
+  const invariantErrors = check ? check(data, validators, orchestrationOutput) : [];
   if (invariantErrors.length > 0) {
     failed += 1;
     console.error(`INVALID CONTRACT ${examplePath}`);
@@ -461,10 +646,15 @@ async function runSelfTest(ajv, validators, invariantChecks) {
       continue;
     }
 
-    // 2. Проверяем инварианты для этой схемы
+    // 2. Проверяем инварианты для этой схемы.
+    // Для execution_plan передаём orchestration_output того же project_id — это делает
+    // self-test эквивалентным сквозной проверке examples/.
     const check = invariantChecks[schemaName];
     if (check) {
-      const errors = check(data, validators);
+      const orchestrationOutput = data.project_id
+        ? orchestrationOutputsByProject.get(data.project_id)
+        : undefined;
+      const errors = check(data, validators, orchestrationOutput);
       if (errors.length > 0) {
         fixtureFailed = true;
         errorMessage = errors.join('; ');

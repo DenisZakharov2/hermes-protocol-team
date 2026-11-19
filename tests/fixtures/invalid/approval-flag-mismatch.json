@@ -5,6 +5,7 @@
   "stage_gate_history": [
     {
       "stage": 1,
+      "stage_code": "PLAN_APPROVAL",
       "approved_by_human": false,
       "human_verdict": "APPROVED",
       "timestamp": "2026-10-17T10:00:00Z"
