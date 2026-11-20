@@ -88,7 +88,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High) — ✅ **COMPLETE (PR Block 3)**
 
-**Status:** завершён в `578e133` на ветке `fix/block-3-legal-quality` (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
+**Status:** завершён в `cb9fe19` на ветке `fix/block-3-legal-quality` (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -216,7 +216,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | `npm run init:memory` | ✅ идемпотентен, `.gitignore` не изменяется, runtime-allowlist игнорируется |
 | CI PR #20 | ✅ validate, docs, CodeQL — все зелёные |
 
-Итог Block 3 (коммит `578e133`):
+Итог Block 3 (коммит `cb9fe19`):
 
 | Проверка | Результат |
 |---|---|
