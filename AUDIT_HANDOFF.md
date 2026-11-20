@@ -86,9 +86,9 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High) — ✅ **COMPLETE (PR Block 3)**
+## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High) — ✅ **COMPLETE (PR #21)**
 
-**Status:** завершён в `cb9fe19` на ветке `fix/block-3-legal-quality` (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
+**Status:** завершён в `cb9fe19` на ветке `fix/block-3-legal-quality`, PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -104,7 +104,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 - [x] Инварианты и фикстуры Blocks 1–2 сохранены: 11-этапный пайплайн, HITL-гейты, относительные пути `cases/...`, SSRF/allow-list, рекурсия `eval_request`, прежние 34 негативные фикстуры.
 - [x] `CHANGELOG.md` обновлён в `[Unreleased]`; `docs/schemas-reference.md` перегенерирован; версия не поднята.
 - [x] `npm ci && npm test && npm run validate && npm audit --audit-level=high` — зелёные; `generate:docs` без диффа.
-- [ ] PR Block 3 создан в `main` с зависимостью от PR #20 (Block 2) — заполняется при публикации.
+- [x] PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) создан в `main` с зависимостью от PR #20 (Block 2).
 
 ---
 
