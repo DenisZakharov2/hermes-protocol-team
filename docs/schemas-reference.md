@@ -55,7 +55,7 @@
 | `EvalId` | `string` | Идентификатор оценки качества |
 | `AgentId` | `string` (hermes-orchestrator, multi-source-researcher, product-manager, business-analyst, legal-compliance-counsel, research-synthesist, quality-evaluator) | Системный идентификатор агента |
 | `DomainContext` | `string` (RETAIL_BANKING, INVESTMENT, PAYMENTS) | Доменный контекст проекта (банковская сфера РФ) |
-| `QualityThreshold` | `integer` | Порог качества (0-100) |
+| `QualityThreshold` | `integer` | Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог. |
 | `QualityWeights` | `object` | Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1. |
 | `TimestampISO` | `string` | Временная метка в ISO 8601 (UTC) |
 | `VersionString` | `string` | Семантическая версия (MAJOR.MINOR.PATCH) |

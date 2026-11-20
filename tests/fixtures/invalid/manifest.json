@@ -22,8 +22,8 @@
     },
     "score-passed-mismatch.json": {
       "schema": "evaluation_report",
-      "expectedErrorPattern": "passed must equal overall_score",
-      "description": "Поле passed не соответствует сравнению overall_score >= quality_threshold"
+      "expectedErrorPattern": "passed must equal .*no CRITICAL",
+      "description": "passed=false при балле выше порога и отсутствии CRITICAL findings — нарушение конъюнкции порога и стоп-крана"
     },
     "risk-critical-not-rejected.json": {
       "schema": "legal_compliance_report",
@@ -38,7 +38,7 @@
     "risk-open-high-mitigation.json": {
       "schema": "legal_compliance_report",
       "expectedErrorPattern": "mitigation_status must not be OPEN for HIGH",
-      "description": "OPEN mitigation_status для HIGH/CRITICAL риска недопустим"
+      "description": "APPROVED_WITH_RESERVATIONS при HIGH + OPEN запрещён: открытая мера допускает только REJECTED"
     },
     "approval-flag-mismatch.json": {
       "schema": "orchestration_output",
@@ -172,6 +172,56 @@
       "schema": "execution_request",
       "expectedSchemaErrorPattern": "must NOT have more than 5000 characters",
       "description": "user_prompt длиннее 5000 символов (schema-negative)"
+    },
+    "risk-blank-mitigation.json": {
+      "schema": "legal_compliance_report",
+      "expectedErrorPattern": "required_mitigation must be non-empty after trim",
+      "description": "required_mitigation из одних пробелов проходит minLength: 1, но отклоняется инвариантом trim()"
+    },
+    "score-passed-with-critical.json": {
+      "schema": "evaluation_report",
+      "expectedErrorPattern": "passed must equal .*no CRITICAL",
+      "description": "passed=true при балле 90, пороге 85 и CRITICAL finding — стоп-кран обязан дать false"
+    },
+    "product-strategy-cof-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "cof_cost_of_funds_percent.*blended CoF",
+      "description": "cof_cost_of_funds_percent не совпадает со смешанным CoF из базовой/приветственной ставки и доли"
+    },
+    "product-strategy-nim-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "projected_nim_percent.*blended CoF",
+      "description": "projected_nim_percent не совпадает с placement_rate_percent - blended CoF - opex_percent"
+    },
+    "product-strategy-nii-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "projected_nii.*funding_volume_rub",
+      "description": "projected_nii не совпадает с funding_volume_rub × NIM / 100"
+    },
+    "product-strategy-rice-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "prioritization_rice.score.*reach",
+      "description": "RICE score не совпадает с reach × impact × confidence / 100 / effort"
+    },
+    "research-output-unknown-source-id.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "does not reference any sources",
+      "description": "Метрика ссылается на несуществующий SRC_99"
+    },
+    "research-output-duplicate-source-id.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "source_id .*is duplicated",
+      "description": "source_id SRC_1 повторяется в sources[]"
+    },
+    "research-output-no-primary-source.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "at least one source with illustrative: false",
+      "description": "Все источники illustrative: true — нет ни одного первичного источника"
+    },
+    "research-output-primary-section-root.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "specific page, not a section root",
+      "description": "Первичный источник указывает на корень раздела https://www.cbr.ru/ вместо конкретной страницы"
     }
   }
 }

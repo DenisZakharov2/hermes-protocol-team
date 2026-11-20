@@ -29,16 +29,21 @@
 
 `Overall Quality Score` — взвешенная сумма по 5 осям, шкала 0–100.
 
-## 2. Пороги и вердикты
+## 2. Порог, вердикт и стоп-кран
 
-| Балл | Статус | Действие |
+`quality_threshold` — поле контракта `evaluation_report.json` (0–100); 85 — типовой пример значения, а не второй жёстко зашитый порог. Единственный вердикт качества — boolean `passed`:
+
+| Условие | `passed` | Действие |
 |---|---|---|
-| `≥ 85` | **PASSED** | Артефакт допускается к передаче Заказчику на `FINAL_GATE` |
-| `< 85` | **REJECTED** | `quality-evaluator` формирует `actionable_fixes`; `hermes-orchestrator` направляет артефакт на доработку владельцу артефакта (не напрямую юристу) |
+| `overall_score >= quality_threshold` и нет `CRITICAL` findings | `true` | Артефакт допускается к передаче Заказчику на `FINAL_GATE` |
+| `overall_score < quality_threshold` | `false` | `quality-evaluator` формирует `actionable_fixes`; `hermes-orchestrator` направляет артефакт на доработку владельцу артефакта (не напрямую юристу) |
+| Любой `CRITICAL` finding в `critical_findings` | `false` | Стоп-кран: передача блокируется даже при балле выше порога |
+
+`critical_findings` содержит только находки `HIGH`/`CRITICAL`; замечания `MEDIUM`/`LOW` переносятся в `actionable_fixes`. Поэтому `passed = false` возможен и при балле выше `quality_threshold`, если есть `CRITICAL` finding.
 
 ## 3. Цикл Self-Healing (самовосстановления)
 
-1. При `overall_score < 85` артефакт возвращается **не юристу автоматически, а владельцу артефакта** — соответствующему воркеру, который его подготовил.
+1. При `passed = false` (балл ниже `quality_threshold` или `CRITICAL` finding) артефакт возвращается **не юристу автоматически, а владельцу артефакта** — соответствующему воркеру, который его подготовил.
 2. Воркер вносит точечные исправления по `actionable_fixes`.
 3. Если дефект относится к регуляторному/юридическому контуру (код `REG_*`, риск `CRITICAL`/`HIGH`), после доработки запускается **повторный Legal Check-in** соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 4. Лимиты:
@@ -55,7 +60,7 @@
           ↓
 [Правовая экспертиза legal-compliance-counsel, риски CRITICAL/HIGH/MEDIUM/LOW, до 3 итераций]
           ↓
-[Смысловой аудит quality-evaluator, 5 осей, порог ≥ 85, Self-Healing до 3 циклов]
+[Смысловой аудит quality-evaluator, 5 осей, quality_threshold + стоп-кран CRITICAL, Self-Healing до 3 циклов]
           ↓
 [Передача Заказчику на Stage-Gate утверждение]
 ```
@@ -67,7 +72,7 @@
 | First-Time Right Rate (FTR) | ≥ 85 % | Доля артефактов, принятых Заказчиком и Критиком с первого предъявления без доработки |
 | Zero Critical Legal Risks | 100 % | Полное отсутствие неотраженных юридических/пруденциальных рисков категории `CRITICAL` в сданных пакетах |
 | User Intervention Index | < 15 % | Доля ручных правок Заказчика в итоговых материалах |
-| Self-Healing Efficiency | ≤ 1.5 итераций/артефакт | Среднее количество итераций доработки до достижения Score ≥ 85 |
+| Self-Healing Efficiency | ≤ 1.5 итераций/артефакт | Среднее количество итераций доработки до `passed = true` |
 
 ## 6. Защита от деградации скиллов
 

@@ -1,0 +1,12 @@
+{
+  "fixtures": {
+    "legal-open-high-rejected.json": {
+      "schema": "legal_compliance_report",
+      "description": "REJECTED при HIGH + OPEN — честная фиксация открытого риска; схема и инварианты должны пропустить"
+    },
+    "evaluation-critical-failed.json": {
+      "schema": "evaluation_report",
+      "description": "Балл 90 при пороге 85 и CRITICAL finding: passed=false — стоп-кран не конфликтует с правилом порога"
+    }
+  }
+}

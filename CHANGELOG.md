@@ -13,12 +13,19 @@
 - Негативные фикстуры Block 2: prompt-too-long, unknown artifact type, non-JSON без `project_id`, SSRF (loopback, link-local, private, CGNAT, unique-local/link-local IPv6, IPv4-mapped, `0.0.0.0`), userinfo, IP-литерал, HTTP, домен вне allow-list и lookalike-домен.
 - Негативные фикстуры Block 1: пустая `stage_gate_history` при `COMPLETED_APPROVED`, одноэтапный план, `REJECTED` после финального `APPROVED`, план без утверждения, path traversal в `artifact_root`.
 - `tests/fixtures/invalid/manifest.json`: поле `expectedSchemaErrorPattern` для schema-negative фикстур; self-test запускает инварианты и для них (defense-in-depth).
+- Block 3: позитивные фикстуры `tests/fixtures/valid/` с манифестом; self-test проверяет их на успешное прохождение схемы и инвариантов.
+- Block 3: `product_strategy` — обязательные допущения `funding_volume_rub`, `welcome_rate_share_percent`, `placement_rate_percent`, `opex_percent` и компоненты RICE (`reach`, `impact`, `confidence_percent`, `effort`, `score`).
+- Block 3: инварианты `product_strategy` (blended CoF, NIM, NII, RICE) и `research_output` (уникальные `source_id`, ссылки метрик на источники, минимум один `illustrative: false` с конкретной страницей).
+- Block 3, негативные фикстуры: открытая мера HIGH/CRITICAL запрещает утверждение, но разрешает `REJECTED`; `required_mitigation` из пробелов; `passed: true` с `CRITICAL`; расхождения CoF/NIM/NII/RICE; неизвестный/дублирующийся `source_id`; отсутствие первичного источника; корень раздела вместо страницы.
 
 ### Changed
 
 - Память в контрактах переведена на относительные пути от `memory_root`: `artifact_root` — `^cases/[A-Z0-9_]+/artifacts/$`, `lessons_indexed_to` — `^cases/[A-Z0-9_]+/$`. Валидатор дополнительно сверяет путь с `project_id`. Обновлены README, Конституция, `docs/`, все семь `skills/*/SKILL.md`, диаграммы и примеры. Ломающее изменение для потребителей контрактов.
 - `scripts/init-memory.mjs` больше не изменяет `.gitignore`; шаблон структуры памяти коммитится, runtime-содержимое игнорируется. Allow-list копируется из `schemas/common/source-allowlist.json`.
 - `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
+- Block 3: `evaluation_report` — единственный вердикт `passed`; `critical_findings[].severity` ограничен `HIGH`/`CRITICAL`; любой `CRITICAL` блокирует передачу; `quality_threshold` остаётся полем контракта (85 — типовой пример). Из quality-доков и skills убраны статусы `PASSED`/`REJECTED`.
+- Block 3: `product_strategy.example.json` пересчитан по явным допущениям: blended CoF 11.0 %, NIM 1.5 %, NII 75 000 000 руб. при объёме 5 млрд руб.; RICE хранит компоненты.
+- Block 3: `research_output.example.json` содержит первичный источник `illustrative: false` с конкретной страницей; правила прослеживаемости описаны в схеме и skill исследователя.
 - `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
 - `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
 - `orchestration_output.schema.json`: `stage_gate_history[].stage_code` стал обязательным. `COMPLETED_APPROVED` требует `APPROVED` на `PLAN_APPROVAL` и `FINAL_GATE`; `REJECTED` после финального `APPROVED` запрещён. Ломающее изменение для потребителей контракта.
@@ -27,6 +34,7 @@
 ### Versioning
 
 - Переход на относительные пути памяти — ломающее изменение контрактов. По SemVer требуется мажорная версия; номер релиза фиксирует мейнтейнер в PR (текущая версия остаётся `3.0.2`).
+- Block 3 меняет контракты `evaluation_report` (enum `critical_findings.severity`, вердикт `passed`), `product_strategy` (обязательные поля финмодели и RICE) и `research_output` (прослеживаемость источников). Вместе с Block 2 это требует мажорной версии по SemVer; номер оставляет мейнтейнер.
 
 ### Fixed
 
@@ -40,6 +48,10 @@
 - `npm audit --audit-level=high` — 0 уязвимостей.
 - Унифицирована версия Node.js: `>=22.22.2` везде (package.json engines, README badge, README текст, CI workflow).
 - `docs/01-how-to-use.md`: добавлены русские эквиваленты в скобках для ключевых англицизмов (Stage-Gate HITL, Self-Healing, DAG, AAR, Triple-Gate, First-Time Right Rate) при первом упоминании.
+- Block 3: юридический инвариант больше не отклоняет `REJECTED` при `HIGH`/`CRITICAL` + `OPEN`; проверяется, что утверждающие статусы не используются, а `required_mitigation` непуст после `trim()`.
+- Block 3: `passed: true` больше несовместим с `CRITICAL` finding; пример и контракт `quality-evaluator` очищены от `MEDIUM` в `critical_findings`.
+- Block 3: финансовый пример сходится арифметически; `illustrative: true` не отключает проверки CoF/NIM/NII и RICE.
+- Block 3: `source_id` метрик обязан ссылаться на существующий источник; добавлен первичный источник с конкретной страницей.
 
 ## [3.0.0] - 2026-11-10
 

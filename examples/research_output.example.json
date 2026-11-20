@@ -30,10 +30,10 @@
   "sources": [
     {
       "source_id": "SRC_1",
-      "url": "https://www.cbr.ru/statistics/bank_sector/",
+      "url": "https://www.cbr.ru/press/event/?id=12345",
       "tier_level": "TIER_1",
       "reliability_score": 0.95,
-      "illustrative": true
+      "illustrative": false
     },
     {
       "source_id": "SRC_2",

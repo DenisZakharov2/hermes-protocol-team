@@ -1,0 +1,42 @@
+{
+  "task_id": "PM_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "product_concept": {
+    "value_proposition": "Сберегательный вклад до востребования с приветственной стартовой ставкой и прозрачным раскрытием МГС для физических лиц",
+    "target_segments": [
+      "сегмент массового розничного рынка",
+      "молодые семьи 18–35",
+      "цифровые клиенты ДБО"
+    ],
+    "tariff_structure": {
+      "base_rate_percent": 10,
+      "welcome_rate_percent": 14,
+      "mgs_percent": 10
+    }
+  },
+  "financial_model": {
+    "funding_volume_rub": 5000000000,
+    "welcome_rate_share_percent": 25,
+    "placement_rate_percent": 13,
+    "opex_percent": 0.5,
+    "projected_nii": 75000000,
+    "projected_nim_percent": 1.5,
+    "cof_cost_of_funds_percent": 10,
+    "ltv_cac_ratio": 3.8,
+    "allocation_assumption": "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых; операционные расходы 0.5 п.п. годовых",
+    "illustrative": true
+  },
+  "regulatory_guardrails": {
+    "psk_limit_check": "NOT_APPLICABLE",
+    "mpl_limit_check": "NOT_APPLICABLE",
+    "cbr_mgs_compliance": "PASSED",
+    "not_applicable_reason": "Продукт — вклад до востребования, не кредит: ПСК и МПЛ не применяются."
+  },
+  "prioritization_rice": {
+    "reach": 130000,
+    "impact": 1,
+    "confidence_percent": 65,
+    "effort": 1000,
+    "score": 84.5
+  }
+}

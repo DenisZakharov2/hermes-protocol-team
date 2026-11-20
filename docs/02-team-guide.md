@@ -63,7 +63,7 @@
 ### Контракты
 
 - Вход: `product_brief.json` (task_id, project_id, product_type, bank_context, market_data → research_output.json)
-- Выход: `product_strategy.json` (product_concept, financial_model, regulatory_guardrails, prioritization_rice)
+- Выход: `product_strategy.json` (product_concept, financial_model с явными допущениями, regulatory_guardrails, prioritization_rice с компонентами RICE)
 - Журнал: `pm_flight_log.json`
 
 ---
@@ -101,6 +101,8 @@
 - 🟠 **HIGH** — высокая вероятность санкций и массовых исков (мисселинг, скрытые комиссии, предустановленные галочки).
 - 🟡 **MEDIUM** — риск претензий контролирующих органов, точечная корректировка.
 - 🟢 **LOW** — несущественные, закрываются дисклеймерами.
+
+`required_mitigation` обязателен для каждого пункта аудита (непустой после `trim()`). Если при `HIGH`/`CRITICAL` мера открыта (`mitigation_status: OPEN`), допустим только `legal_status: REJECTED`: утверждение пакета запрещено, а отклонение фиксирует открытый риск честно.
 
 ### Контракты
 
@@ -148,15 +150,17 @@
 | 4 | Structural Completeness & Depth | 15 % | Gherkin, NFR, 6-актная презентация, сносочное цитирование |
 | 5 | Practical Executability & Feasibility | 15 % | Реалистичность внедрения в АБС/ДБО, SLA, RPO/RTO |
 
-### Порог
+### Порог и вердикт
 
-- `overall_score ≥ 85` → `PASSED`
-- `< 85` → `REJECTED`, `actionable_fixes`, Self-Healing (до 3 попыток). Регуляторные дефекты (`REG_*`) — повторный Legal Check-in.
+- Единственный вердикт качества — boolean `passed`.
+- `passed = true` только если `overall_score >= quality_threshold` и среди `critical_findings` нет `CRITICAL`.
+- `passed = false` — балл ниже порога или любой `CRITICAL` finding (стоп-кран даже при балле выше порога); `actionable_fixes`, Self-Healing (до 3 попыток). Регуляторные дефекты (`REG_*`) — повторный Legal Check-in.
+- `quality_threshold` — поле контракта (0–100); 85 — типовой пример.
 
 ### Контракты
 
 - Вход: `eval_request.json` (artifact_type, artifact_data, context_artifacts, quality_threshold)
-- Выход: `evaluation_report.json` (overall_score, score_breakdown, critical_findings с кодом REG_*, actionable_fixes)
+- Выход: `evaluation_report.json` (overall_score, score_breakdown, passed, critical_findings только HIGH/CRITICAL, actionable_fixes)
 - Журнал: `evaluator_flight_log.json`
 
 ---
