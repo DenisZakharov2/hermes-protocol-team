@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCKS 0–1 COMPLETE** — Block 2 next
+**Status:** 🟢 **BLOCKS 0–2 COMPLETE** — Block 3 next
 
 ---
 
@@ -61,9 +61,9 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟠 BLOCK 2: Memory Paths & Input Security (High) — 🚧 **WIP**
+## 🟠 BLOCK 2: Memory Paths & Input Security (High) — ✅ **COMPLETE (PR #20)**
 
-**Status:** WIP на ветке `fix/block-2-security-paths` (коммит `78bcbab`, запушен в `origin`). Продолжение — по промту [`docs/block-2-session-prompt.md`](docs/block-2-session-prompt.md). Отчёт по завершённым блокам — [`docs/blocks-0-1-report.md`](docs/blocks-0-1-report.md).
+**Status:** завершён в `9bde88e` на ветке `fix/block-2-security-paths`, PR [#20](https://github.com/DenisZakharov2/hermes-protocol-team/pull/20). Выбрана модель B (относительные пути). Промт сессии — [`docs/block-2-session-prompt.md`](docs/block-2-session-prompt.md). Отчёт по предыдущим блокам — [`docs/blocks-0-1-report.md`](docs/blocks-0-1-report.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -72,9 +72,23 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **2.3** | `eval_request` validates nested artifact against schema + `project_id` but **skips regulatory invariants** (legal, quality formula). 4 artifact types (`presentation`, `executive_summary`, `analytical_memo`, `market_research_whitepaper`) → early `return`, no `project_id` check. Unknown type = silent pass. | `scripts/validate-json.mjs` (`evalRequestInvariantErrors`, `ARTIFACT_SCHEMA_BY_TYPE`) | After schema validation of `artifact_data`, call `invariantChecks[schemaBase]` if exists. Replace early return for unmapped types with explicit policy: unknown type = validator error (map and enum generated from single source). For non-JSON artifacts, separate tiny contract with required `project_id`. |
 | **2.4** | `init-memory` appends broken `.gitignore` rules: `memory/domain_knowledge/*` ignores the directories themselves (`regulatory`, `nfr_profiles`, `templates`). `!memory/domain_knowledge/*/.gitkeep` doesn't work for new leaves (git can't re-include file in excluded dir). Script silently edits repo file on user machine. | `scripts/init-memory.mjs`, `.gitignore` | **Remove all `.gitignore` writes from init-memory**. Keep only directory creation + `.gitkeep` files. Delete the second block from `.gitignore` (lines 50-56), keep first block (lines 40-44) which is correct. Test with `git check-ignore` in CI. |
 
+### ✅ Block 2 — Definition of Done (PR #20)
+
+- [x] `artifact_root` и `lessons_indexed_to` относительные; путь сверяется с `project_id`, сегмент `..` невозможен
+- [x] В README, Конституции, docs, skills и диаграммах нет абсолютных `/memory/...` как единственной модели
+- [x] `user_prompt` ограничен 5000 символами; `sanitized_user_prompt` описан в `flight_log`
+- [x] URL: HTTPS + SSRF-инвариант + коммитируемая allow-list `schemas/common/source-allowlist.json`, работает в CI
+- [x] `eval_request` рекурсивно проверяет инварианты; неизвестные типы отклоняются явно; не-JSON типы имеют контракт с `project_id`
+- [x] `init-memory` не пишет в `.gitignore`; шаблон памяти коммитится, runtime-содержимое игнорируется
+- [x] Все инварианты и фикстуры Block 1 сохранены (34 негативные фикстуры)
+- [x] `CHANGELOG.md` и документация обновлены; `docs/schemas-reference.md` перегенерирован
+- [x] `npm ci && npm test && npm run validate && npm audit --audit-level=high` — зелёные; CI PR #20 зелёный
+
 ---
 
 ## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High)
+
+**Промт сессии:** [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -179,6 +193,18 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
 | `npm run generate:docs` + diff | ✅ расхождений нет |
 | Таблица версий `SECURITY.md` | ✅ `3.0.x` — одна строка `✅ Да` |
+
+Итог Block 2 (PR #20, коммит `9bde88e`):
+
+| Проверка | Результат |
+|---|---|
+| `npm ci` | ✅ lockfile без расхождений |
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 26 md (0 issues), 3 контрактных блока, self-test 34/34 |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| `npm run init:memory` | ✅ идемпотентен, `.gitignore` не изменяется, runtime-allowlist игнорируется |
+| CI PR #20 | ✅ validate, docs, CodeQL — все зелёные |
 
 ---
 

@@ -1,7 +1,7 @@
 # Итоговый отчёт по проекту (project_final_review)
 
 > Шаблон итогового отчёта фазы AAR. Разделы соответствуют [`docs/05-aar.md`](../docs/05-aar.md) §4.
-> Оркестратор копирует файл в `/memory/cases/{project_id}/project_final_review.md` и подставляет фактические данные проекта вместо значений примера `SAV_DEP_2026_01`.
+> Оркестратор копирует файл в `cases/{project_id}/project_final_review.md` и подставляет фактические данные проекта вместо значений примера `SAV_DEP_2026_01`.
 > Числовые значения ниже взяты из примеров `examples/*.example.json` того же сквозного проекта; заглушек нет.
 
 ## 1. Паспорт проекта
@@ -83,7 +83,7 @@ First-Time Right Rate (FTR): по подтверждённым данным чи
 | Итоговый дайджест синтеза | [`synthesist_output.example.json`](synthesist_output.example.json) |
 | Постпроектная рефлексия | [`project_aar.example.json`](project_aar.example.json) |
 
-Сам отчёт размещается рядом с артефактами — `/memory/cases/SAV_DEP_2026_01/project_final_review.md`.
+Сам отчёт размещается рядом с артефактами — `cases/SAV_DEP_2026_01/project_final_review.md`.
 
 ## 6. Затраченные ресурсы
 

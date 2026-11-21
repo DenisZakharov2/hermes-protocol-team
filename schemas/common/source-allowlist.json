@@ -1,0 +1,21 @@
+{
+  "$comment": "Политика allow-list для research_output.sources[].url. Коммитится в репозиторий, чтобы проверка SSRF была воспроизводима в CI. Сравнение по host после new URL(): точное совпадение домена или его поддомен (не подстрока). Runtime-копию создаёт npm run init:memory.",
+  "version": "1.0.0",
+  "allowed_domains": [
+    "cbr.ru",
+    "gov.ru",
+    "pravo.gov.ru",
+    "minfin.ru",
+    "economy.gov.ru",
+    "rosstat.gov.ru",
+    "consultant.ru",
+    "garant.ru",
+    "vsrf.ru",
+    "asrf.ru",
+    "ksrf.ru",
+    "rbc.ru",
+    "banki.ru",
+    "frankrg.com",
+    "tadviser.ru"
+  ]
+}

@@ -6,22 +6,33 @@
 
 ### Added
 
-- `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
-- `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
-- `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
+- `schemas/common/source-allowlist.json` — коммитируемая allow-list доменов для `research_output.sources[].url`. Валидатор проверяет её в CI; `npm run init:memory` создаёт только runtime-копию в `memory/domain_knowledge/sources/allowlist.json`.
+- `scripts/validate-json.mjs`: инвариант `researchOutputInvariantErrors` — HTTPS, запрет userinfo, IP-литералов, loopback/link-local/private диапазонов (включая CGNAT, `fc00::/7`, `fe80::/10` и IPv4-mapped IPv6), allow-list по host после `new URL()` (точное совпадение или поддомен).
+- `schemas/execution_request.schema.json`: `user_prompt` ограничен `minLength: 1`, `maxLength: 5000`; `schemas/flight_log.schema.json`: опциональный `sanitized_user_prompt` (до 5000 символов).
+- `eval_request`: инварианты вложенного артефакта вызываются рекурсивно; неизвестный `artifact_type` отклоняется явно; не-JSON типы (`presentation`, `executive_summary`, `analytical_memo`, `market_research_whitepaper`) получили минимальный контракт с обязательным `project_id`.
+- Негативные фикстуры Block 2: prompt-too-long, unknown artifact type, non-JSON без `project_id`, SSRF (loopback, link-local, private, CGNAT, unique-local/link-local IPv6, IPv4-mapped, `0.0.0.0`), userinfo, IP-литерал, HTTP, домен вне allow-list и lookalike-домен.
 - Негативные фикстуры Block 1: пустая `stage_gate_history` при `COMPLETED_APPROVED`, одноэтапный план, `REJECTED` после финального `APPROVED`, план без утверждения, path traversal в `artifact_root`.
+- `tests/fixtures/invalid/manifest.json`: поле `expectedSchemaErrorPattern` для schema-negative фикстур; self-test запускает инварианты и для них (defense-in-depth).
 
 ### Changed
 
+- Память в контрактах переведена на относительные пути от `memory_root`: `artifact_root` — `^cases/[A-Z0-9_]+/artifacts/$`, `lessons_indexed_to` — `^cases/[A-Z0-9_]+/$`. Валидатор дополнительно сверяет путь с `project_id`. Обновлены README, Конституция, `docs/`, все семь `skills/*/SKILL.md`, диаграммы и примеры. Ломающее изменение для потребителей контрактов.
+- `scripts/init-memory.mjs` больше не изменяет `.gitignore`; шаблон структуры памяти коммитится, runtime-содержимое игнорируется. Allow-list копируется из `schemas/common/source-allowlist.json`.
+- `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
+- `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
+- `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
 - `orchestration_output.schema.json`: `stage_gate_history[].stage_code` стал обязательным. `COMPLETED_APPROVED` требует `APPROVED` на `PLAN_APPROVAL` и `FINAL_GATE`; `REJECTED` после финального `APPROVED` запрещён. Ломающее изменение для потребителей контракта.
 - `vitest` обновлён до 5.1.1; конфиг переведён с удалённого `poolOptions` на `maxWorkers: 1`. Закрыты critical/moderate уязвимости `tinypool` и `@vitest/mocker`.
 
-### Planned (v3.1.0 — minor)
+### Versioning
 
-- Миграция абсолютных путей памяти `/memory/cases/...`, `/memory/legal_precedents/`, `/memory/domain_knowledge/` на конфигурируемый `memory_root` с относительными путями в контрактах (`artifact_root`, `lessons_indexed_to`). Требует обновления `schemas/common/definitions.schema.json`, всех ссылок в Constitution, docs, skills, examples. Не смешивается с текущими правками аудита.
+- Переход на относительные пути памяти — ломающее изменение контрактов. По SemVer требуется мажорная версия; номер релиза фиксирует мейнтейнер в PR (текущая версия остаётся `3.0.2`).
 
 ### Fixed
 
+- `tests/fixtures/invalid/execution-request-prompt-too-long.json` содержит валидный JSON с 5001 символом вместо JS-выражения `repeat(5001)`.
+- Self-test различает schema-negative и invariant-negative фикстуры: `maxLength`, `pattern: ^https://`, enum и traversal-паттерны проверяются по `expectedSchemaErrorPattern`.
+- `artifact-root-traversal.json` помечен как schema-negative; инвариант на `..` сохранён как defense-in-depth.
 - `scripts/sync-version.mjs`: идемпотентная работа, дедупликация таблицы `SECURITY.md`, атомарная запись; `package-lock.json` синхронизирован с `package.json`.
 - CI запускает `npm test` и `npm audit --audit-level=high`; таблица поддержки `SECURITY.md` содержит одну строку на версию и одну `✅ Да`.
 - Закрыт HITL-байпас: `COMPLETED_APPROVED` больше не проходит с пустой историей гейтов; план со всеми `COMPLETED` и `approval.status: PENDING` отклоняется; `REJECTED` после финального `APPROVED` запрещён.

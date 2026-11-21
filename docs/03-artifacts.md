@@ -47,7 +47,7 @@
 Производители `it_landscape.json` и `regulatory_checklist.json` закреплены однозначно, по одному владельцу на каждый артефакт:
 
 - `it_landscape.json` собирает `hermes-orchestrator` на старте проекта, до этапа `BUSINESS_REQUIREMENTS`, из `execution_request.json` и входных данных Заказчика. Если данных недостаточно, оркестратор фиксирует пробел и эскалирует его, а не выдумывает системы.
-- `regulatory_checklist.json` формирует `legal-compliance-counsel` на этапе `LEGAL_CONCEPT` из `product_strategy.json` и семантической памяти `/memory/domain_knowledge/regulatory/`. Обновление чек-листа в доменной памяти — зона юриста.
+- `regulatory_checklist.json` формирует `legal-compliance-counsel` на этапе `LEGAL_CONCEPT` из `product_strategy.json` и семантической памяти `domain_knowledge/regulatory/`. Обновление чек-листа в доменной памяти — зона юриста.
 - `business-analyst` в обоих случаях только потребитель: файлы приходят к нему через `ba_input_contract.json` и он их не переписывает.
 
 ## 3. Пример заполнения ключевых контрактов
@@ -72,11 +72,11 @@ Markdown-шаблон итогового отчёта: [`../examples/project_fin
 
 ## 5. Хранение артефактов
 
-Память делится на три уровня. Процедурная память хранится в репозитории — `skills/*/SKILL.md` и `schemas/`. Ниже перечислены каталоги рантайма: `/memory/cases/{project_id}/` (эпизодическая память), её подраздел `/memory/legal_precedents/` и `/memory/domain_knowledge/` (семантическая память). `memory/README.md` и `.gitkeep` образуют коммитируемый шаблон; содержимое памяти не коммитится.
+Память делится на три уровня. Процедурная память хранится в репозитории — `skills/*/SKILL.md` и `schemas/`. Ниже — локальный шаблон `memory/`, который создаёт `npm run init:memory`; в контрактах и рантайме пути задаются относительно сконфигурированного `memory_root` Hermes: `cases/{project_id}/` (эпизодическая память), `legal_precedents/` (её подраздел) и `domain_knowledge/` (семантическая память). `memory/README.md` и `.gitkeep` образуют коммитируемый шаблон; runtime-содержимое не коммитится.
 
 ```text
 /
-└── memory/
+└── memory/                      # локальный шаблон; runtime-корень задаётся memory_root
     ├── README.md                # шаблон структуры памяти
     ├── cases/                   # эпизодическая память (пишет hermes-orchestrator после AAR)
     │   └── {project_id}/        # создаётся оркестратором при старте проекта
@@ -89,11 +89,14 @@ Markdown-шаблон итогового отчёта: [`../examples/project_fin
     ├── domain_knowledge/        # семантическая память (пишет сопровождающий домена)
     │   ├── regulatory/          # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
     │   ├── nfr_profiles/        # профили NFR (SLA, RPO/RTO)
-    │   └── templates/           # шаблоны правовых оговорок и дисклеймеров
+    │   ├── templates/           # шаблоны правовых оговорок и дисклеймеров
+    │   └── sources/             # runtime-копия allow-list (allowlist.json)
     └── legal_precedents/        # подраздел эпизодической памяти (пишет legal-compliance-counsel)
         ├── vs_rf/               # ВС РФ
         ├── as_rf/               # АС РФ
         └── ks_rf/               # КС РФ
 ```
 
-В контрактах 2.2.x поля `artifact_root` и `lessons_indexed_to` остаются абсолютными путями `/memory/...`. Это осознанное решение: переход на относительный путь `memory/cases/{project_id}/...` с корнем из конфигурации Hermes — отдельный минорный релиз, чтобы не смешивать смену контракта с правками аудита. Новые примеры и скиллы не должны представлять абсолютный путь как единственно возможный.
+В контрактах поля `artifact_root` и `lessons_indexed_to` задаются относительными путями от `memory_root`: `cases/{project_id}/artifacts/` и `cases/{project_id}/`. Абсолютные `/memory/...` не используются, сегмент `..` запрещён схемой и инвариантом. `scripts/init-memory.mjs` создаёт локальный шаблон в `memory/` и не изменяет `.gitignore` и другие файлы репозитория.
+
+Allow-list источников — коммитируемая политика [`schemas/common/source-allowlist.json`](../schemas/common/source-allowlist.json). `scripts/validate-json.mjs` проверяет по ней `research_output.sources[].url` в CI: HTTPS, запрет userinfo, IP-литералов и приватных диапазонов, точное совпадение домена или его поддомена. `init-memory` создаёт runtime-копию в `memory/domain_knowledge/sources/allowlist.json`; она не коммитится.

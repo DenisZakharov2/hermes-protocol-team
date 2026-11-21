@@ -15,7 +15,10 @@
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "user_prompt": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000,
+      "description": "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме."
     },
     "domain_context": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/DomainContext"

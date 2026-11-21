@@ -85,4 +85,4 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 
 ## 5. Известные технические долги / плановые улучшения
 
-- **v3.1.0**: Переход на конфигурируемый `memory_root` вместо абсолютных путей `/memory/...` (см. `README.md`, `scripts/init-memory.mjs`). Требует обновления документации, скиллов и runtime Hermes Agent.
+- **v3.1.0 (Block 2)**: контракты переведены на относительные пути `cases/...` от `memory_root`; `scripts/init-memory.mjs` создаёт локальный шаблон `memory/` и runtime-копию allow-list. Решение по SemVer (минор или мажор) фиксируется мейнтейнером в PR и [`CHANGELOG.md`](../CHANGELOG.md).

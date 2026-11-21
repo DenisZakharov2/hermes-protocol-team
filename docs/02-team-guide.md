@@ -107,7 +107,7 @@
 - Вход: `legal_review_request.json` (project_id, product_concept → product_strategy.json, business_requirements опционально, jurisdiction: Russian Federation)
 - Выход: `legal_compliance_report.json` (legal_status, overall_risk_score, compliance_audit с regulation/status/risk_level/issue/judicial_precedent/required_mitigation, contract_disclaimers_required)
 - Журнал: `legal_flight_log.json`
-- Память прецедентов: `/memory/legal_precedents/`
+- Память прецедентов: `legal_precedents/`
 
 ---
 
