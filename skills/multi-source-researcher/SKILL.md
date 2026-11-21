@@ -85,14 +85,28 @@ version: 3.0.2
   "sources": [
     {
       "source_id": "SRC_1",
-      "url": "STRING",
+      "url": "https://www.cbr.ru/press/event/?id=12345",
       "tier_level": "TIER_1",
       "reliability_score": 0.95,
+      "illustrative": false
+    },
+    {
+      "source_id": "SRC_2",
+      "url": "https://www.rbc.ru/banking/",
+      "tier_level": "TIER_2",
+      "reliability_score": 0.8,
       "illustrative": true
     }
   ]
 }
 ```
+
+Правила прослеживаемости (проверяются `scripts/validate-json.mjs`):
+
+- `sources[].source_id` уникальны; каждый `quantifiable_metrics[].source_id` ссылается на существующий источник.
+- Минимум один источник обязан иметь `illustrative: false`.
+- Первичный источник (`illustrative: false`) указывает на конкретную страницу, а не на корень раздела: `pathname` не равен `/`, в пути есть непустой сегмент; URL с завершающим `/` допустим только при непустом query (например, `/event/?id=...`).
+- HTTPS, запрет userinfo/IP-литералов/приватных диапазонов и allow-list `schemas/common/source-allowlist.json` действуют без ослабления.
 
 ## 5. Алгоритм работы и порядок взаимодействия с агентом-оркестратором hermes-orchestrator
 
@@ -131,6 +145,7 @@ version: 3.0.2
 
 | Версия | Дата | Изменения |
 |--------|------|-----------|
+| Unreleased | 2026-11-20 | Прослеживаемость источников: уникальные source_id, ссылки метрик на sources[], минимум один illustrative: false с конкретной страницей |
 | Unreleased | 2026-11-10 | Добавлен раздел «Learned Guardrails»; имя секции унифицировано для AAR |
 | 2.1.0 | 2026-10-18 | Синхронизация с релизом 2.1.0, обновлены контракты |
 | 2.0.0 | 2026-10-17 | Первая версия скилла в составе Hermes Protocol v2 |

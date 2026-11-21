@@ -43,7 +43,7 @@ version: 3.0.2
    - **Cross-Artifact Consistency (20%)**: согласованность данных между BRD, финмоделью, исследованиями и юридическим заключением.
    - **Structural Completeness & Depth (15%)**: полнота Gherkin-сценариев, NFR, соблюдение стандартов верстки.
    - **Practical Executability & Feasibility (15%)**: реалистичность внедрения на уровне АБС/ДБО и NFR (SLA/RPO/RTO).
-3. **Формирование инструкций по доработке**: точечные инструкции `actionable_fixes` при `overall_score < quality_threshold` (85). Отчёт возвращается оркестратору; цикл Self-Healing открывает и ведёт `hermes-orchestrator`.
+3. **Формирование инструкций по доработке**: точечные инструкции `actionable_fixes` при `passed = false` (балл ниже `quality_threshold` или наличие `CRITICAL` finding). `quality_threshold` — поле контракта (0–100); 85 — типовой пример, а не жёстко зашитый порог. Отчёт возвращается оркестратору; цикл Self-Healing открывает и ведёт `hermes-orchestrator`.
 
 ### Б. Не входит в компетенцию:
 
@@ -85,17 +85,9 @@ version: 3.0.2
     "structural_completeness": 85,
     "practical_executability": 85
   },
-  "critical_findings": [
-    {
-      "code": "BRD_DISCLOSURE_DETAIL",
-      "severity": "MEDIUM",
-      "field": "classic_brd.functional_requirements[1]",
-      "description": "Требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта.",
-      "remediation_instruction": "Добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
-    }
-  ],
+  "critical_findings": [],
   "actionable_fixes": [
-    "Уточнить classic_brd.functional_requirements[1]: добавить проверку равного размера шрифта ставки и МГС."
+    "MEDIUM (BRD_DISCLOSURE_DETAIL): уточнить classic_brd.functional_requirements[1] — требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта; добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
   ]
 }
 ```
@@ -108,8 +100,9 @@ version: 3.0.2
 4. **Многокритериальная оценка**: Провести аудит по 5 осям с учетом заключения `legal-compliance-counsel`.
 5. **Расчет балла**: Рассчитать `overall_score`.
 6. **Вердикт**:
-   - Если `overall_score >= 85`: присвоить статус `PASSED` и передать отчёт в `hermes-orchestrator`.
-   - Если `overall_score < 85`: присвоить статус `REJECTED`, сформировать `actionable_fixes` и вернуть отчёт `hermes-orchestrator`. Цикл Self-Healing открывает оркестратор; критик не запускает его самостоятельно. Если дефекты регуляторные, оркестратор после доработки инициирует повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
+   - `passed` — единственный вердикт качества (boolean). `passed = true` только если `overall_score >= quality_threshold` **и** среди `critical_findings` нет находок уровня `CRITICAL`.
+   - Любой `CRITICAL` finding — стоп-кран: `passed = false` даже при балле выше порога. В `critical_findings` допускаются только `HIGH`/`CRITICAL`; замечания `MEDIUM`/`LOW` переносятся в `actionable_fixes`.
+   - Если `passed = false`: сформировать `actionable_fixes` и вернуть отчёт `hermes-orchestrator`. Цикл Self-Healing открывает оркестратор; критик не запускает его самостоятельно. Если дефекты регуляторные, оркестратор после доработки инициирует повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 
 ## 6. Ведение бортового журнала и фиксация действий
 
@@ -139,6 +132,7 @@ version: 3.0.2
 
 | Версия | Дата | Изменения |
 |--------|------|-----------|
+| Unreleased | 2026-11-20 | Единственный вердикт — boolean `passed`; любой CRITICAL finding блокирует передачу; MEDIUM/LOW перенесены в actionable_fixes; quality_threshold остаётся полем контракта |
 | Unreleased | 2026-11-10 | Добавлен раздел «Learned Guardrails»; имя секции унифицировано для AAR |
 | 2.1.0 | 2026-10-18 | Синхронизация с релизом 2.1.0, обновлены контракты |
 | 2.0.0 | 2026-10-17 | Первая версия скилла в составе Hermes Protocol v2 |

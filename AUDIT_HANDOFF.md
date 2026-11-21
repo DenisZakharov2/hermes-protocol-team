@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCKS 0–2 COMPLETE** — Block 3 next
+**Status:** 🟢 **BLOCKS 0–3 COMPLETE** — Block 4 next
 
 ---
 
@@ -86,15 +86,25 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High)
+## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High) — ✅ **COMPLETE (PR #21)**
 
-**Промт сессии:** [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
+**Status:** завершён в `cb9fe19` на ветке `fix/block-3-legal-quality`, PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
 | **3.1** | Legal invariant rejects `HIGH`/`CRITICAL` + `mitigation_status: OPEN` **including `legal_status: REJECTED`**. Rejection *is* the honest record of open risk. Forcing `DONE` or downgrading risk = falsification. | `scripts/validate-json.mjs` (`legalComplianceInvariantErrors` lines 157-168) | Rule: `HIGH`/`CRITICAL` + `OPEN` ⇒ `legal_status` **cannot be** `APPROVED` or `APPROVED_WITH_RESERVATIONS`. `REJECTED` **allowed**. `required_mitigation.trim()` non-empty always (not just for reservations). Update schema `description` to match code. Add negative fixture: `REJECTED` + `HIGH` + `OPEN` = pass; `APPROVED_WITH_RESERVATIONS` + `HIGH` + `OPEN` = fail. |
 | **3.2** | Quality scoring: `passed: true` compatible with `CRITICAL` finding. Docs/skills require non-existent status `PASSED` and hardcoded threshold 85. Schema has `quality_threshold` field (0-100), validator compares correctly, but `critical_findings.severity` allows `LOW`, invariant ignores findings. | `schemas/evaluation_report.schema.json`, `scripts/validate-json.mjs` (`evaluationReportInvariantErrors`), `skills/quality-evaluator/SKILL.md`, `docs/02-team-guide.md`, `docs/04-quality.md` | Single word: `passed` (boolean). Remove `PASSED`/`REJECTED` from skills/docs. Invariant: **any `CRITICAL` finding ⇒ `passed = false`** (stop-crane). Restrict `critical_findings.severity` to `HIGH|CRITICAL` (or rename array to `findings` and move `MEDIUM`/`LOW` elsewhere). Threshold 85 = example default in `QualityThreshold`, not second rule. |
 | **3.3** | Financial example math doesn't add up: NIM 4.5% vs spread 2pp (13% placement - 11% CoF). Welcome rate 14% > placement 13% → negative margin but NII +150M. `illustrative: true` doesn't excuse arithmetic. RICE = single number (no components). `source_id` on non-existent source passes. | `examples/product_strategy.example.json`, `examples/research_output.example.json`, `schemas/product_strategy.schema.json` | Recalculate from explicit assumptions: funding volume, welcome-rate share, placement rate, opex. Invariant: `projected_nim_percent` matches formula ±0.05pp, `projected_nii` = volume × NIM. RICE → store components, compute score in validator. `source_id` must reference existing `sources[]` entry. At least one source with `illustrative: false` pointing to specific page (not section root). |
+
+### ✅ Block 3 — Definition of Done
+
+- [x] 3.1: `REJECTED` + `HIGH`/`CRITICAL` + `OPEN` проходит; `APPROVED`/`APPROVED_WITH_RESERVATIONS` + `OPEN` падает; `required_mitigation` из пробелов падает; описания схемы совпадают с кодом.
+- [x] 3.2: `passed` — единственный вердикт качества; `critical_findings.severity` только `HIGH`/`CRITICAL`; любой `CRITICAL` даёт `passed = false`; `PASSED`/`REJECTED` убраны из quality-доков и skills; `quality_threshold` остаётся полем контракта, 85 — только пример.
+- [x] 3.3: финансовый пример сходится по CoF/NIM/NII; RICE считается из компонентов; `source_id` ссылается на существующий источник; есть минимум один `illustrative: false` источник с конкретной страницей; негативные фикстуры покрывают каждое правило.
+- [x] Инварианты и фикстуры Blocks 1–2 сохранены: 11-этапный пайплайн, HITL-гейты, относительные пути `cases/...`, SSRF/allow-list, рекурсия `eval_request`, прежние 34 негативные фикстуры.
+- [x] `CHANGELOG.md` обновлён в `[Unreleased]`; `docs/schemas-reference.md` перегенерирован; версия не поднята.
+- [x] `npm ci && npm test && npm run validate && npm audit --audit-level=high` — зелёные; `generate:docs` без диффа.
+- [x] PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) создан в `main` с зависимостью от PR #20 (Block 2).
 
 ---
 
@@ -119,7 +129,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **#1** | `fix: sync-version idempotency, lockfile via npm version, CI runs tests, SECURITY.md cleanup` | `fix/block-0-corruption` | `main` | 0.1-0.4 |
 | **#2** | `fix: enforce HITL approvals for COMPLETED_APPROVED, mandatory 11-stage pipeline, negative fixtures` | `fix/block-1-hitl-pipeline` | `main` | 1.1-1.4 |
 | **#3** | `fix: memory paths (relative + ProjectId pattern), input security (prompt/URL schema), eval_request invariants, gitignore cleanup` | `fix/block-2-security-paths` | `main` | 2.1-2.4 |
-| **#4** | `fix: legal invariant allows REJECTED with open HIGH, quality scoring blocks CRITICAL, financial example recalc` | `fix/block-3-legal-quality` | `main` | 3.1-3.3 |
+| **#4** | `fix: legal invariant allows REJECTED with open HIGH, quality scoring blocks CRITICAL, financial example recalc` | `fix/block-3-legal-quality` | `main` (после merge #20) | 3.1-3.3 |
 | **#5** | `chore: CI hardening, quality weights extraction, context_artifacts array, SLA pattern, changelog/CVE hygiene, low fixes` | `fix/block-4-ci-hygiene` | `main` | 4.1-4.7 |
 
 **Each PR:** passes `npm test && npm run validate` locally before push; CI runs same; no drive-by fixes outside block scope.
@@ -205,6 +215,16 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | `npm run generate:docs` + diff | ✅ расхождений нет |
 | `npm run init:memory` | ✅ идемпотентен, `.gitignore` не изменяется, runtime-allowlist игнорируется |
 | CI PR #20 | ✅ validate, docs, CodeQL — все зелёные |
+
+Итог Block 3 (коммит `cb9fe19`):
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 26 md (0 issues), 3 контрактных блока, self-test 46/46 (44 негативные + 2 позитивные) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| `git status --short` | ✅ чисто, runtime-память не отслеживается |
 
 ---
 

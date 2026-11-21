@@ -73,27 +73,54 @@
     "financial_model": {
       "type": "object",
       "required": [
+        "funding_volume_rub",
+        "welcome_rate_share_percent",
+        "placement_rate_percent",
+        "opex_percent",
         "projected_nii",
         "projected_nim_percent",
         "cof_cost_of_funds_percent",
         "ltv_cac_ratio"
       ],
       "properties": {
+        "funding_volume_rub": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Объём привлечения/портфеля, руб. База для расчёта NII."
+        },
+        "welcome_rate_share_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Доля портфеля с приветственной ставкой, % (0–100). Используется для смешанного CoF."
+        },
+        "placement_rate_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Доходность размещения привлечённых средств, % годовых."
+        },
+        "opex_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Операционные расходы в процентных пунктах годовых, п.п."
+        },
         "projected_nii": {
           "type": "number",
-          "description": "Прогнозный чистый процентный доход, руб."
+          "description": "Прогнозный чистый процентный доход, руб. Формула: funding_volume_rub × NIM / 100."
         },
         "projected_nim_percent": {
           "type": "number",
           "minimum": 0,
           "maximum": 100,
-          "description": "Прогнозная чистая процентная маржа, % годовых."
+          "description": "Прогнозная чистая процентная маржа, % годовых. Формула: placement_rate_percent − blended CoF − opex_percent."
         },
         "cof_cost_of_funds_percent": {
           "type": "number",
           "minimum": 0,
           "maximum": 100,
-          "description": "Стоимость фондирования (CoF), % годовых."
+          "description": "Смешанная стоимость фондирования (blended CoF), % годовых: base_rate_percent × (1 − welcome_rate_share_percent / 100) + welcome_rate_percent × (welcome_rate_share_percent / 100). МГС — регуляторный минимум раскрытия, в расчёт CoF не входит."
         },
         "ltv_cac_ratio": {
           "type": "number",
@@ -102,20 +129,20 @@
         },
         "allocation_assumption": {
           "type": "string",
-          "description": "Допущение о размещении привлечённых средств (для некредитных продуктов): куда и под какую доходность инвестируются средства клиентов. Обязательно для продуктов-пассивов (вклады, счета), чтобы объяснить положительный NII/NIM при CoF выше клиентской ставки.",
+          "description": "Допущение о размещении привлечённых средств (для некредитных продуктов): куда и под какую доходность инвестируются средства клиентов, с указанием opex в п.п. Обязательно для продуктов-пассивов (вклады, счета), чтобы объяснить положительный NII/NIM при CoF выше клиентской ставки.",
           "examples": [
-            "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых",
-            "Аллокация в кредитный портфель банка со взвешенной доходностью 15%"
+            "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых; opex 0.5 п.п.",
+            "Аллокация в кредитный портфель банка со взвешенной доходностью 15% при opex 1.0 п.п."
           ]
         },
         "illustrative": {
           "type": "boolean",
           "default": false,
-          "description": "Признак иллюстративности финансовой модели. Если true — цифры носят ознакомительный характер и не являются утверждённым бизнес-кейсом."
+          "description": "Признак иллюстративности финансовой модели. true означает ознакомительный характер цифр, но не отменяет проверку арифметики CoF/NIM/NII."
         }
       },
       "additionalProperties": false,
-      "description": "Финансовая модель. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM."
+      "description": "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM."
     },
     "regulatory_guardrails": {
       "type": "object",
@@ -216,15 +243,42 @@
     "prioritization_rice": {
       "type": "object",
       "required": [
+        "reach",
+        "impact",
+        "confidence_percent",
+        "effort",
         "score"
       ],
       "properties": {
+        "reach": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Охват: сколько пользователей/событий затронуто за период."
+        },
+        "impact": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Влияние на целевую метрику (безразмерная шкала RICE)."
+        },
+        "confidence_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Уверенность в оценке, % (0–100)."
+        },
+        "effort": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Затраты (человеко-месяцы или story points), строго больше нуля."
+        },
         "score": {
           "type": "number",
-          "minimum": 0
+          "minimum": 0,
+          "description": "RICE score: reach × impact × (confidence_percent / 100) / effort. Проверяется с допуском ±0.05."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно."
     }
   },
   "additionalProperties": false

@@ -12,16 +12,8 @@
     "structural_completeness": 85,
     "practical_executability": 85
   },
-  "critical_findings": [
-    {
-      "code": "BRD_DISCLOSURE_DETAIL",
-      "severity": "MEDIUM",
-      "field": "classic_brd.functional_requirements[1]",
-      "description": "Требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта.",
-      "remediation_instruction": "Добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
-    }
-  ],
+  "critical_findings": [],
   "actionable_fixes": [
-    "Уточнить classic_brd.functional_requirements[1]: добавить проверку равного размера шрифта ставки и МГС."
+    "MEDIUM (BRD_DISCLOSURE_DETAIL): уточнить classic_brd.functional_requirements[1] — требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта; добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
   ]
 }

@@ -15,11 +15,15 @@
     }
   },
   "financial_model": {
-    "projected_nii": 150000000,
-    "projected_nim_percent": 4.5,
+    "funding_volume_rub": 5000000000,
+    "welcome_rate_share_percent": 25,
+    "placement_rate_percent": 13,
+    "opex_percent": 0.5,
+    "projected_nii": 75000000,
+    "projected_nim_percent": 1.5,
     "cof_cost_of_funds_percent": 11,
     "ltv_cac_ratio": 3.8,
-    "allocation_assumption": "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых (ключевая ставка ЦБ РФ + спред ликвидности)",
+    "allocation_assumption": "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых; операционные расходы 0.5 п.п. годовых",
     "illustrative": true
   },
   "regulatory_guardrails": {
@@ -29,6 +33,10 @@
     "not_applicable_reason": "Продукт — вклад до востребования, не кредит: ПСК и МПЛ не применяются."
   },
   "prioritization_rice": {
+    "reach": 130000,
+    "impact": 1,
+    "confidence_percent": 65,
+    "effort": 1000,
     "score": 84.5
   }
 }

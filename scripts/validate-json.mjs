@@ -354,8 +354,17 @@ function evaluationReportInvariantErrors(data) {
     );
   }
 
-  if (data.passed !== (data.overall_score >= data.quality_threshold)) {
-    errors.push('passed must equal overall_score >= quality_threshold');
+  // passed — единственный вердикт качества. CRITICAL finding — стоп-кран:
+  // он блокирует passed даже при балле выше порога. quality_threshold остаётся
+  // полем контракта; 85 — типовой пример, а не второй жёстко зашитый порог.
+  const findings = Array.isArray(data.critical_findings) ? data.critical_findings : [];
+  const hasCritical = findings.some((finding) => finding?.severity === 'CRITICAL');
+  const expectedPassed = data.overall_score >= data.quality_threshold && !hasCritical;
+
+  if (data.passed !== expectedPassed) {
+    errors.push(
+      'passed must equal (overall_score >= quality_threshold && no CRITICAL critical_findings)'
+    );
   }
 
   return errors;
@@ -387,28 +396,99 @@ function legalComplianceInvariantErrors(data) {
     errors.push(`legal_status APPROVED is not allowed with ${maxRisk} risk`);
   }
 
-  if (maxRisk === 'HIGH' && data.legal_status === 'APPROVED_WITH_RESERVATIONS') {
-    audit.forEach((item, index) => {
-      if (item.risk_level === 'HIGH' && !item.required_mitigation?.trim()) {
-        errors.push(
-          `compliance_audit[${index}].required_mitigation is required for HIGH risk with reservations`
-        );
-      }
-    });
-  }
+  // required_mitigation обязателен для каждого пункта аудита: schema minLength: 1
+  // пропускает строку из пробелов, поэтому trim() — часть инварианта.
+  audit.forEach((item, index) => {
+    if (!item.required_mitigation?.trim()) {
+      errors.push(`compliance_audit[${index}].required_mitigation must be non-empty after trim()`);
+    }
+  });
 
-  // Незакрытая мера смягчения при HIGH/CRITICAL блокирует передачу пакета в синтез:
-  // риск должен быть либо снят, либо статус не может быть APPROVED_WITH_RESERVATIONS.
+  // OPEN-мера при HIGH/CRITICAL запрещает утверждение пакета, но не запрещает
+  // его отклонение: REJECTED — честная фиксация открытого риска.
   audit.forEach((item, index) => {
     if (
       (item.risk_level === 'HIGH' || item.risk_level === 'CRITICAL') &&
-      item.mitigation_status === 'OPEN'
+      item.mitigation_status === 'OPEN' &&
+      data.legal_status !== 'REJECTED'
     ) {
       errors.push(
-        `compliance_audit[${index}].mitigation_status must not be OPEN for ${item.risk_level} risk`
+        `compliance_audit[${index}].mitigation_status must not be OPEN for ${item.risk_level} risk unless legal_status is REJECTED`
       );
     }
   });
+
+  return errors;
+}
+
+function productStrategyInvariantErrors(data) {
+  const errors = [];
+  const financial = data.financial_model ?? {};
+  const tariff = data.product_concept?.tariff_structure ?? {};
+  const baseRate = tariff.base_rate_percent;
+  const welcomeRate = tariff.welcome_rate_percent;
+  const welcomeShare = financial.welcome_rate_share_percent;
+  const placementRate = financial.placement_rate_percent;
+  const opex = financial.opex_percent;
+
+  // illustrative: true означает ознакомительный характер модели, но не отменяет
+  // арифметику: формулы проверяются всегда.
+  if (
+    [baseRate, welcomeRate, welcomeShare, placementRate, opex].every((value) =>
+      Number.isFinite(value)
+    )
+  ) {
+    // МГС — регуляторный минимум раскрытия, в расчёт CoF не входит.
+    // CoF — смешанная стоимость фондирования по долям портфеля.
+    const blendedCof =
+      baseRate * (1 - welcomeShare / 100) + welcomeRate * (welcomeShare / 100);
+
+    if (
+      !Number.isFinite(financial.cof_cost_of_funds_percent) ||
+      Math.abs(financial.cof_cost_of_funds_percent - blendedCof) > 0.05
+    ) {
+      errors.push(
+        `cof_cost_of_funds_percent ${financial.cof_cost_of_funds_percent} != blended CoF ${blendedCof.toFixed(2)} (tolerance 0.05 pp)`
+      );
+    }
+
+    const nim = placementRate - blendedCof - opex;
+    if (
+      !Number.isFinite(financial.projected_nim_percent) ||
+      Math.abs(financial.projected_nim_percent - nim) > 0.05
+    ) {
+      errors.push(
+        `projected_nim_percent ${financial.projected_nim_percent} != placement_rate_percent - blended CoF - opex_percent = ${nim.toFixed(2)} (tolerance 0.05 pp)`
+      );
+    }
+
+    const nii = (financial.funding_volume_rub * nim) / 100;
+    const niiTolerance = Math.max(1000, Math.abs(nii) * 0.001);
+    if (
+      !Number.isFinite(financial.projected_nii) ||
+      Math.abs(financial.projected_nii - nii) > niiTolerance
+    ) {
+      errors.push(
+        `projected_nii ${financial.projected_nii} != funding_volume_rub * NIM / 100 = ${nii.toFixed(2)} (tolerance max(1000 rub, 0.1%))`
+      );
+    }
+  }
+
+  const rice = data.prioritization_rice ?? {};
+  if (
+    [rice.reach, rice.impact, rice.confidence_percent, rice.effort, rice.score].every((value) =>
+      Number.isFinite(value)
+    ) &&
+    rice.effort > 0
+  ) {
+    const expectedScore =
+      (rice.reach * rice.impact * (rice.confidence_percent / 100)) / rice.effort;
+    if (!Number.isFinite(expectedScore) || Math.abs(rice.score - expectedScore) > 0.05) {
+      errors.push(
+        `prioritization_rice.score ${rice.score} != reach * impact * confidence_percent / 100 / effort = ${expectedScore.toFixed(2)} (tolerance 0.05)`
+      );
+    }
+  }
 
   return errors;
 }
@@ -560,6 +640,35 @@ function evalRequestInvariantErrors(data, validators) {
 function researchOutputInvariantErrors(data) {
   const errors = [];
   const sources = Array.isArray(data.sources) ? data.sources : [];
+  const metrics = Array.isArray(data.quantifiable_metrics) ? data.quantifiable_metrics : [];
+
+  // 0. Прослеживаемость: source_id уникальны, метрики ссылаются на существующие источники.
+  const sourceIds = new Set();
+  sources.forEach((source, index) => {
+    const sourceId = source?.source_id;
+    if (typeof sourceId !== 'string') return;
+    if (sourceIds.has(sourceId)) {
+      errors.push(`sources[${index}].source_id "${sourceId}" is duplicated`);
+    } else {
+      sourceIds.add(sourceId);
+    }
+  });
+
+  metrics.forEach((metric, index) => {
+    const sourceId = metric?.source_id;
+    if (typeof sourceId === 'string' && !sourceIds.has(sourceId)) {
+      errors.push(
+        `quantifiable_metrics[${index}].source_id "${sourceId}" does not reference any sources[].source_id`
+      );
+    }
+  });
+
+  // Минимум один первичный (не иллюстративный) источник.
+  if (!sources.some((source) => source?.illustrative === false)) {
+    errors.push(
+      'sources must contain at least one source with illustrative: false (primary source)'
+    );
+  }
 
   sources.forEach((source, index) => {
     const url = source?.url;
@@ -617,6 +726,21 @@ function researchOutputInvariantErrors(data) {
         `sources[${index}].url host "${host}" not in allow-list (${SOURCE_ALLOWLIST_PATH})`
       );
     }
+
+    // 7. Первичный источник должен указывать на конкретную страницу, а не на корень раздела.
+    // Эвристика: pathname != "/", в пути есть хотя бы один непустой сегмент; pathname,
+    // заканчивающийся на "/", допустим только при непустом query (например, /event/?id=...).
+    if (source.illustrative === false) {
+      const pathname = parsed.pathname;
+      const hasSegment = pathname.split('/').some((segment) => segment.length > 0);
+      const isRoot = pathname === '/';
+      const isSectionRoot = pathname.endsWith('/') && parsed.search.length === 0;
+      if (!hasSegment || isRoot || isSectionRoot) {
+        errors.push(
+          `sources[${index}].url must point to a specific page, not a section root, when illustrative is false`
+        );
+      }
+    }
   });
 
   return errors;
@@ -642,6 +766,7 @@ const invariantChecks = {
   orchestration_output: orchestrationOutputInvariantErrors,
   eval_request: evalRequestInvariantErrors,
   research_output: researchOutputInvariantErrors,
+  product_strategy: productStrategyInvariantErrors,
   project_aar: projectAarInvariantErrors,
 };
 
@@ -839,45 +964,95 @@ if (failed > 0) {
 console.log(`\nAll ${examples.length} examples are valid and covered by schemas.`);
 console.log(`All ${skillBlocks} marked skill contract blocks are valid.`);
 
-// Self-test mode: validate negative fixtures (should fail)
+// Self-test mode: validate negative and positive fixtures
 if (process.argv.includes('--self-test')) {
-  console.log('\n🔬 Self-test mode: validating negative fixtures...');
   await runSelfTest(ajv, validators, invariantChecks);
 }
 
 async function runSelfTest(ajv, validators, invariantChecks) {
+  let passed = 0;
+  let failed = 0;
+
+  const invalidResult = runInvalidFixtures(validators, invariantChecks);
+  passed += invalidResult.passed;
+  failed += invalidResult.failed;
+
+  const validResult = runValidFixtures(validators, invariantChecks);
+  passed += validResult.passed;
+  failed += validResult.failed;
+
+  console.log(`\nSelf-test: ${passed} passed, ${failed} failed`);
+  if (failed > 0) {
+    process.exit(1);
+  }
+}
+
+function loadFixtureManifest(fixtureDir) {
+  const manifestPath = path.join(fixtureDir, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    console.error(`❌ Manifest not found: ${manifestPath}`);
+    process.exit(1);
+  }
+
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    return manifest.fixtures ?? {};
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${manifestPath}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+function listFixtures(fixtureDir) {
+  return fs.readdirSync(fixtureDir)
+    .filter((file) => file.endsWith('.json') && file !== 'manifest.json')
+    .sort();
+}
+
+// Каждая запись манифеста должна указывать на существующую фикстуру.
+function checkManifestCoverage(fixtureDir, fixtures, fixtureMap) {
+  let ok = true;
+  for (const manifestFixture of Object.keys(fixtureMap)) {
+    if (!fixtures.includes(manifestFixture)) {
+      console.error(
+        `❌ ${path.join(fixtureDir, manifestFixture)}: есть в manifest.json, но файл фикстуры отсутствует`
+      );
+      ok = false;
+    }
+  }
+  return ok;
+}
+
+function invariantErrorsForFixture(data, schemaName, validators, invariantChecks) {
+  const check = invariantChecks[schemaName];
+  if (!check) return '';
+
+  try {
+    // Для execution_plan передаём orchestration_output того же project_id — это делает
+    // self-test эквивалентным сквозной проверке examples/.
+    const orchestrationOutput = data.project_id
+      ? orchestrationOutputsByProject.get(data.project_id)
+      : undefined;
+    return check(data, validators, orchestrationOutput).join('; ');
+  } catch (error) {
+    return `invariant check threw: ${error.message}`;
+  }
+}
+
+function runInvalidFixtures(validators, invariantChecks) {
   const invalidDir = 'tests/fixtures/invalid';
   if (!fs.existsSync(invalidDir)) {
     console.error(`❌ Self-test directory not found: ${invalidDir}`);
     process.exit(1);
   }
 
-  // Загружаем декларативный манифест фикстур
-  const manifestPath = path.join(invalidDir, 'manifest.json');
-  if (!fs.existsSync(manifestPath)) {
-    console.error(`❌ Manifest not found: ${manifestPath}`);
+  console.log('\n🔬 Self-test mode: validating negative fixtures...');
+
+  const fixtureMap = loadFixtureManifest(invalidDir);
+  const fixtures = listFixtures(invalidDir);
+
+  if (!checkManifestCoverage(invalidDir, fixtures, fixtureMap)) {
     process.exit(1);
-  }
-
-  let manifest;
-  try {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  } catch (error) {
-    console.error(`❌ Некорректный JSON в ${manifestPath}: ${error.message}`);
-    process.exit(1);
-  }
-  const fixtureMap = manifest.fixtures ?? {};
-
-  const fixtures = fs.readdirSync(invalidDir)
-    .filter((file) => file.endsWith('.json') && file !== 'manifest.json')
-    .sort();
-
-  // Каждая запись манифеста должна указывать на существующую фикстуру.
-  for (const manifestFixture of Object.keys(fixtureMap)) {
-    if (!fixtures.includes(manifestFixture)) {
-      console.error(`❌ ${manifestFixture}: есть в manifest.json, но файл фикстуры отсутствует`);
-      process.exit(1);
-    }
   }
 
   let passed = 0;
@@ -920,20 +1095,12 @@ async function runSelfTest(ajv, validators, invariantChecks) {
 
     // 2. Инварианты запускаются всегда — даже для schema-negative фикстур,
     //    чтобы defense-in-depth проверки (traversal, SSRF, allow-list) оставались покрытыми.
-    // Для execution_plan передаём orchestration_output того же project_id — это делает
-    // self-test эквивалентным сквозной проверке examples/.
-    let invariantErrorText = '';
-    const check = invariantChecks[schemaName];
-    if (check) {
-      try {
-        const orchestrationOutput = data.project_id
-          ? orchestrationOutputsByProject.get(data.project_id)
-          : undefined;
-        invariantErrorText = check(data, validators, orchestrationOutput).join('; ');
-      } catch (error) {
-        invariantErrorText = `invariant check threw: ${error.message}`;
-      }
-    }
+    const invariantErrorText = invariantErrorsForFixture(
+      data,
+      schemaName,
+      validators,
+      invariantChecks
+    );
 
     const expectedSchemaPattern = fixtureMeta.expectedSchemaErrorPattern;
     const expectedPattern = fixtureMeta.expectedErrorPattern;
@@ -988,8 +1155,82 @@ async function runSelfTest(ajv, validators, invariantChecks) {
     }
   }
 
-  console.log(`\nSelf-test: ${passed} passed, ${failed} failed`);
-  if (failed > 0) {
+  return { passed, failed };
+}
+
+function runValidFixtures(validators, invariantChecks) {
+  const validDir = 'tests/fixtures/valid';
+  if (!fs.existsSync(validDir)) {
+    console.error(`❌ Self-test directory not found: ${validDir}`);
     process.exit(1);
   }
+
+  console.log('\n🔬 Self-test mode: validating positive fixtures...');
+
+  const fixtureMap = loadFixtureManifest(validDir);
+  const fixtures = listFixtures(validDir);
+
+  if (!checkManifestCoverage(validDir, fixtures, fixtureMap)) {
+    process.exit(1);
+  }
+
+  let passed = 0;
+  let failed = 0;
+
+  for (const fixture of fixtures) {
+    const fixturePath = path.join(validDir, fixture);
+
+    let data;
+    try {
+      data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    } catch (error) {
+      console.error(`❌ ${fixture}: invalid JSON (${error.message})`);
+      failed++;
+      continue;
+    }
+
+    const fixtureMeta = fixtureMap[fixture];
+    if (!fixtureMeta) {
+      console.error(`❌ ${fixture}: no entry in manifest.json`);
+      failed++;
+      continue;
+    }
+
+    const schemaName = fixtureMeta.schema;
+    const validate = validators.get(schemaName);
+    if (!validate) {
+      console.error(`❌ ${fixture}: validator not found for schema ${schemaName}`);
+      failed++;
+      continue;
+    }
+
+    if (!validate(data)) {
+      const schemaErrorText = (validate.errors ?? [])
+        .map((error) => `${error.instancePath || '/'} ${error.message}`)
+        .join('; ') || 'schema validation failed';
+      console.error(`❌ ${fixture}: expected schema validation to pass; got: ${schemaErrorText}`);
+      failed++;
+      continue;
+    }
+
+    const invariantErrorText = invariantErrorsForFixture(
+      data,
+      schemaName,
+      validators,
+      invariantChecks
+    );
+
+    if (invariantErrorText) {
+      console.error(
+        `❌ ${fixture}: expected invariants to pass; got: ${invariantErrorText}`
+      );
+      failed++;
+      continue;
+    }
+
+    console.log(`✅ ${fixture}: valid (schema and invariants passed)`);
+    passed++;
+  }
+
+  return { passed, failed };
 }
