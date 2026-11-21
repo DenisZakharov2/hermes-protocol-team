@@ -125,49 +125,32 @@ async function setupTempRepo() {
     throw new Error('package-lock.json not copied to temp repo');
   }
 
-  // Reset ALL version references to 3.0.1 for testing bumps
-  function resetVersionInFile(filePath, patterns) {
-    if (!fs.existsSync(filePath)) return;
-    let content = fs.readFileSync(filePath, 'utf8');
-    for (const { pattern, replacement } of patterns) {
-      content = content.replace(pattern, replacement);
-    }
-    fs.writeFileSync(filePath, content);
+  // Reset ALL version references to 3.0.1 for testing bumps, regardless of
+  // the repository's current release version.
+  const resetVersion = '3.0.1';
+  const currentVersion = JSON.parse(
+    fs.readFileSync(path.join(REPO_ROOT, 'package.json'), 'utf8')
+  ).version;
+
+  for (const file of FILES_TO_UPDATE) {
+    if (file === 'package.json') continue;
+    const filePath = path.join(cwd, file);
+    if (!fs.existsSync(filePath)) continue;
+    const content = fs.readFileSync(filePath, 'utf8');
+    fs.writeFileSync(filePath, content.split(currentVersion).join(resetVersion));
   }
 
-  const versionPatterns = [
-    { file: 'package.json', patterns: [{ pattern: /"version": "3\.0\.2"/, replacement: '"version": "3.0.1"' }] },
-    { file: 'README.md', patterns: [{ pattern: /> \*\*Статус:\*\* версия 3\.0\.2 — действующая/, replacement: '> **Статус:** версия 3.0.1 — действующая' }] },
-    { file: 'Hermes_Protocol_Constitution.md', patterns: [{ pattern: /\*\*Версия:\*\* 3\.0\.2 \|/, replacement: '**Версия:** 3.0.1 |' }] },
-    { file: 'docs/01-how-to-use.md', patterns: [{ pattern: /> Язык: русский\. Версия команды: 3\.0\.2\./, replacement: '> Язык: русский. Версия команды: 3.0.1.' }] },
-    { file: 'docs/02-team-guide.md', patterns: [{ pattern: /> Версия: 3\.0\.2\./, replacement: '> Версия: 3.0.1.' }] },
-    { file: 'docs/04-quality.md', patterns: [{ pattern: /> Версия: 3\.0\.2\./, replacement: '> Версия: 3.0.1.' }] },
-    { file: 'docs/05-aar.md', patterns: [{ pattern: /> Версия: 3\.0\.2\./, replacement: '> Версия: 3.0.1.' }] },
-    { file: 'skills/hermes-orchestrator/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/multi-source-researcher/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/product-manager/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/business-analyst/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/legal-compliance-counsel/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/research-synthesist/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'skills/quality-evaluator/SKILL.md', patterns: [{ pattern: /version: 3\.0\.2/, replacement: 'version: 3.0.1' }] },
-    { file: 'docs/03-artifacts.md', patterns: [{ pattern: /> Версия: 3\.0\.2\./, replacement: '> Версия: 3.0.1.' }] },
-    { file: 'docs/legal-stack.md', patterns: [{ pattern: /> Версия: 3\.0\.2\./, replacement: '> Версия: 3.0.1.' }] },
-    { file: 'docs/MAINTAINERS.md', patterns: [
-      { pattern: /- Версия команды — `3\.0\.2`/, replacement: '- Версия команды — `3.0.1`' },
-      { pattern: /- Тег: `git tag -a v3\.0\.2 -m "Hermes Protocol 3\.0\.2" && git push origin v3\.0\.2`\./, replacement: '- Тег: `git tag -a v3.0.1 -m "Hermes Protocol 3.0.1" && git push origin v3.0.1`.' }
-    ]},
-    { file: 'schemas/common/definitions.schema.json', patterns: [{ pattern: /"examples": \["3\.0\.2"\]/, replacement: '"examples": ["3.0.1"]' }] },
-  ];
-
-  for (const { file, patterns } of versionPatterns) {
-    resetVersionInFile(path.join(cwd, file), patterns);
-  }
+  // package.json is reset through JSON to keep formatting valid.
+  const pkgPath = path.join(cwd, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  pkg.version = resetVersion;
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
   // Also update package-lock.json to 3.0.1
   const lockContent = fs.readFileSync(lockPath, 'utf8');
   const lock = JSON.parse(lockContent);
-  lock.version = '3.0.1';
-  lock.packages[''].version = '3.0.1';
+  lock.version = resetVersion;
+  lock.packages[''].version = resetVersion;
   fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n');
 
   // Update SECURITY.md to have 3.0.x as ✅ and no 3.1.x
@@ -212,9 +195,12 @@ async function setupTempRepo() {
 function addChangelogHeader(cwd, version) {
   const changelogPath = path.join(cwd, 'CHANGELOG.md');
   let content = fs.readFileSync(changelogPath, 'utf8');
-  // Add version header after "## [Unreleased]\n\n" (before first ### section)
+  const marker = '## [Unreleased]\n';
   const header = `## [${version}] - 2026-11-18\n\n### Added\n\n- Test release\n\n`;
-  content = content.replace('## [Unreleased]\n\n### Added', `## [Unreleased]\n\n${header}### Added`);
+  if (!content.includes(marker)) {
+    throw new Error('CHANGELOG.md: [Unreleased] section not found');
+  }
+  content = content.replace(marker, `${marker}\n${header}`);
   fs.writeFileSync(changelogPath, content);
 }
 
