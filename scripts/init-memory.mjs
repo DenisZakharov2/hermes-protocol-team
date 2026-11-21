@@ -38,16 +38,17 @@ for (const dir of dirs) {
 // Создаём .gitkeep в каждом листе и в memory/cases/, чтобы Git отслеживал структуру
 for (const dir of dirs) {
   const gitkeep = path.join(dir, '.gitkeep');
-  if (!fs.existsSync(gitkeep)) {
-    fs.writeFileSync(gitkeep, '');
+  try {
+    fs.writeFileSync(gitkeep, '', { flag: 'wx' });
     console.log(`📄 Создан .gitkeep: ${gitkeep}`);
+  } catch (error) {
+    if (error.code !== 'EEXIST') throw error;
   }
 }
 
 // Пример README для памяти
 const readmePath = path.join(memoryRoot, 'README.md');
-if (!fs.existsSync(readmePath)) {
-  const readmeContent = `# Структура памяти Hermes Protocol
+const readmeContent = `# Структура памяти Hermes Protocol
 
 Эта директория содержит локальный шаблон трёхуровневой памяти мультиагентной системы.
 Процедурная память хранится в репозитории — \`skills/*/SKILL.md\` и \`schemas/\`.
@@ -86,23 +87,29 @@ allow-list находится в \`schemas/common/source-allowlist.json\`; \`dom
 npm run init:memory
 \`\`\`
 `;
-  fs.writeFileSync(readmePath, readmeContent);
+try {
+  fs.writeFileSync(readmePath, readmeContent, { flag: 'wx' });
   console.log(`📄 Создан README: ${readmePath}`);
+} catch (error) {
+  if (error.code !== 'EEXIST') throw error;
 }
 
 // Runtime-копия allow-list создаётся из коммитируемой политики schemas/common/source-allowlist.json.
 // Скрипт не изменяет .gitignore и другие файлы репозитория.
 const allowlistSourcePath = path.join('schemas', 'common', 'source-allowlist.json');
 const allowlistPath = path.join(memoryRoot, 'domain_knowledge', 'sources', 'allowlist.json');
-if (!fs.existsSync(allowlistSourcePath)) {
-  console.error(`❌ Не найден источник allow-list: ${allowlistSourcePath}`);
-  process.exit(1);
-}
-if (!fs.existsSync(allowlistPath)) {
-  fs.copyFileSync(allowlistSourcePath, allowlistPath);
+try {
+  fs.copyFileSync(allowlistSourcePath, allowlistPath, fs.constants.COPYFILE_EXCL);
   console.log(`📄 Создана runtime-копия allow-list: ${allowlistPath}`);
-} else {
-  console.log(`⏭️  Уже существует: ${allowlistPath}`);
+} catch (error) {
+  if (error.code === 'EEXIST') {
+    console.log(`⏭️  Уже существует: ${allowlistPath}`);
+  } else if (error.code === 'ENOENT') {
+    console.error(`❌ Не найден источник allow-list: ${allowlistSourcePath}`);
+    process.exit(1);
+  } else {
+    throw error;
+  }
 }
 
 console.log('\n✅ Структура памяти инициализирована!');

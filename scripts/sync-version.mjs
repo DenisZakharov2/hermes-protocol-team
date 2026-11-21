@@ -403,9 +403,11 @@ try {
 // Post-check: verify CHANGELOG.md has the new version header
 console.log('\n🔍 Post-check: verifying CHANGELOG.md has version header...');
 const changelogContent = fs.readFileSync(path.join(process.cwd(), 'CHANGELOG.md'), 'utf8');
-// Match Keep a Changelog format: "## [version]" or "[version]" at start of line
-const versionHeaderPattern = new RegExp(`(^|\\n)##? \\[${newVersion.replace(/\./g, '\\.')}\\]`, 'm');
-if (!versionHeaderPattern.test(changelogContent)) {
+// Match Keep a Changelog format: "## [version]" or "# [version]" at start of line
+const hasVersionHeader = changelogContent
+  .split(/\r?\n/)
+  .some((line) => line.startsWith(`# [${newVersion}]`) || line.startsWith(`## [${newVersion}]`));
+if (!hasVersionHeader) {
   console.error(`❌ CHANGELOG.md missing header for version ${newVersion} (expected pattern: [${newVersion}])`);
   console.error('   Add a release section for this version before committing.');
   process.exit(1);

@@ -121,9 +121,6 @@ async function setupTempRepo() {
   copyRecursive(REPO_ROOT, cwd);
 
   const lockPath = path.join(cwd, 'package-lock.json');
-  if (!fs.existsSync(lockPath)) {
-    throw new Error('package-lock.json not copied to temp repo');
-  }
 
   // Reset ALL version references to 3.0.1 for testing bumps, regardless of
   // the repository's current release version.
@@ -135,7 +132,6 @@ async function setupTempRepo() {
   for (const file of FILES_TO_UPDATE) {
     if (file === 'package.json') continue;
     const filePath = path.join(cwd, file);
-    if (!fs.existsSync(filePath)) continue;
     const content = fs.readFileSync(filePath, 'utf8');
     fs.writeFileSync(filePath, content.split(currentVersion).join(resetVersion));
   }
@@ -171,8 +167,13 @@ async function setupTempRepo() {
   // Fix markdownlint config in temp repo to disable MD024 for CHANGELOG.md
   // Note: .markdownlint-cli2.jsonc has comments, so we strip them before parsing
   const mlConfigPath = path.join(cwd, '.markdownlint-cli2.jsonc');
-  if (fs.existsSync(mlConfigPath)) {
-    const mlConfigContent = fs.readFileSync(mlConfigPath, 'utf8');
+  let mlConfigContent;
+  try {
+    mlConfigContent = fs.readFileSync(mlConfigPath, 'utf8');
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  if (mlConfigContent !== undefined) {
     // Strip single-line comments
     const mlConfigJson = mlConfigContent.replace(/\/\/.*$/gm, '');
     const mlConfig = JSON.parse(mlConfigJson);
@@ -182,9 +183,6 @@ async function setupTempRepo() {
       config: { MD024: false }
     });
     fs.writeFileSync(mlConfigPath, JSON.stringify(mlConfig, null, 2) + '\n');
-    
-    // Debug: write config to temp location for inspection
-    fs.writeFileSync('/tmp/ml-config-debug.json', JSON.stringify(mlConfig, null, 2));
   }
 
   execSync('npm ci', { cwd, stdio: 'pipe' });
