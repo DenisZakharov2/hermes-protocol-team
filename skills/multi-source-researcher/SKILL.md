@@ -1,7 +1,7 @@
 ---
 name: multi-source-researcher
 description: "Исследователь и сборщик первичных данных из интернет-источников"
-version: 3.0.2
+version: 4.0.0
 ---
 
 # Research Specialist Worker skill (multi-source-researcher)

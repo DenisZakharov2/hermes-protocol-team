@@ -78,9 +78,9 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 
 ## 4. Релизы и версии
 
-- Версия команды — `3.0.2` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `4.0.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v3.0.2 -m "Hermes Protocol 3.0.2" && git push origin v3.0.2`.
+- Тег: `git tag -a v4.0.0 -m "Hermes Protocol 4.0.0" && git push origin v4.0.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## 5. Известные технические долги / плановые улучшения

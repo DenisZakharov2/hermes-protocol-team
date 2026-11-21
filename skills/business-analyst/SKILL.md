@@ -1,7 +1,7 @@
 ---
 name: business-analyst
 description: "Ведущий бизнес- и системный аналитик в области финансов"
-version: 3.0.2
+version: 4.0.0
 ---
 
 # Business Analyst Agent skill (business-analyst)

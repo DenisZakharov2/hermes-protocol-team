@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-11-21
+
 ### Added
 
 - `schemas/common/source-allowlist.json` — коммитируемая allow-list доменов для `research_output.sources[].url`. Валидатор проверяет её в CI; `npm run init:memory` создаёт только runtime-копию в `memory/domain_knowledge/sources/allowlist.json`.
@@ -39,12 +41,13 @@
 - Block 4: `execution_request.output_requirements` закрыт (`additionalProperties: false`), `target_artifacts` — `minItems: 1`, `uniqueItems: true`. Ломающее изменение.
 - Block 4: `CHANGELOG.md` восстановлены релизные секции `[3.0.1]`/`[3.0.2]`; `_overrides_comment` содержит реальные GHSA/CVE; политика `mermaid` синхронизирована с Dependabot (`>= 12.0.0`).
 - Block 4: `vitest.config.mjs` больше не исключает `scripts/` из coverage; self-test безопасно компилирует regex из манифеста.
+- Версия команды повышена до `4.0.0` во всех файлах через `scripts/sync-version.mjs`.
 
-### Versioning
+### Breaking Changes
 
-- Переход на относительные пути памяти — ломающее изменение контрактов. По SemVer требуется мажорная версия; номер релиза фиксирует мейнтейнер в PR (текущая версия остаётся `3.0.2`).
-- Block 3 меняет контракты `evaluation_report` (enum `critical_findings.severity`, вердикт `passed`), `product_strategy` (обязательные поля финмодели и RICE) и `research_output` (прослеживаемость источников). Вместе с Block 2 это требует мажорной версии по SemVer; номер оставляет мейнтейнер.
-- Block 4 меняет контракты `eval_request` (`context_artifacts` — массив), `flight_log` (условно обязательные счётчики), `business_requirements` (`masking_exception`, SLA) и `execution_request` (закрытый `output_requirements`). Вместе с Blocks 2–3 это требует мажорной версии; версия в `package.json` не поднимается, номер релиза оставляет мейнтейнер.
+- Переход на относительные пути памяти (`artifact_root`, `lessons_indexed_to`) — ломающее изменение контрактов.
+- Block 3 меняет контракты `evaluation_report` (enum `critical_findings.severity`, вердикт `passed`), `product_strategy` (обязательные поля финмодели и RICE) и `research_output` (прослеживаемость источников).
+- Block 4 меняет контракты `eval_request` (`context_artifacts` — массив), `flight_log` (условно обязательные счётчики), `business_requirements` (`masking_exception`, SLA) и `execution_request` (закрытый `output_requirements`).
 
 ### Fixed
 
