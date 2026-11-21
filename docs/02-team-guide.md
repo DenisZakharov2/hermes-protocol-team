@@ -79,7 +79,7 @@
 - Федеральные законы: канонический перечень — [`legal-stack.md`](legal-stack.md). Банковский контур: 395-1 (ст. 26 — банковская тайна), 152 (ПДн), 115 (ПОД/ФТ), 2300-1 (ЗПП), 38 (реклама), 63 (ЭП), 161 (НПС), 39 (РЦБ), 353 (потребительский кредит); 75 и 4015-1 — только при наличии соответствующей компоненты; 102 — только ипотека (залог недвижимости).
 - Акты ЦБ РФ: ИН-018-59/4, ИН-011-54/31; МР-19, МР-22; Положения 821-П, 757-П, 850-П, 851-П, 762-П, 683-П.
 - ГОСТ Р 57580.1-2017, ГОСТ Р 57580.2-2018, стандарты СРО.
-- NFR: доступность 99.9x %, маскирование ПДн, логирование с Correlation ID, RPO/RTO.
+- NFR: доступность 99.9–99.99… % (`sla_availability`), маскирование ПДн, логирование с Correlation ID, RPO/RTO. Если `data_masking_152_fz: false`, обязателен непустой `masking_exception` с исключением и компенсирующими мерами; исключение передаётся в Legal Check-in и фиксируется в юридическом заключении.
 
 ### Контракты
 
@@ -159,7 +159,7 @@
 
 ### Контракты
 
-- Вход: `eval_request.json` (artifact_type, artifact_data, context_artifacts, quality_threshold)
+- Вход: `eval_request.json` (artifact_type, artifact_data, `context_artifacts[]` — непустой массив уникальных ссылок на связанные артефакты, quality_threshold)
 - Выход: `evaluation_report.json` (overall_score, score_breakdown, passed, critical_findings только HIGH/CRITICAL, actionable_fixes)
 - Журнал: `evaluator_flight_log.json`
 
@@ -168,3 +168,5 @@
 ## 8. Бортовой журнал (flight log)
 
 Каждый агент ведет собственный журнал `*_flight_log.json` с фиксацией: времени фаз, статусов передач контекста, решений Заказчика на Stage-Gate, итераций доработок, логов ошибок. Оркестратор ведет общий `hermes_flight_log.json`. Журналы — первичный источник при расследовании инцидентов и аудите.
+
+Для событий `SELF_HEALING` обязателен `self_healing_attempt`, для `LEGAL_CHECKIN` — `legal_iteration`. В рамках одной `phase` счётчики возрастают строго на 1 (1 → 2 → 3); третья неудачная попытка требует последующей записи `ERROR`/`BLOCKED` в той же фазе либо `execution_status: ESCALATED` в `orchestration_output`.

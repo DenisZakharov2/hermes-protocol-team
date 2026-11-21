@@ -55,5 +55,5 @@
     "fast-uri": "^4.2.3",
     "katex": "^0.19.1"
   },
-  "_overrides_comment": "re2js: CVE-2024-XXXX (ReDoS в RE2 regex engine); fast-uri: CVE-2024-XXXX (URI parsing vulnerability); katex: CVE-2024-XXXX (XSS через макросы). Обновлять при выходе новых версий с фиксами безопасности."
+  "_overrides_comment": "Закреплённые версии закрывают реальные advisories GitHub Advisory Database: re2js — GHSA-gg6h-894w-4m9c (CVE-2026-116795, квадратичный ReDoS в lookbehind); fast-uri — GHSA-w74x-v6f9-j3xg (CVE-2026-110306, подмена схемы URI); katex — GHSA-238p-pmpm-9mq7 (CVE-2026-103923, обход trust через prototype pollution). Обновлять при выходе новых версий с фиксами."
 }

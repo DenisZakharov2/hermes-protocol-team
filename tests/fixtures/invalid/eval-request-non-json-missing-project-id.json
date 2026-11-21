@@ -6,8 +6,8 @@
   "artifact_data": {
     "format": "markdown_marp"
   },
-  "context_artifacts": {
-    "ref": "some_ref"
-  },
+  "context_artifacts": [
+    { "ref": "some_ref" }
+  ],
   "quality_threshold": 85
 }

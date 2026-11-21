@@ -1,0 +1,22 @@
+{
+  "project_id": "FLIGHT_LOG_GAP_2026",
+  "agent_id": "hermes-orchestrator",
+  "entries": [
+    {
+      "timestamp": "2026-11-20T10:10:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Первая попытка Self-Healing",
+      "self_healing_attempt": 1
+    },
+    {
+      "timestamp": "2026-11-20T10:20:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Пропущена вторая попытка: сразу третья",
+      "self_healing_attempt": 3
+    }
+  ]
+}

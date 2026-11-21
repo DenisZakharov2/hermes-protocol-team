@@ -6,8 +6,8 @@
   "artifact_data": {
     "project_id": "OTHER_PROJECT_2026"
   },
-  "context_artifacts": {
-    "ref": "some_ref"
-  },
+  "context_artifacts": [
+    { "ref": "some_ref" }
+  ],
   "quality_threshold": 85
 }

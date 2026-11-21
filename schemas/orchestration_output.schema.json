@@ -107,7 +107,12 @@
       "then": {
         "required": [
           "final_package"
-        ]
+        ],
+        "properties": {
+          "final_package": {
+            "$ref": "#/properties/final_package"
+          }
+        }
       }
     },
     {
@@ -124,7 +129,12 @@
       "then": {
         "required": [
           "project_aar"
-        ]
+        ],
+        "properties": {
+          "project_aar": {
+            "$ref": "#/properties/project_aar"
+          }
+        }
       }
     },
     {
@@ -148,6 +158,11 @@
           "required": [
             "project_aar"
           ]
+        },
+        "properties": {
+          "project_aar": {
+            "$ref": "#/properties/project_aar"
+          }
         }
       }
     }

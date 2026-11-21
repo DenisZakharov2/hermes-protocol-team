@@ -7,6 +7,18 @@
     "evaluation-critical-failed.json": {
       "schema": "evaluation_report",
       "description": "Балл 90 при пороге 85 и CRITICAL finding: passed=false — стоп-кран не конфликтует с правилом порога"
+    },
+    "flight-log-with-counters.json": {
+      "schema": "flight_log",
+      "description": "SELF_HEALING 1→2 и LEGAL_CHECKIN 1: условные счётчики и монотонность проходят"
+    },
+    "brd-masking-false-with-exception.json": {
+      "schema": "business_requirements",
+      "description": "data_masking_152_fz: false с непустым masking_exception проходит схему"
+    },
+    "brd-sla-three-nines.json": {
+      "schema": "business_requirements",
+      "description": "SLA 99.9% (три девятки) проходит паттерн ^99\\.9\\d*%$"
     }
   }
 }

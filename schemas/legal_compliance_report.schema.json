@@ -101,7 +101,12 @@
             "then": {
               "required": [
                 "mitigation_status"
-              ]
+              ],
+              "properties": {
+                "mitigation_status": {
+                  "$ref": "#/properties/compliance_audit/items/properties/mitigation_status"
+                }
+              }
             }
           }
         ]

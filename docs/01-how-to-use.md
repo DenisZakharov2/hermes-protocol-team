@@ -239,7 +239,7 @@
 | `brief_schema.example.json` | Бриф на синтез презентации |
 | `synthesist_output.example.json` | Результат синтеза (Marp-разметка и сноски) |
 | `eval_request.example.json` | Запрос на аудит качества |
-| `evaluation_report.example.json` | Аудит качества (балл 88,5, `passed: true`, `actionable_fixes`) |
+| `evaluation_report.example.json` | Аудит качества (балл 88.5, `passed: true`, `actionable_fixes`) |
 | `orchestration_output.example.json` | Итоговый отчет оркестратора, `COMPLETED_APPROVED` и `project_aar` |
 | `project_aar.example.json` | Постпроектная рефлексия |
 | `execution_plan.example.json` | Утвержденный план исполнения проекта |

@@ -473,5 +473,18 @@ describe('sync-version.mjs snapshot tests', () => {
         execSync(`node ${scriptPath}`, { cwd, encoding: 'utf8', stdio: 'pipe' });
       }).toThrow();
     });
+
+    it('should fail when CHANGELOG.md has no header for the new version', () => {
+      let error;
+      try {
+        runSyncVersion(cwd, '3.0.5');
+      } catch (caught) {
+        error = caught;
+      }
+
+      expect(error, 'sync-version должен упасть без заголовка [3.0.5] в CHANGELOG.md').toBeDefined();
+      const output = `${error.stdout ?? ''}${error.stderr ?? ''}`;
+      expect(output).toContain('CHANGELOG.md missing header for version 3.0.5');
+    });
   });
 });

@@ -41,8 +41,19 @@
       "rto_minutes": 30
     }
   },
-  "context_artifacts": {
-    "ref": "PROJECT_CONTEXT"
-  },
+  "context_artifacts": [
+    {
+      "ref": "cases/SAV_DEP_2026_01/artifacts/product_strategy.json"
+    },
+    {
+      "ref": "cases/SAV_DEP_2026_01/artifacts/research_output.json"
+    },
+    {
+      "ref": "cases/SAV_DEP_2026_01/artifacts/legal_compliance_report.json"
+    },
+    {
+      "ref": "cases/SAV_DEP_2026_01/artifacts/regulatory_checklist.json"
+    }
+  ],
   "quality_threshold": 85
 }

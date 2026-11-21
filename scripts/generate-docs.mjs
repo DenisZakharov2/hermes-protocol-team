@@ -17,6 +17,14 @@ import path from 'node:path';
 
 const schemasDir = 'schemas';
 const referencePath = path.join('docs', 'schemas-reference.md');
+const qualityWeightsPath = path.join(schemasDir, 'common', 'quality-weights.json');
+const QUALITY_WEIGHT_KEYS = [
+  'accuracy_and_grounding',
+  'security',
+  'cross_artifact_consistency',
+  'structural_completeness',
+  'practical_executability',
+];
 
 const AGENT_BY_SCHEMA = {
   execution_request: 'hermes-orchestrator',
@@ -147,17 +155,57 @@ function renderDefinitionsTable() {
   return lines.join('\n');
 }
 
-function renderQualityWeightsTable() {
-  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
-  const definitions = JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {};
-  const weights = definitions.QualityWeights?.examples?.[0];
-  if (!weights) {
-    console.error('❌ QualityWeights не найден в definitions.schema.json');
+function loadQualityWeights() {
+  if (!fs.existsSync(qualityWeightsPath)) {
+    console.error(`❌ Не найден файл весов качества: ${qualityWeightsPath}`);
     process.exit(1);
   }
-  // НОРМАТИВНЫЙ ИСТОЧНИК: examples[0] в QualityWeights используется и валидатором, и генератором docs.
-  // Не редактируйте вручную — меняйте только через правку схемы и запуск npm run validate.
-  
+
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(qualityWeightsPath, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${qualityWeightsPath}: ${error.message}`);
+    process.exit(1);
+  }
+
+  const weights = parsed.weights;
+  if (!weights || typeof weights !== 'object' || Array.isArray(weights)) {
+    console.error(`❌ ${qualityWeightsPath}: поле "weights" должно быть объектом`);
+    process.exit(1);
+  }
+
+  const keys = Object.keys(weights);
+  const missing = QUALITY_WEIGHT_KEYS.filter((key) => !keys.includes(key));
+  const extra = keys.filter((key) => !QUALITY_WEIGHT_KEYS.includes(key));
+  if (missing.length > 0 || extra.length > 0) {
+    console.error(
+      `❌ ${qualityWeightsPath}: состав осей не совпадает с ожидаемым (missing: ${missing.join(', ') || '—'}; extra: ${extra.join(', ') || '—'})`
+    );
+    process.exit(1);
+  }
+
+  for (const key of QUALITY_WEIGHT_KEYS) {
+    const value = weights[key];
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
+      console.error(
+        `❌ ${qualityWeightsPath}: вес "${key}" должен быть конечным числом в диапазоне 0–1, получено ${value}`
+      );
+      process.exit(1);
+    }
+  }
+
+  const sum = QUALITY_WEIGHT_KEYS.reduce((total, key) => total + weights[key], 0);
+  if (!Number.isFinite(sum) || Math.abs(sum - 1) > 0.0001) {
+    console.error(`❌ Сумма весов качества = ${sum}, ожидается 1 (допуск 0.0001)`);
+    process.exit(1);
+  }
+
+  return weights;
+}
+
+function renderQualityWeightsTable() {
+  const weights = loadQualityWeights();
   const axisLabels = {
     accuracy_and_grounding: 'Accuracy & Fact Grounding',
     security: 'Security & Data Protection',
@@ -165,18 +213,36 @@ function renderQualityWeightsTable() {
     structural_completeness: 'Structural Completeness & Depth',
     practical_executability: 'Practical Executability & Feasibility'
   };
-  
+
+  const percentages = QUALITY_WEIGHT_KEYS.map((key) => {
+    if (!Object.prototype.hasOwnProperty.call(weights, key)) {
+      console.error(`❌ ${qualityWeightsPath}: отсутствует вес оси "${key}"`);
+      process.exit(1);
+    }
+    const weight = weights[key];
+    if (typeof weight !== 'number' || !Number.isFinite(weight)) {
+      console.error(`❌ ${qualityWeightsPath}: вес оси "${key}" должен быть конечным числом`);
+      process.exit(1);
+    }
+    return Math.round(weight * 100);
+  });
+
+  const displayedSum = percentages.reduce((total, value) => total + value, 0);
+  if (displayedSum !== 100) {
+    console.error(
+      `❌ Сумма отображаемых процентов весов = ${displayedSum}, ожидается 100. Проверьте ${qualityWeightsPath}.`
+    );
+    process.exit(1);
+  }
+
   const lines = [];
   lines.push('| № | Ось качества | Вес |');
   lines.push('|---|---|---|');
-  let i = 1;
-  for (const [key, label] of Object.entries(axisLabels)) {
-    const weightPct = Math.round(weights[key] * 100);
-    lines.push(`| ${i} | **${label}** | ${weightPct} % |`);
-    i++;
-  }
+  QUALITY_WEIGHT_KEYS.forEach((key, index) => {
+    lines.push(`| ${index + 1} | **${axisLabels[key]}** | ${percentages[index]} % |`);
+  });
   lines.push('');
-  
+
   return lines.join('\n');
 }
 

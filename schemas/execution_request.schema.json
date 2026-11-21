@@ -32,6 +32,8 @@
       "properties": {
         "target_artifacts": {
           "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
           "items": {
             "type": "string",
             "enum": [
@@ -45,7 +47,8 @@
         "quality_threshold": {
           "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
