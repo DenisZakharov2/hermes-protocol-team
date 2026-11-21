@@ -279,7 +279,11 @@ function replaceBlock(content, name, body) {
 
 console.log('📝 Генерация справочника JSON-схем...\n');
 
-if (!fs.existsSync(referencePath)) {
+let content;
+try {
+  content = fs.readFileSync(referencePath, 'utf8');
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
   console.error(`❌ Не найден ${referencePath}.`);
   process.exit(1);
 }
@@ -287,7 +291,6 @@ if (!fs.existsSync(referencePath)) {
 const schemaFiles = listSchemaFiles(schemasDir);
 const schemas = schemaFiles.map(readSchema);
 
-let content = fs.readFileSync(referencePath, 'utf8');
 content = replaceBlock(content, 'schemas', renderSchemaTable(schemas));
 content = replaceBlock(content, 'common', renderCommonTable(schemas));
 content = replaceBlock(content, 'definitions', renderDefinitionsTable());
@@ -298,8 +301,13 @@ console.log(`   Контрактных схем: ${schemas.filter((schema) => !s
 
 // Генерация таблицы весов качества в docs/04-quality.md
 const qualityPath = path.join('docs', '04-quality.md');
-if (fs.existsSync(qualityPath)) {
-  let qualityContent = fs.readFileSync(qualityPath, 'utf8');
+let qualityContent;
+try {
+  qualityContent = fs.readFileSync(qualityPath, 'utf8');
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
+if (qualityContent !== undefined) {
   qualityContent = replaceBlock(qualityContent, 'quality-weights', renderQualityWeightsTable());
   fs.writeFileSync(qualityPath, qualityContent, 'utf8');
   console.log(`✅ Обновлено: ${qualityPath} (таблица весов качества)`);
