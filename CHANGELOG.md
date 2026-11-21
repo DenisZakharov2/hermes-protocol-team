@@ -17,6 +17,9 @@
 - Block 3: `product_strategy` — обязательные допущения `funding_volume_rub`, `welcome_rate_share_percent`, `placement_rate_percent`, `opex_percent` и компоненты RICE (`reach`, `impact`, `confidence_percent`, `effort`, `score`).
 - Block 3: инварианты `product_strategy` (blended CoF, NIM, NII, RICE) и `research_output` (уникальные `source_id`, ссылки метрик на источники, минимум один `illustrative: false` с конкретной страницей).
 - Block 3, негативные фикстуры: открытая мера HIGH/CRITICAL запрещает утверждение, но разрешает `REJECTED`; `required_mitigation` из пробелов; `passed: true` с `CRITICAL`; расхождения CoF/NIM/NII/RICE; неизвестный/дублирующийся `source_id`; отсутствие первичного источника; корень раздела вместо страницы.
+- Block 4: `schemas/common/quality-weights.json` — единственный нормативный источник весов качества. `QualityWeights` в общих определениях оставлен только как схема формы, без `examples`.
+- Block 4: фикстуры на пустой/дублирующийся `context_artifacts`, отсутствующие счётчики и нарушение монотонности `flight_log`, эскалацию после третьей неудачной попытки, `masking_exception`, пустой/дублирующийся `target_artifacts`; позитивные фикстуры `flight_log` и BRD.
+- Block 4: `schemas/common/quality-weights.json` и `schemas/common/definitions.schema.json` проверяются `strictRequired: true`; генератор документации падает при сумме отображаемых процентов ≠ 100.
 
 ### Changed
 
@@ -30,11 +33,18 @@
 - `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
 - `orchestration_output.schema.json`: `stage_gate_history[].stage_code` стал обязательным. `COMPLETED_APPROVED` требует `APPROVED` на `PLAN_APPROVAL` и `FINAL_GATE`; `REJECTED` после финального `APPROVED` запрещён. Ломающее изменение для потребителей контракта.
 - `vitest` обновлён до 5.1.1; конфиг переведён с удалённого `poolOptions` на `maxWorkers: 1`. Закрыты critical/moderate уязвимости `tinypool` и `@vitest/mocker`.
+- Block 4: `eval_request.context_artifacts` — непустой массив уникальных `ArtifactRef` (`minItems: 1`, `uniqueItems: true`); `ArtifactRef.ref` получил `minLength: 1`. Обновлены пример, контракт `quality-evaluator`, docs и все фикстуры. Ломающее изменение.
+- Block 4: `flight_log` — `SELF_HEALING` требует `self_healing_attempt`, `LEGAL_CHECKIN` — `legal_iteration`; инвариант проверяет последовательность 1→2→3 внутри `phase` и эскалацию после третьей неудачной попытки. Ломающее изменение.
+- Block 4: `business_requirements.regulatory_nfr` — SLA-паттерн `^99\.9\d*%$` принимает три девятки; `data_masking_152_fz: false` требует непустой `masking_exception`. Ломающее изменение.
+- Block 4: `execution_request.output_requirements` закрыт (`additionalProperties: false`), `target_artifacts` — `minItems: 1`, `uniqueItems: true`. Ломающее изменение.
+- Block 4: `CHANGELOG.md` восстановлены релизные секции `[3.0.1]`/`[3.0.2]`; `_overrides_comment` содержит реальные GHSA/CVE; политика `mermaid` синхронизирована с Dependabot (`>= 12.0.0`).
+- Block 4: `vitest.config.mjs` больше не исключает `scripts/` из coverage; self-test безопасно компилирует regex из манифеста.
 
 ### Versioning
 
 - Переход на относительные пути памяти — ломающее изменение контрактов. По SemVer требуется мажорная версия; номер релиза фиксирует мейнтейнер в PR (текущая версия остаётся `3.0.2`).
 - Block 3 меняет контракты `evaluation_report` (enum `critical_findings.severity`, вердикт `passed`), `product_strategy` (обязательные поля финмодели и RICE) и `research_output` (прослеживаемость источников). Вместе с Block 2 это требует мажорной версии по SemVer; номер оставляет мейнтейнер.
+- Block 4 меняет контракты `eval_request` (`context_artifacts` — массив), `flight_log` (условно обязательные счётчики), `business_requirements` (`masking_exception`, SLA) и `execution_request` (закрытый `output_requirements`). Вместе с Blocks 2–3 это требует мажорной версии; версия в `package.json` не поднимается, номер релиза оставляет мейнтейнер.
 
 ### Fixed
 
@@ -52,6 +62,49 @@
 - Block 3: `passed: true` больше несовместим с `CRITICAL` finding; пример и контракт `quality-evaluator` очищены от `MEDIUM` в `critical_findings`.
 - Block 3: финансовый пример сходится арифметически; `illustrative: true` не отключает проверки CoF/NIM/NII и RICE.
 - Block 3: `source_id` метрик обязан ссылаться на существующий источник; добавлен первичный источник с конкретной страницей.
+- Block 4: после ошибки отсутствующего `project_id` в `examples/` больше не печатается `OK` для того же файла; итоговый exit code остаётся 1.
+- Block 4: `README.md` — опечатка «памяти команд» → «памяти команды»; `docs/01-how-to-use.md` — `88.5` вместо `88,5`.
+- Block 4: `sync-version` получил snapshot-тест на отсутствие заголовка версии в `CHANGELOG.md`; сообщения «already-current» и «pattern-not-matched» уже разделены (пункт аудита устарел).
+
+## [3.0.2] - 2026-11-14
+
+### Added
+
+- `tests/snapshot/sync-version.test.mjs` — snapshot-тесты для `scripts/sync-version.mjs`: patch/minor/major bump, обновление `SECURITY.md`, `package-lock.json` и error cases. Добавлены `vitest.config.mjs` и `tmp-promise`.
+- `WORK_PLAN_v2.md` — план работ по аудиту.
+
+### Changed
+
+- GitHub Actions (`actions/checkout`, `actions/setup-node`) закреплены на полные SHA коммитов для защиты supply-chain.
+- Версия синхронизирована до `3.0.2` во всех 21 файле через `scripts/sync-version.mjs`; post-validation прошла.
+
+## [3.0.1] - 2026-11-14
+
+### Added
+
+- `--self-test` в `scripts/validate-json.mjs` и декларативный манифест `tests/fixtures/invalid/manifest.json`; 10 негативных фикстур для DAG, качества, юридических рисков, Stage-Gate и `project_id`.
+- `QualityWeights` в `schemas/common/definitions.schema.json` и генерация таблицы весов в `docs/04-quality.md` из единого определения.
+- `.npmrc` с `engine-strict=true`; CI использует кэш `setup-node`.
+- `product_strategy`: `allocation_assumption` и `illustrative` для обоснования NII/NIM пассивных продуктов.
+- Раздел «Защита от Prompt Injection и границы Tool-Use» в скилле `hermes-orchestrator`.
+- Пометка о планируемом переходе на настраиваемый `memory_root` в `docs/MAINTAINERS.md` (v3.1.0).
+
+### Changed
+
+- `scripts/sync-version.mjs`: таблица `SECURITY.md` обрабатывается как данные (дедупликация, upgrade/downgrade, без ложных «pattern not found»), добавлена пост-проверка `npm run validate:json`.
+- `scripts/generate-docs.mjs` падает, если для схемы нет маппинга агента; `check-mermaid` сканирует inline-диаграммы в Markdown.
+- CI получил фильтр push-веток, concurrency, timeout и проверку единственной строки `✅ Да` в `SECURITY.md`.
+- `init-memory`: исправлено дерево каталогов и `.gitkeep`; правила `.gitignore`.
+- `dependabot.yml`: игнорируются мажорные обновления `mermaid` начиная с 12.
+- Node.js унифицирован до `>=22.22.2`; в `docs/01-how-to-use.md` добавлены русские эквиваленты ключевых терминов.
+- Описание репозитория и документация tooling приведены в соответствие с фактическими требованиями; версия синхронизирована.
+
+### Fixed
+
+- NaN-guard для суммы весов и `overall_score`; `minItems: 1` для `compliance_audit` и `minLength: 1` для `required_mitigation`.
+- `sync-version`: экранирование точек через `replaceAll`, `JSON.parse`/`JSON.stringify` для bump версии, идемпотентность.
+- `CurrencyAmount` получил `minimum: 0`.
+- Удалён мёртвый код self-test.
 
 ## [3.0.0] - 2026-11-10
 
@@ -134,7 +187,7 @@
 ### Added
 
 - `CODEOWNERS` — владельцы кода для обязательного ревью критических путей (схемы, скиллы, примеры, docs, CI)
-- `dependabot.yml` — еженедельные обновления npm (devDependencies) и GitHub Actions с игнором мажорных версий `mermaid@13` и `markdownlint-cli2@1`
+- `dependabot.yml` — еженедельные обновления npm (devDependencies) и GitHub Actions с игнором мажорных версий `mermaid` (`>= 12.0.0`) и `markdownlint-cli2@1`
 - `scripts/init-memory.mjs` — инициализация структуры трёхуровневой памяти (`memory/cases`, `memory/domain_knowledge`, `memory/legal_precedents`) + `npm run init:memory`
 - `schemas/common/definitions.schema.json` — 22 переиспользуемых определения типов (ProjectId, AgentId, RiskLevel, CurrencyAmount, SourceId, CourtRef и др.)
 - `scripts/generate-docs.mjs` — автогенерация справочников из JSON-схем (`docs/03-artifacts-generated.md`, `docs/schemas-reference.md`)

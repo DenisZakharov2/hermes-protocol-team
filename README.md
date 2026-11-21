@@ -75,7 +75,7 @@
 ├── schemas/                 # 21 контрактная схема Draft-07 + 1 общий файл определений
 ├── scripts/                 # validate-json, check-mermaid, generate-docs, init-memory, sync-version
 ├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
-├── memory/                  # Шаблон памяти команд (.gitkeep, без содержимого)
+├── memory/                  # Шаблон памяти команды (.gitkeep, без содержимого)
 ├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
 ├── CHANGELOG.md             # Keep a Changelog format
 ├── LICENSE                  # MIT

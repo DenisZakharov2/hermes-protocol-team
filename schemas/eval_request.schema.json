@@ -44,7 +44,13 @@
       "description": "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса."
     },
     "context_artifacts": {
-      "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Непустой массив ссылок на связанные артефакты (минимум один). Для аудита BRD передавайте product_strategy, research_output, legal_compliance_report и regulatory_checklist, чтобы ось Cross-Artifact Consistency получала полный контекст.",
+      "items": {
+        "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+      }
     },
     "quality_threshold": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"

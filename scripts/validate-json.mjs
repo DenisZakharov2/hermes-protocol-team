@@ -12,26 +12,71 @@ const definitions = JSON.parse(
   fs.readFileSync(path.join(schemasDir, 'common', 'definitions.schema.json'), 'utf8')
 );
 
-const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: false });
+const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: true });
 addFormats(ajv);
 ajv.addSchema(definitions);
 
-// Веса качеств читаем из единого источника — definitions.schema.json (QualityWeights)
-// НОРМАТИВНЫЙ ИСТОЧНИК: examples[0] в QualityWeights используется и валидатором, и генератором docs.
-// Не редактируйте вручную — меняйте только через правку схемы и запуск npm run validate.
-const qualityWeightsDef = definitions.definitions?.QualityWeights;
-if (!qualityWeightsDef || !qualityWeightsDef.examples?.[0]) {
-  console.error('❌ QualityWeights не найден в definitions.schema.json');
-  process.exit(1);
-}
-const QUALITY_WEIGHTS = qualityWeightsDef.examples[0];
+// Единственный нормативный источник весов качества. definitions.schema.json
+// описывает только форму объекта и не хранит значения (иначе появляется второй источник).
+const QUALITY_WEIGHTS_PATH = path.join(schemasDir, 'common', 'quality-weights.json');
+const QUALITY_WEIGHT_KEYS = [
+  'accuracy_and_grounding',
+  'security',
+  'cross_artifact_consistency',
+  'structural_completeness',
+  'practical_executability',
+];
 
-// Самопроверка: сумма весов = 1 (с допуском на float)
-const weightsSum = Object.values(QUALITY_WEIGHTS).reduce((a, b) => a + b, 0);
-if (!Number.isFinite(weightsSum) || Math.abs(weightsSum - 1) > 0.0001) {
-  console.error(`❌ Сумма весов качества = ${weightsSum}, ожидается 1`);
-  process.exit(1);
+function loadQualityWeights() {
+  if (!fs.existsSync(QUALITY_WEIGHTS_PATH)) {
+    console.error(`❌ Не найден файл весов качества: ${QUALITY_WEIGHTS_PATH}`);
+    process.exit(1);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(QUALITY_WEIGHTS_PATH, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${QUALITY_WEIGHTS_PATH}: ${error.message}`);
+    process.exit(1);
+  }
+
+  const weights = parsed.weights;
+  if (!weights || typeof weights !== 'object' || Array.isArray(weights)) {
+    console.error(`❌ ${QUALITY_WEIGHTS_PATH}: поле "weights" должно быть объектом`);
+    process.exit(1);
+  }
+
+  const keys = Object.keys(weights);
+  const missing = QUALITY_WEIGHT_KEYS.filter((key) => !keys.includes(key));
+  const extra = keys.filter((key) => !QUALITY_WEIGHT_KEYS.includes(key));
+  if (missing.length > 0 || extra.length > 0) {
+    console.error(
+      `❌ ${QUALITY_WEIGHTS_PATH}: состав осей не совпадает с ожидаемым (missing: ${missing.join(', ') || '—'}; extra: ${extra.join(', ') || '—'})`
+    );
+    process.exit(1);
+  }
+
+  for (const key of QUALITY_WEIGHT_KEYS) {
+    const value = weights[key];
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
+      console.error(
+        `❌ ${QUALITY_WEIGHTS_PATH}: вес "${key}" должен быть конечным числом в диапазоне 0–1, получено ${value}`
+      );
+      process.exit(1);
+    }
+  }
+
+  const sum = QUALITY_WEIGHT_KEYS.reduce((total, key) => total + weights[key], 0);
+  if (!Number.isFinite(sum) || Math.abs(sum - 1) > 0.0001) {
+    console.error(`❌ Сумма весов качества = ${sum}, ожидается 1 (допуск 0.0001)`);
+    process.exit(1);
+  }
+
+  return weights;
 }
+
+const QUALITY_WEIGHTS = loadQualityWeights();
 
 const RISK_ORDER = {
   LOW: 0,
@@ -759,6 +804,64 @@ function projectAarInvariantErrors(data) {
   return errors;
 }
 
+function flightLogInvariantErrors(data, validators, orchestrationOutput) {
+  const errors = [];
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  const counterFieldByEvent = {
+    SELF_HEALING: 'self_healing_attempt',
+    LEGAL_CHECKIN: 'legal_iteration',
+  };
+  // Последовательность счётчиков ведётся отдельно для каждой пары (event_type, phase):
+  // phase — строка, stage_code здесь не используется.
+  const lastCounterByPhase = new Map();
+  const pendingEscalations = [];
+
+  for (const entry of entries) {
+    const eventType = entry?.event_type;
+    const phase = typeof entry?.phase === 'string' ? entry.phase : String(entry?.phase);
+
+    // Любая последующая запись ERROR/BLOCKED в той же phase закрывает ожидание эскалации.
+    if (eventType === 'ERROR' && entry?.status === 'BLOCKED') {
+      for (let index = pendingEscalations.length - 1; index >= 0; index -= 1) {
+        if (pendingEscalations[index].phase === phase) {
+          pendingEscalations.splice(index, 1);
+        }
+      }
+      continue;
+    }
+
+    const counterField = counterFieldByEvent[eventType];
+    if (!counterField) continue;
+
+    const counter = entry[counterField];
+    // Отсутствие/неверный тип — зона схемы (if/then + integer); инвариант проверяет значения.
+    if (!Number.isInteger(counter)) continue;
+
+    const counterKey = `${eventType}:${phase}`;
+    const expected = (lastCounterByPhase.get(counterKey) ?? 0) + 1;
+    if (counter !== expected) {
+      errors.push(
+        `${counterField} must increase by 1 within phase "${phase}" (expected ${expected}, got ${counter})`
+      );
+    }
+    lastCounterByPhase.set(counterKey, counter);
+
+    // Третья неудачная попытка/итерация требует эскалации: последующего ERROR/BLOCKED
+    // в той же phase или execution_status = ESCALATED у orchestration_output.
+    if (counter === 3 && (entry.status === 'ERROR' || entry.status === 'BLOCKED')) {
+      pendingEscalations.push({ counterField, phase });
+    }
+  }
+
+  if (orchestrationOutput?.execution_status !== 'ESCALATED') {
+    for (const { counterField } of pendingEscalations) {
+      errors.push(`${counterField} 3 failed without escalation`);
+    }
+  }
+
+  return errors;
+}
+
 const invariantChecks = {
   execution_plan: executionPlanInvariantErrors,
   evaluation_report: evaluationReportInvariantErrors,
@@ -768,6 +871,7 @@ const invariantChecks = {
   research_output: researchOutputInvariantErrors,
   product_strategy: productStrategyInvariantErrors,
   project_aar: projectAarInvariantErrors,
+  flight_log: flightLogInvariantErrors,
 };
 
 const schemaFiles = fs
@@ -847,6 +951,7 @@ for (const example of examples) {
     failed += 1;
     console.error(`INVALID CONTRACT ${examplePath}`);
     console.error('  project_id is required in every example');
+    continue;
   }
 
   console.log(`OK         ${examplePath}`);
@@ -1023,6 +1128,16 @@ function checkManifestCoverage(fixtureDir, fixtures, fixtureMap) {
   return ok;
 }
 
+// Паттерны из manifest.json компилируются безопасно: невалидная регулярка должна
+// проваливать фикстуру с понятным сообщением, а не ронять self-test стектрейсом.
+function compileExpectedPattern(pattern) {
+  try {
+    return { regex: new RegExp(pattern) };
+  } catch (error) {
+    return { error: `invalid regular expression /${pattern}/ in manifest.json: ${error.message}` };
+  }
+}
+
 function invariantErrorsForFixture(data, schemaName, validators, invariantChecks) {
   const check = invariantChecks[schemaName];
   if (!check) return '';
@@ -1116,13 +1231,21 @@ function runInvalidFixtures(validators, invariantChecks) {
     const expectations = [];
 
     if (expectedSchemaPattern) {
-      const schemaMatched =
-        !schemaValid && new RegExp(expectedSchemaPattern).test(schemaErrorText);
-      expectations.push({
-        ok: schemaMatched,
-        label: `schema error matching /${expectedSchemaPattern}/`,
-        actual: schemaValid ? 'schema passed' : schemaErrorText,
-      });
+      const compiled = compileExpectedPattern(expectedSchemaPattern);
+      if (compiled.error) {
+        expectations.push({
+          ok: false,
+          label: 'expectedSchemaErrorPattern to be a valid regular expression',
+          actual: compiled.error,
+        });
+      } else {
+        const schemaMatched = !schemaValid && compiled.regex.test(schemaErrorText);
+        expectations.push({
+          ok: schemaMatched,
+          label: `schema error matching /${expectedSchemaPattern}/`,
+          actual: schemaValid ? 'schema passed' : schemaErrorText,
+        });
+      }
     } else {
       expectations.push({
         ok: schemaValid,
@@ -1132,12 +1255,21 @@ function runInvalidFixtures(validators, invariantChecks) {
     }
 
     if (expectedPattern) {
-      const invariantMatched = new RegExp(expectedPattern).test(invariantErrorText);
-      expectations.push({
-        ok: invariantMatched,
-        label: `invariant error matching /${expectedPattern}/`,
-        actual: invariantErrorText || 'no invariant errors',
-      });
+      const compiled = compileExpectedPattern(expectedPattern);
+      if (compiled.error) {
+        expectations.push({
+          ok: false,
+          label: 'expectedErrorPattern to be a valid regular expression',
+          actual: compiled.error,
+        });
+      } else {
+        const invariantMatched = compiled.regex.test(invariantErrorText);
+        expectations.push({
+          ok: invariantMatched,
+          label: `invariant error matching /${expectedPattern}/`,
+          actual: invariantErrorText || 'no invariant errors',
+        });
+      }
     }
 
     const failedExpectations = expectations.filter((expectation) => !expectation.ok);

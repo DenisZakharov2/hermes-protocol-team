@@ -1,0 +1,13 @@
+{
+  "project_id": "FLIGHT_LOG_SCHEMA_NEGATIVE_2026",
+  "agent_id": "hermes-orchestrator",
+  "entries": [
+    {
+      "timestamp": "2026-11-20T10:00:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Попытка Self-Healing без обязательного счётчика"
+    }
+  ]
+}

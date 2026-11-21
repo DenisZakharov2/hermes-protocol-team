@@ -62,7 +62,12 @@ version: 3.0.2
   "target_worker": "multi-source-researcher | research-synthesist | business-analyst | product-manager | legal-compliance-counsel",
   "artifact_type": "research_json | brief_json | brd_document | product_strategy_json | legal_compliance_report",
   "artifact_data": { "REF_TO_ARTIFACT": "DATA" },
-  "context_artifacts": { "ref": "PROJECT_CONTEXT" },
+  "context_artifacts": [
+    { "ref": "cases/{project_id}/artifacts/product_strategy.json" },
+    { "ref": "cases/{project_id}/artifacts/research_output.json" },
+    { "ref": "cases/{project_id}/artifacts/legal_compliance_report.json" },
+    { "ref": "cases/{project_id}/artifacts/regulatory_checklist.json" }
+  ],
   "quality_threshold": 85
 }
 ```

@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCKS 0–3 COMPLETE** — Block 4 next
+**Status:** 🟢 **BLOCKS 0–4 COMPLETE**
 
 ---
 
@@ -108,7 +108,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟡 BLOCK 4: CI, Schemas, Hygiene (Medium/Low)
+## 🟡 BLOCK 4: CI, Schemas, Hygiene (Medium/Low) — ✅ **COMPLETE**
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -120,6 +120,21 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **4.6** | Changelog: no `[3.0.1]`, `[3.0.2]` sections; `Unreleased` contains shipped changes. `_overrides_comment`: fake `CVE-2024-XXXX` ×3. Dependabot: changelog says ignore `mermaid@13`, YAML ignores `>=12`. | `CHANGELOG.md`, `package.json`, `.github/dependabot.yml` | Move shipped items from `Unreleased` → `[3.0.2]` (and `[3.0.1]` if tag exists) with tag date. Replace fake CVEs with real GHSA from `npm audit` or delete comment. Sync Dependabot comment to YAML (`>=12`). Add `sync-version` check: fail if new version header missing in CHANGELOG. |
 | **4.7** | Low: typo "памяти команд" → "памяти команды" in README tree. Validator messages: "version not found" used for both "pattern mismatch" and "already this version" — split. `docs/01-how-to-use.md`: `88,5` vs JSON `88.5`. `output_requirements` not closed (`additionalProperties: false`, `minItems: 1`, `uniqueItems: true`). Self-test: regex compile unchecked, manifest extra entry not error, schema negatives not tested (fixtures must pass schema). Coverage excludes `scripts/` (only tested code). Generator: `NaN%` if weight key missing. | Various | Point fixes. |
 
+### ✅ Block 4 — Definition of Done
+
+- [x] 4.1: веса читаются из `schemas/common/quality-weights.json`; `QualityWeights.examples` удалён; `strictRequired: true`; сумма и состав осей проверяются валидатором и генератором; таблица 25/25/20/15/15 без диффа.
+- [x] 4.2: `context_artifacts` — непустой массив уникальных `ArtifactRef`; пример, skill-контракт, docs и все фикстуры обновлены; пустой массив и дубликат падают.
+- [x] 4.3: `SELF_HEALING`/`LEGAL_CHECKIN` требуют счётчики; последовательность 1→2→3 монотонна; третья неудачная попытка без эскалации отклоняется; позитивная фикстура проходит.
+- [x] 4.4: `99.9%` принимается; `99.9` без `%` и `99%` отклоняются; `data_masking_152_fz: false` без `masking_exception` падает, с исключением — проходит.
+- [x] 4.5: после ошибки отсутствующего `project_id` нет `OK` для этого файла; exit code 1. В текущих схемах `project_id` обязателен, поэтому ветка работает как defense-in-depth.
+- [x] 4.6: секции `[3.0.1]`/`[3.0.2]` восстановлены по тегам; фиктивных CVE нет; политика `mermaid` согласована; тест на отсутствие заголовка версии добавлен.
+- [x] 4.7: опечатка и `88.5` исправлены; `output_requirements` закрыт; regex self-test компилируется безопасно; `scripts/` не исключён из coverage; генератор не даёт `NaN%`.
+- [x] Инварианты Blocks 0–3 сохранены: 11-этапный пайплайн, HITL-гейты, относительные пути `cases/...`, SSRF/allow-list, рекурсия `eval_request`, юридический OPEN-риск, `passed` + CRITICAL, финансовые формулы, прослеживаемость источников.
+- [x] `CHANGELOG.md` обновлён в `[Unreleased]`; `docs/schemas-reference.md` перегенерирован; версия не поднята.
+- [x] `npm test`, `npm run validate`, `npm audit --audit-level=high`, `generate:docs` без диффа — зелёные.
+
+**Устаревшие пункты аудита:** разделение сообщений `sync-version` («already-current» / «pattern-not-matched») уже было в коде; проверки манифеста (лишняя запись и отсутствие записи) и schema-negative фикстур уже реализованы в `checkManifestCoverage`/`runInvalidFixtures`. Переписывать работающий код не потребовалось.
+
 ---
 
 ## 📦 PR Strategy (One PR per Block)
@@ -130,7 +145,7 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **#2** | `fix: enforce HITL approvals for COMPLETED_APPROVED, mandatory 11-stage pipeline, negative fixtures` | `fix/block-1-hitl-pipeline` | `main` | 1.1-1.4 |
 | **#3** | `fix: memory paths (relative + ProjectId pattern), input security (prompt/URL schema), eval_request invariants, gitignore cleanup` | `fix/block-2-security-paths` | `main` | 2.1-2.4 |
 | **#4** | `fix: legal invariant allows REJECTED with open HIGH, quality scoring blocks CRITICAL, financial example recalc` | `fix/block-3-legal-quality` | `main` (после merge #20) | 3.1-3.3 |
-| **#5** | `chore: CI hardening, quality weights extraction, context_artifacts array, SLA pattern, changelog/CVE hygiene, low fixes` | `fix/block-4-ci-hygiene` | `main` | 4.1-4.7 |
+| **#5** | `chore: CI hardening, quality weights extraction, context_artifacts array, SLA pattern, changelog/CVE hygiene, low fixes` | `fix/block-4-ci-hygiene` | `fix/block-3-legal-quality` (после merge #20/#21 — `main`) | 4.1-4.7 |
 
 **Each PR:** passes `npm test && npm run validate` locally before push; CI runs same; no drive-by fixes outside block scope.
 
@@ -225,6 +240,16 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
 | `npm run generate:docs` + diff | ✅ расхождений нет |
 | `git status --short` | ✅ чисто, runtime-память не отслеживается |
+
+Итог Block 4 (ветка `fix/block-4-ci-hygiene`, база `fix/block-3-legal-quality`):
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 16/16 (добавлен sync-version test на отсутствие заголовка CHANGELOG) |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 27 md (0 issues), 3 контрактных блока, self-test 59/59 (54 негативные + 5 позитивных) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет, таблица весов 25/25/20/15/15 |
+| `git status --short` | ✅ только осознанные изменения, runtime-память не отслеживается |
 
 ---
 
