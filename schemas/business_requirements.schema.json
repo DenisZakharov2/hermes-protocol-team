@@ -91,14 +91,21 @@
       ],
       "properties": {
         "data_masking_152_fz": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Маскирование ПДн по 152-ФЗ. Значение false допустимо только при наличии непустого masking_exception с описанием исключения и компенсирующих мер."
+        },
+        "masking_exception": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Описание исключения из маскирования ПДн и компенсирующих мер. Обязательно при data_masking_152_fz: false; передаётся в Legal Check-in и отражается в юридическом заключении."
         },
         "correlation_id_logging": {
           "type": "boolean"
         },
         "sla_availability": {
           "type": "string",
-          "pattern": "^99\\.9\\d+%$"
+          "pattern": "^99\\.9\\d*%$",
+          "description": "Доступность 99.9–99.99… % включительно: принимаются 99.9%, 99.90%, 99.95%, 99.99%."
         },
         "rpo_minutes": {
           "type": "integer",
@@ -109,6 +116,26 @@
           "minimum": 0
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "data_masking_152_fz": {
+                "const": false
+              }
+            },
+            "required": ["data_masking_152_fz"]
+          },
+          "then": {
+            "required": ["masking_exception"],
+            "properties": {
+              "masking_exception": {
+                "$ref": "#/properties/regulatory_nfr/properties/masking_exception"
+              }
+            }
+          }
+        }
+      ],
       "additionalProperties": false
     }
   },

@@ -1,0 +1,11 @@
+{
+  "$comment": "НОРМАТИВНЫЙ ИСТОЧНИК весов качества Hermes Protocol. Единственный файл, где хранятся значения весов: валидатор (scripts/validate-json.mjs) и генератор документации (scripts/generate-docs.mjs) читают только его. Сумма весов должна быть равна 1 с допуском 0.0001.",
+  "version": "1.0.0",
+  "weights": {
+    "accuracy_and_grounding": 0.25,
+    "security": 0.25,
+    "cross_artifact_consistency": 0.2,
+    "structural_completeness": 0.15,
+    "practical_executability": 0.15
+  }
+}

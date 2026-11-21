@@ -22,8 +22,8 @@
     },
     "score-passed-mismatch.json": {
       "schema": "evaluation_report",
-      "expectedErrorPattern": "passed must equal overall_score",
-      "description": "Поле passed не соответствует сравнению overall_score >= quality_threshold"
+      "expectedErrorPattern": "passed must equal .*no CRITICAL",
+      "description": "passed=false при балле выше порога и отсутствии CRITICAL findings — нарушение конъюнкции порога и стоп-крана"
     },
     "risk-critical-not-rejected.json": {
       "schema": "legal_compliance_report",
@@ -38,7 +38,7 @@
     "risk-open-high-mitigation.json": {
       "schema": "legal_compliance_report",
       "expectedErrorPattern": "mitigation_status must not be OPEN for HIGH",
-      "description": "OPEN mitigation_status для HIGH/CRITICAL риска недопустим"
+      "description": "APPROVED_WITH_RESERVATIONS при HIGH + OPEN запрещён: открытая мера допускает только REJECTED"
     },
     "approval-flag-mismatch.json": {
       "schema": "orchestration_output",
@@ -57,8 +57,14 @@
     },
     "artifact-root-traversal.json": {
       "schema": "orchestration_output",
+      "expectedSchemaErrorPattern": "must match pattern",
       "expectedErrorPattern": "artifact_root must not contain \"\\.\\.\" path segments",
-      "description": "artifact_root с сегментом '..' должен быть отклонён (path traversal)"
+      "description": "artifact_root с сегментом '..' отклоняется схемой (относительный путь) и defense-in-depth инвариантом"
+    },
+    "artifact-root-project-mismatch.json": {
+      "schema": "orchestration_output",
+      "expectedErrorPattern": "artifact_root must equal \"cases/.*project_id.*artifacts/\"",
+      "description": "artifact_root должен указывать на каталог текущего project_id, а не другого проекта"
     },
     "plan-completed-without-approval.json": {
       "schema": "execution_plan",
@@ -74,6 +80,198 @@
       "schema": "orchestration_output",
       "expectedErrorPattern": "REJECTED verdict found after final APPROVED",
       "description": "REJECTED после финального APPROVED в stage_gate_history недопустим"
+    },
+    "research-output-ssrf-localhost.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: loopback 127.0.0.1 в sources[].url"
+    },
+    "research-output-ssrf-linklocal.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: link-local 169.254.169.254 в sources[].url"
+    },
+    "research-output-ssrf-private-ip.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: private IP 192.168.1.1 в sources[].url"
+    },
+    "research-output-ssrf-ipv4-mapped.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: IPv4-mapped IPv6 (::ffff:127.0.0.1) в sources[].url"
+    },
+    "research-output-ssrf-cgnat.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: CGNAT 100.64.0.0/10 в sources[].url"
+    },
+    "research-output-ssrf-unique-local-v6.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: unique local IPv6 fc00::/7 в sources[].url"
+    },
+    "research-output-ssrf-linklocal-v6.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: link-local IPv6 fe80::/10 в sources[].url"
+    },
+    "research-output-ssrf-unspecified.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "host.*forbidden",
+      "description": "SSRF: unspecified 0.0.0.0 в sources[].url"
+    },
+    "research-output-url-userinfo.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "must not contain userinfo",
+      "description": "userinfo (user:pass@) в sources[].url"
+    },
+    "research-output-url-ip-literal.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "must not use IP literal",
+      "description": "IP-литерал в sources[].url"
+    },
+    "research-output-url-http-not-https.json": {
+      "schema": "research_output",
+      "expectedSchemaErrorPattern": "must match pattern",
+      "expectedErrorPattern": "must use HTTPS",
+      "description": "HTTP вместо HTTPS в sources[].url (schema-negative + defense-in-depth инвариант)"
+    },
+    "research-output-url-not-in-allowlist.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "not in allow-list",
+      "description": "Домен вне коммитируемой allow-list schemas/common/source-allowlist.json"
+    },
+    "research-output-url-allowlist-lookalike.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "not in allow-list",
+      "description": "Обход allow-list подстрокой: cbr.ru.evil.example не является поддоменом cbr.ru"
+    },
+    "eval-request-unknown-artifact-type.json": {
+      "schema": "eval_request",
+      "expectedSchemaErrorPattern": "must be equal to one of the allowed values",
+      "expectedErrorPattern": "unknown artifact_type",
+      "description": "Неизвестный artifact_type отклоняется enum схемы и явной ошибкой инварианта"
+    },
+    "eval-request-context-artifacts-empty.json": {
+      "schema": "eval_request",
+      "expectedSchemaErrorPattern": "must NOT have fewer than 1 items",
+      "description": "context_artifacts — непустой массив ссылок; пустой массив отклоняется схемой"
+    },
+    "eval-request-context-artifacts-duplicate.json": {
+      "schema": "eval_request",
+      "expectedSchemaErrorPattern": "must NOT have duplicate items",
+      "description": "context_artifacts не должен содержать дубликаты ArtifactRef (uniqueItems)"
+    },
+    "eval-request-non-json-missing-project-id.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "project_id is required for non-JSON artifact_type",
+      "description": "Не-JSON artifact_type (presentation) требует минимальный контракт с project_id"
+    },
+    "eval-request-non-json-project-id-mismatch.json": {
+      "schema": "eval_request",
+      "expectedErrorPattern": "artifact_data.project_id must match eval_request.project_id",
+      "description": "project_id не-JSON артефакта должен совпадать с project_id запроса"
+    },
+    "project-aar-lessons-path-mismatch.json": {
+      "schema": "project_aar",
+      "expectedErrorPattern": "lessons_indexed_to must equal \"cases/.*project_id.*/\"",
+      "description": "lessons_indexed_to должен указывать на каталог текущего project_id"
+    },
+    "execution-request-prompt-too-long.json": {
+      "schema": "execution_request",
+      "expectedSchemaErrorPattern": "must NOT have more than 5000 characters",
+      "description": "user_prompt длиннее 5000 символов (schema-negative)"
+    },
+    "risk-blank-mitigation.json": {
+      "schema": "legal_compliance_report",
+      "expectedErrorPattern": "required_mitigation must be non-empty after trim",
+      "description": "required_mitigation из одних пробелов проходит minLength: 1, но отклоняется инвариантом trim()"
+    },
+    "score-passed-with-critical.json": {
+      "schema": "evaluation_report",
+      "expectedErrorPattern": "passed must equal .*no CRITICAL",
+      "description": "passed=true при балле 90, пороге 85 и CRITICAL finding — стоп-кран обязан дать false"
+    },
+    "product-strategy-cof-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "cof_cost_of_funds_percent.*blended CoF",
+      "description": "cof_cost_of_funds_percent не совпадает со смешанным CoF из базовой/приветственной ставки и доли"
+    },
+    "product-strategy-nim-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "projected_nim_percent.*blended CoF",
+      "description": "projected_nim_percent не совпадает с placement_rate_percent - blended CoF - opex_percent"
+    },
+    "product-strategy-nii-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "projected_nii.*funding_volume_rub",
+      "description": "projected_nii не совпадает с funding_volume_rub × NIM / 100"
+    },
+    "product-strategy-rice-mismatch.json": {
+      "schema": "product_strategy",
+      "expectedErrorPattern": "prioritization_rice.score.*reach",
+      "description": "RICE score не совпадает с reach × impact × confidence / 100 / effort"
+    },
+    "research-output-unknown-source-id.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "does not reference any sources",
+      "description": "Метрика ссылается на несуществующий SRC_99"
+    },
+    "research-output-duplicate-source-id.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "source_id .*is duplicated",
+      "description": "source_id SRC_1 повторяется в sources[]"
+    },
+    "research-output-no-primary-source.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "at least one source with illustrative: false",
+      "description": "Все источники illustrative: true — нет ни одного первичного источника"
+    },
+    "research-output-primary-section-root.json": {
+      "schema": "research_output",
+      "expectedErrorPattern": "specific page, not a section root",
+      "description": "Первичный источник указывает на корень раздела https://www.cbr.ru/ вместо конкретной страницы"
+    },
+    "flight-log-self-healing-missing-counter.json": {
+      "schema": "flight_log",
+      "expectedSchemaErrorPattern": "must have required property 'self_healing_attempt'",
+      "description": "SELF_HEALING требует self_healing_attempt через if/then"
+    },
+    "flight-log-legal-checkin-missing-counter.json": {
+      "schema": "flight_log",
+      "expectedSchemaErrorPattern": "must have required property 'legal_iteration'",
+      "description": "LEGAL_CHECKIN требует legal_iteration через if/then"
+    },
+    "flight-log-self-healing-gap.json": {
+      "schema": "flight_log",
+      "expectedErrorPattern": "self_healing_attempt must increase by 1 within phase",
+      "description": "Пропуск попытки Self-Healing: 1 → 3 нарушает монотонность"
+    },
+    "flight-log-self-healing-duplicate-attempt.json": {
+      "schema": "flight_log",
+      "expectedErrorPattern": "self_healing_attempt must increase by 1 within phase",
+      "description": "Дубликат попытки Self-Healing: 1 → 1 нарушает монотонность"
+    },
+    "flight-log-self-healing-3-without-escalation.json": {
+      "schema": "flight_log",
+      "expectedErrorPattern": "self_healing_attempt 3 failed without escalation",
+      "description": "Третья неудачная попытка Self-Healing без последующего ERROR/BLOCKED и без execution_status = ESCALATED"
+    },
+    "brd-masking-false-without-exception.json": {
+      "schema": "business_requirements",
+      "expectedSchemaErrorPattern": "must have required property 'masking_exception'",
+      "description": "data_masking_152_fz: false требует непустой masking_exception (if/then)"
+    },
+    "execution-request-empty-target-artifacts.json": {
+      "schema": "execution_request",
+      "expectedSchemaErrorPattern": "must NOT have fewer than 1 items",
+      "description": "output_requirements.target_artifacts должен содержать минимум один артефакт"
+    },
+    "execution-request-duplicate-target-artifacts.json": {
+      "schema": "execution_request",
+      "expectedSchemaErrorPattern": "must NOT have duplicate items",
+      "description": "output_requirements.target_artifacts не должен содержать дубликаты (uniqueItems)"
     }
   }
 }

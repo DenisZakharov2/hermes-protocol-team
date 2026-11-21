@@ -1,7 +1,7 @@
 # Руководство Заказчика — как работать с командой Hermes Protocol
 
 > Целевая аудитория: человек (Заказчик), поручающий команде выполнение проекта.  
-> Язык: русский. Версия команды: 3.0.2.
+> Язык: русский. Версия команды: 4.0.0.
 
 ## Содержание
 
@@ -49,7 +49,7 @@
 | Юридическое заключение, матрица рисков, дисклеймеры | `legal-compliance-counsel` | `legal_compliance_report.json` |
 | Бизнес-требования BRD, User Stories с Gherkin, NFR, матрица влияния на ИТ | `business-analyst` | `business_requirements.json` |
 | Презентация / отчет / белая книга / бриф (Marp, PPTX, Typst, HTML) | `research-synthesist` | дайджест в выбранном формате |
-| Отчет аудита по 5 осям качества (балл 0–100, порог 85) | `quality-evaluator` | `evaluation_report.json` |
+| Отчет аудита по 5 осям качества (балл 0–100, `quality_threshold` — типовой пример 85) | `quality-evaluator` | `evaluation_report.json` |
 | Итоговый отчет оркестратора с историей Stage-Gate и пакетом доставки | `hermes-orchestrator` | `orchestration_output.json` |
 | Постпроектный отчет и карта уроков | `hermes-orchestrator` + команда | `project_final_review.md`, `project_aar.json` |
 
@@ -62,7 +62,7 @@
 1. **Формулировать задачу** — проект, домен, требуемые артефакты (`execution_request.json`).
 2. **Утверждать ключевые точки** — план на старте, финальный пакет и эскалации. Промежуточные артефакты доступны для просмотра и не требуют отдельного утверждения, если в плане не указано `approval_required: true`.
 3. **Проверять юридические и регуляторные замечания** — особенно при рисках CRITICAL/HIGH.
-4. **Принимать или отклонять итог** после аудита качества (`quality-evaluator`, балл ≥ 85).
+4. **Принимать или отклонять итог** после аудита качества (`quality-evaluator`, `passed = true`).
 5. **Давать обратную связь 1–5** в фазе AAR для самообучения команды.
 
 Оркестратор ведет бортовой журнал `hermes_flight_log.json`, в котором фиксируются все решения Заказчика.
@@ -77,7 +77,7 @@
 |---|---|
 | Профиль Hermes | Активный профиль (по умолчанию `default`), в котором работают навыки |
 | Навыки (SKILL.md) | Загрузите все 7 навыков из папки `skills/<agent>/SKILL.md` в Hermes |
-| Память команды | Создайте каталоги рантайма командой `npm run init:memory`: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`. Процедурная память — `skills/` и `schemas/`; `{project_id}` создаёт оркестратор |
+| Память команды | Создайте каталоги рантайма командой `npm run init:memory`: локальный шаблон `memory/cases/`, `memory/domain_knowledge/`, `memory/legal_precedents/`. В контрактах пути относительны `memory_root` Hermes: `cases/`, `domain_knowledge/`, `legal_precedents/`. Процедурная память — `skills/` и `schemas/`; `{project_id}` создаёт оркестратор |
 | Интернет для исследователя | Доступ к сети для `multi-source-researcher` (поиск Tier 1/2 источников: cbr.ru, суды, официальная отчетность) |
 | Инструменты верстки | Для презентаций: Marp, python-pptx, Typst — в зависимости от выбранного `output_format` |
 
@@ -171,8 +171,8 @@
 4. Structural Completeness & Depth (15 %)
 5. Practical Executability & Feasibility (15 %)
 
-- Балл ≥ 85 → статус `PASSED`, артефакт переходит к `FINAL_GATE`.
-- Балл < 85 → статус `REJECTED`, список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
+- `passed = true` — только если балл не ниже `quality_threshold` (типовой пример 85) и среди `critical_findings` нет `CRITICAL`; артефакт переходит к `FINAL_GATE`.
+- `passed = false` — балл ниже `quality_threshold` или есть `CRITICAL` finding (стоп-кран, даже при балле выше порога); список `actionable_fixes`, доработка владельцем артефакта (до 3 циклов). Регуляторные дефекты (код `REG_*`) после доработки проходят повторный Legal Check-in соответствующего этапа: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`.
 
 ### Шаг 10. Финальное одобрение и передача пакета
 
@@ -185,7 +185,7 @@
 - фиксирует вашу оценку 1–5 и комментарии;
 - составляет `project_aar.json` с патчами скиллов (`skill_patches`);
 - генерирует `project_final_review.md`;
-- консолидирует уроки: `hermes-orchestrator` пишет эпизодическую память `/memory/cases/{project_id}/`, `legal-compliance-counsel` — подраздел прецедентов `/memory/legal_precedents/`.
+- консолидирует уроки: `hermes-orchestrator` пишет эпизодическую память `cases/{project_id}/`, `legal-compliance-counsel` — подраздел прецедентов `legal_precedents/`.
 
 ---
 
@@ -239,7 +239,7 @@
 | `brief_schema.example.json` | Бриф на синтез презентации |
 | `synthesist_output.example.json` | Результат синтеза (Marp-разметка и сноски) |
 | `eval_request.example.json` | Запрос на аудит качества |
-| `evaluation_report.example.json` | Аудит качества (балл 88,5, PASSED, `actionable_fixes`) |
+| `evaluation_report.example.json` | Аудит качества (балл 88.5, `passed: true`, `actionable_fixes`) |
 | `orchestration_output.example.json` | Итоговый отчет оркестратора, `COMPLETED_APPROVED` и `project_aar` |
 | `project_aar.example.json` | Постпроектная рефлексия |
 | `execution_plan.example.json` | Утвержденный план исполнения проекта |
@@ -254,7 +254,7 @@
 | Ситуация | Правило | Лимит | Результат при исчерпании |
 |---|---|---|---|
 | Правовые риски CRITICAL/HIGH | Доработка через владельца артефакта | 3 итерации | Эскаляция Заказчику, статус `ESCALATED` |
-| Качество < 85 ( quality-evaluator) | Self-Healing: доработка владельцем aritfakta | 3 цикла | Эскаляция Заказчику |
+| Качество: `passed = false` (балл ниже порога или `CRITICAL` finding) | Self-Healing: доработка владельцем артефакта | 3 цикла | Эскаляция Заказчику |
 | Синтаксические ошибки JSON | Автоисправление по схеме | 3 попытки | Передача на ручную доработку |
 | Несогласие PM/BA с юристом | Фиксированная арбитражная итерация через оркестратора | — | Неустранимый CRITICAL → эскаляция |
 | Блокировка источника (капча, пейвол) | Статус `NEEDS_ORCHESTRATOR_CLARIFICATION` | — | Оркестратор информирует Заказчика |
@@ -279,7 +279,7 @@
 
 - [ ] Hermes Agent запущен, профиль активен
 - [ ] Все 7 навыков загружены (`skills/*/SKILL.md`)
-- [ ] Каталоги рантайма памяти созданы: `/memory/cases/`, `/memory/domain_knowledge/`, `/memory/legal_precedents/`; процедурная память — `skills/` и `schemas/`
+- [ ] Каталоги рантайма памяти созданы (`npm run init:memory`); контракты используют `cases/`, `domain_knowledge/`, `legal_precedents/` относительно `memory_root`; процедурная память — `skills/` и `schemas/`
 - [ ] Составлен `execution_request.json` с проектом, доменом и требуемыми артефактами
 - [ ] Назначен Stage-Gate-ответственный (вы или уполномоченный сотрудник)
 - [ ] Ознакомились с дисклеймером (раздел 11 README): юридические выводы агентов не заменяют адвокатскую консультацию

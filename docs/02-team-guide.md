@@ -1,7 +1,7 @@
 # Справочник по агентам Hermes Protocol — роли, контракты, границы
 
 > Источник: папка `skills/` (файлы `SKILL.md` каждого агента) и `Hermes_Protocol_Constitution.md`.  
-> Версия: 3.0.2.
+> Версия: 4.0.0.
 
 ## 1. hermes-orchestrator — агент-оркестратор (руководитель DAG)
 
@@ -63,7 +63,7 @@
 ### Контракты
 
 - Вход: `product_brief.json` (task_id, project_id, product_type, bank_context, market_data → research_output.json)
-- Выход: `product_strategy.json` (product_concept, financial_model, regulatory_guardrails, prioritization_rice)
+- Выход: `product_strategy.json` (product_concept, financial_model с явными допущениями, regulatory_guardrails, prioritization_rice с компонентами RICE)
 - Журнал: `pm_flight_log.json`
 
 ---
@@ -79,7 +79,7 @@
 - Федеральные законы: канонический перечень — [`legal-stack.md`](legal-stack.md). Банковский контур: 395-1 (ст. 26 — банковская тайна), 152 (ПДн), 115 (ПОД/ФТ), 2300-1 (ЗПП), 38 (реклама), 63 (ЭП), 161 (НПС), 39 (РЦБ), 353 (потребительский кредит); 75 и 4015-1 — только при наличии соответствующей компоненты; 102 — только ипотека (залог недвижимости).
 - Акты ЦБ РФ: ИН-018-59/4, ИН-011-54/31; МР-19, МР-22; Положения 821-П, 757-П, 850-П, 851-П, 762-П, 683-П.
 - ГОСТ Р 57580.1-2017, ГОСТ Р 57580.2-2018, стандарты СРО.
-- NFR: доступность 99.9x %, маскирование ПДн, логирование с Correlation ID, RPO/RTO.
+- NFR: доступность 99.9–99.99… % (`sla_availability`), маскирование ПДн, логирование с Correlation ID, RPO/RTO. Если `data_masking_152_fz: false`, обязателен непустой `masking_exception` с исключением и компенсирующими мерами; исключение передаётся в Legal Check-in и фиксируется в юридическом заключении.
 
 ### Контракты
 
@@ -102,12 +102,14 @@
 - 🟡 **MEDIUM** — риск претензий контролирующих органов, точечная корректировка.
 - 🟢 **LOW** — несущественные, закрываются дисклеймерами.
 
+`required_mitigation` обязателен для каждого пункта аудита (непустой после `trim()`). Если при `HIGH`/`CRITICAL` мера открыта (`mitigation_status: OPEN`), допустим только `legal_status: REJECTED`: утверждение пакета запрещено, а отклонение фиксирует открытый риск честно.
+
 ### Контракты
 
 - Вход: `legal_review_request.json` (project_id, product_concept → product_strategy.json, business_requirements опционально, jurisdiction: Russian Federation)
 - Выход: `legal_compliance_report.json` (legal_status, overall_risk_score, compliance_audit с regulation/status/risk_level/issue/judicial_precedent/required_mitigation, contract_disclaimers_required)
 - Журнал: `legal_flight_log.json`
-- Память прецедентов: `/memory/legal_precedents/`
+- Память прецедентов: `legal_precedents/`
 
 ---
 
@@ -148,15 +150,17 @@
 | 4 | Structural Completeness & Depth | 15 % | Gherkin, NFR, 6-актная презентация, сносочное цитирование |
 | 5 | Practical Executability & Feasibility | 15 % | Реалистичность внедрения в АБС/ДБО, SLA, RPO/RTO |
 
-### Порог
+### Порог и вердикт
 
-- `overall_score ≥ 85` → `PASSED`
-- `< 85` → `REJECTED`, `actionable_fixes`, Self-Healing (до 3 попыток). Регуляторные дефекты (`REG_*`) — повторный Legal Check-in.
+- Единственный вердикт качества — boolean `passed`.
+- `passed = true` только если `overall_score >= quality_threshold` и среди `critical_findings` нет `CRITICAL`.
+- `passed = false` — балл ниже порога или любой `CRITICAL` finding (стоп-кран даже при балле выше порога); `actionable_fixes`, Self-Healing (до 3 попыток). Регуляторные дефекты (`REG_*`) — повторный Legal Check-in.
+- `quality_threshold` — поле контракта (0–100); 85 — типовой пример.
 
 ### Контракты
 
-- Вход: `eval_request.json` (artifact_type, artifact_data, context_artifacts, quality_threshold)
-- Выход: `evaluation_report.json` (overall_score, score_breakdown, critical_findings с кодом REG_*, actionable_fixes)
+- Вход: `eval_request.json` (artifact_type, artifact_data, `context_artifacts[]` — непустой массив уникальных ссылок на связанные артефакты, quality_threshold)
+- Выход: `evaluation_report.json` (overall_score, score_breakdown, passed, critical_findings только HIGH/CRITICAL, actionable_fixes)
 - Журнал: `evaluator_flight_log.json`
 
 ---
@@ -164,3 +168,5 @@
 ## 8. Бортовой журнал (flight log)
 
 Каждый агент ведет собственный журнал `*_flight_log.json` с фиксацией: времени фаз, статусов передач контекста, решений Заказчика на Stage-Gate, итераций доработок, логов ошибок. Оркестратор ведет общий `hermes_flight_log.json`. Журналы — первичный источник при расследовании инцидентов и аудите.
+
+Для событий `SELF_HEALING` обязателен `self_healing_attempt`, для `LEGAL_CHECKIN` — `legal_iteration`. В рамках одной `phase` счётчики возрастают строго на 1 (1 → 2 → 3); третья неудачная попытка требует последующей записи `ERROR`/`BLOCKED` в той же фазе либо `execution_status: ESCALATED` в `orchestration_output`.

@@ -1,7 +1,7 @@
 ---
 name: product-manager
 description: "Разработчик финансовых продуктов, услуг и стратегий"
-version: 3.0.2
+version: 4.0.0
 ---
 
 # Product Manager & Financial Strategist skill (product-manager)
@@ -19,7 +19,7 @@ version: 3.0.2
 5. Алгоритм работы и порядок взаимодействия с агентом-оркестратором hermes-orchestrator
 6. Ведение бортового журнала и фиксация действий
 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
-   А. Память прецедентов и накопление опыта (/memory/cases/)
+   А. Память прецедентов и накопление опыта (cases/)
    Б. Постпроектная рефлексия (AAR) и обновление правил
 
 ---
@@ -79,10 +79,15 @@ version: 3.0.2
     "tariff_structure": { "base_rate_percent": 10, "welcome_rate_percent": 14, "mgs_percent": 10 }
   },
   "financial_model": {
-    "projected_nii": 150000000,
-    "projected_nim_percent": 4.5,
+    "funding_volume_rub": 5000000000,
+    "welcome_rate_share_percent": 25,
+    "placement_rate_percent": 13,
+    "opex_percent": 0.5,
+    "projected_nii": 75000000,
+    "projected_nim_percent": 1.5,
     "cof_cost_of_funds_percent": 11,
-    "ltv_cac_ratio": 3.8
+    "ltv_cac_ratio": 3.8,
+    "allocation_assumption": "Размещение в ЦБ РФ / ликвидных гособлигациях под 13% годовых; операционные расходы 0.5 п.п. годовых"
   },
   "regulatory_guardrails": {
     "psk_limit_check": "NOT_APPLICABLE",
@@ -90,9 +95,24 @@ version: 3.0.2
     "cbr_mgs_compliance": "PASSED",
     "not_applicable_reason": "Продукт — вклад до востребования, не кредит: ПСК и МПЛ не применяются."
   },
-  "prioritization_rice": { "score": 84.5 }
+  "prioritization_rice": {
+    "reach": 130000,
+    "impact": 1,
+    "confidence_percent": 65,
+    "effort": 1000,
+    "score": 84.5
+  }
 }
 ```
+
+Финансовая модель проверяется арифметически (в том числе при `illustrative: true`):
+
+- `blended_cof = base_rate_percent × (1 − welcome_rate_share_percent / 100) + welcome_rate_percent × (welcome_rate_share_percent / 100)`; МГС — регуляторный минимум раскрытия, в CoF не входит.
+- `nim = placement_rate_percent − blended_cof − opex_percent`.
+- `nii = funding_volume_rub × nim / 100`.
+- `rice_score = reach × impact × (confidence_percent / 100) / effort`, `effort > 0`.
+
+`cof_cost_of_funds_percent` — смешанная стоимость фондирования, а не базовая ставка. Приветственная ставка выше ставки размещения сама по себе не ошибка, если доля портфеля и смешанный CoF заданы явно.
 
 ## 5. Алгоритм работы и порядок взаимодействия с агентом-оркестратором hermes-orchestrator
 
@@ -110,9 +130,9 @@ version: 3.0.2
 
 `product-manager` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.
 
-### А. Память прецедентов и накопление опыта (/memory/cases/):
+### А. Память прецедентов и накопление опыта (cases/):
 
-- Сохраняет профили успешных продуктов и финмоделей в `/memory/cases/{project_id}/`.
+- Сохраняет профили успешных продуктов и финмоделей в `cases/{project_id}/`.
 
 ### Б. Постпроектная рефлексия (AAR) и обновление правил:
 
@@ -129,6 +149,7 @@ version: 3.0.2
 
 | Версия | Дата | Изменения |
 |--------|------|-----------|
+| Unreleased | 2026-11-20 | Финмодель получила явные допущения (объём, доля приветственной ставки, размещение, opex); RICE хранит компоненты и вычисляемый score |
 | Unreleased | 2026-11-10 | Добавлен раздел «Learned Guardrails»; имя секции унифицировано для AAR |
 | 2.1.0 | 2026-10-18 | Синхронизация с релизом 2.1.0, обновлены контракты |
 | 2.0.0 | 2026-10-17 | Первая версия скилла в составе Hermes Protocol v2 |

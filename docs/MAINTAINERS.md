@@ -78,11 +78,11 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 
 ## 4. Релизы и версии
 
-- Версия команды — `3.0.2` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `4.0.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v3.0.2 -m "Hermes Protocol 3.0.2" && git push origin v3.0.2`.
+- Тег: `git tag -a v4.0.0 -m "Hermes Protocol 4.0.0" && git push origin v4.0.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## 5. Известные технические долги / плановые улучшения
 
-- **v3.1.0**: Переход на конфигурируемый `memory_root` вместо абсолютных путей `/memory/...` (см. `README.md`, `scripts/init-memory.mjs`). Требует обновления документации, скиллов и runtime Hermes Agent.
+- **v3.1.0 (Block 2)**: контракты переведены на относительные пути `cases/...` от `memory_root`; `scripts/init-memory.mjs` создаёт локальный шаблон `memory/` и runtime-копию allow-list. Решение по SemVer (минор или мажор) фиксируется мейнтейнером в PR и [`CHANGELOG.md`](../CHANGELOG.md).

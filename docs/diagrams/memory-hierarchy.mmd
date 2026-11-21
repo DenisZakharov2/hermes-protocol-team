@@ -1,4 +1,5 @@
 %% Трехуровневая память Hermes Protocol
+%% Пути каталогов рантайма относительны сконфигурированного memory_root.
 
 flowchart LR
     subgraph PM["1. Процедурная память (Procedural)"]
@@ -8,12 +9,12 @@ flowchart LR
     end
 
     subgraph EM["2. Эпизодическая память и память прецедентов (Episodic & Case)"]
-        EM1["/memory/cases/{project_id}/ — история успешных проектов (пишет hermes-orchestrator после AAR)"]
-        EM2["/memory/legal_precedents/ — подраздел эпизодической памяти: судебная практика (пишет legal-compliance-counsel)"]
+        EM1["cases/{project_id}/ — история успешных проектов (пишет hermes-orchestrator после AAR)"]
+        EM2["legal_precedents/ — подраздел эпизодической памяти: судебная практика (пишет legal-compliance-counsel)"]
     end
 
     subgraph SM["3. Семантическая память (Semantic)"]
-        SM1["/memory/domain_knowledge/ — семантическая память (пишет сопровождающий домена)"]
+        SM1["domain_knowledge/ — семантическая память (пишет сопровождающий домена)"]
         SM2[Нормативные чек-листы: ФЗ 395-1, 152, 115, 353; акты ЦБ РФ; ГОСТ Р 57580]
     end
 

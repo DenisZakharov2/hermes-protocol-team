@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 3.0.2 — действующая
+> **Статус:** версия 4.0.0 — действующая
 >
 > **Лицензия:** MIT
 >
@@ -24,7 +24,7 @@
 
 - **Ноль галлюцинаций** — каждая цифра и норма права обоснованы первичным источником
 - **Stage-Gate HITL** — план утверждается один раз на `PLAN_APPROVAL`; повторно — `FINAL_GATE`, эскалации и этапы с `approval_required: true`
-- **Triple-Gate контроль** — синтаксис → правовая экспертиза → смысловой аудит (порог ≥ 85)
+- **Triple-Gate контроль** — синтаксис → правовая экспертиза → смысловой аудит (`quality_threshold` + стоп-кран `CRITICAL`)
 - **Централизованная диспетчеризация** — никаких прямых передач между воркерами
 - **Self-Healing** — до 3 итераций автоисправления, затем эскалация
 - **AAR** — постпроектная рефлексия обязательна
@@ -47,11 +47,11 @@
 
 ## Быстрый старт для Заказчика
 
-1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `/memory/cases/{project_id}/` и её подразделе `/memory/legal_precedents/`; семантическая — в `/memory/domain_knowledge/`. *Примечание: в v3.0.0 пути абсолютные; в v3.1.0+ станут относительными от конфигурируемого `memory_root`.*
+1. **Подготовьте окружение:** установите Hermes Agent, загрузите скиллы из `skills/`, создайте каталоги рантайма памяти командой `npm run init:memory`. Процедурная память хранится в `skills/` и `schemas/`; эпизодическая — в `cases/{project_id}/` и её подразделе `legal_precedents/`; семантическая — в `domain_knowledge/`. Пути в контрактах относительны `memory_root` Hermes; локальный шаблон создаётся в `memory/`.
 2. **Оформите запрос:** составьте `execution_request.json` (пример в `examples/`) — описание проекта, домен (RETAIL_BANKING / INVESTMENT / PAYMENTS), требуемые артефакты.
 3. **Утвердите план:** оркестратор вернёт `execution_plan.json` и DAG — проверьте этапы и ответственных, дайте одобрение на Stage-Gate 1.
 4. **Мониторьте прогресс:** промежуточные артефакты (исследование, стратегия, BRD, юр. заключение, презентация) доступны для просмотра. Утверждение требуется на `FINAL_GATE`, при эскалации и для этапов с `approval_required: true`.
-5. **Примите аудит качества:** `quality-evaluator` выдаст `evaluation_report.json`. Score ≥ 85 — артефакт к вам; < 85 — Self-Healing (до 3 итераций).
+5. **Примите аудит качества:** `quality-evaluator` выдаст `evaluation_report.json`. `passed = true` — если балл не ниже `quality_threshold` и нет `CRITICAL` findings; иначе Self-Healing (до 3 итераций).
 6. **Подпишите финал:** после финального Stage-Gate получите пакет `final_package` + отчет AAR.
 
 ---
@@ -75,7 +75,7 @@
 ├── schemas/                 # 21 контрактная схема Draft-07 + 1 общий файл определений
 ├── scripts/                 # validate-json, check-mermaid, generate-docs, init-memory, sync-version
 ├── skills/                  # 7 SKILL.md (операционные инструкции агентов)
-├── memory/                  # Шаблон памяти команд (.gitkeep, без содержимого)
+├── memory/                  # Шаблон памяти команды (.gitkeep, без содержимого)
 ├── Hermes_Protocol_Constitution.md  # Главный руководящий документ
 ├── CHANGELOG.md             # Keep a Changelog format
 ├── LICENSE                  # MIT
@@ -103,7 +103,7 @@
 
 - **Hermes Agent** с активным профилем
 - **Загрузчик скиллов** — `skills/<agent>/SKILL.md`
-- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`/memory/cases/{project_id}/`, подраздел `/memory/legal_precedents/`), семантическая (`/memory/domain_knowledge/`). *Примечание: в v3.0.0 пути абсолютные; в v3.1.0+ станут относительными от конфигурируемого `memory_root`.*
+- **Память:** три уровня — процедурная (`skills/`, `schemas/`), эпизодическая и память прецедентов (`cases/{project_id}/`, подраздел `legal_precedents/`), семантическая (`domain_knowledge/`). Пути в контрактах относительны `memory_root` Hermes; локальный шаблон — `memory/` (см. `npm run init:memory`).
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
 - **Node.js 22.22.2+** — только для локальной валидации: `npm ci && npm run validate` (в CI используется Node 22)

@@ -1,0 +1,30 @@
+{
+  "project_id": "FLIGHT_LOG_VALID_2026",
+  "agent_id": "hermes-orchestrator",
+  "entries": [
+    {
+      "timestamp": "2026-11-20T12:00:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Первая попытка Self-Healing",
+      "self_healing_attempt": 1
+    },
+    {
+      "timestamp": "2026-11-20T12:10:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Вторая попытка Self-Healing",
+      "self_healing_attempt": 2
+    },
+    {
+      "timestamp": "2026-11-20T12:20:00Z",
+      "phase": "legal_checkin",
+      "event_type": "LEGAL_CHECKIN",
+      "status": "OK",
+      "details": "Первая итерация Legal Check-in",
+      "legal_iteration": 1
+    }
+  ]
+}

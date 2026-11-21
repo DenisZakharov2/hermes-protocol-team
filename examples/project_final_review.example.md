@@ -1,7 +1,7 @@
 # Итоговый отчёт по проекту (project_final_review)
 
 > Шаблон итогового отчёта фазы AAR. Разделы соответствуют [`docs/05-aar.md`](../docs/05-aar.md) §4.
-> Оркестратор копирует файл в `/memory/cases/{project_id}/project_final_review.md` и подставляет фактические данные проекта вместо значений примера `SAV_DEP_2026_01`.
+> Оркестратор копирует файл в `cases/{project_id}/project_final_review.md` и подставляет фактические данные проекта вместо значений примера `SAV_DEP_2026_01`.
 > Числовые значения ниже взяты из примеров `examples/*.example.json` того же сквозного проекта; заглушек нет.
 
 ## 1. Паспорт проекта
@@ -59,14 +59,14 @@
 
 | Артефакт | Overall Quality Score | Порог | Вердикт |
 |---|---|---|---|
-| `business_requirements.json` | 88.5 | 85 | `PASSED` |
+| `business_requirements.json` | 88.5 | 85 | `passed: true` |
 | `product_strategy.json` | — | 85 | Утверждён в составе финального пакета |
 | `legal_compliance_report.json` | — | 85 | Утверждён в составе финального пакета |
 | `synthesist_output.json` | — | 85 | Утверждён в составе финального пакета |
 | `evaluation_report.json` | — | 85 | Утверждён в составе финального пакета |
 | `project_aar.json` | — | 85 | Утверждён в составе финального пакета |
 
-Балл 88.5 с порогом 85 и вердикт `PASSED` относятся к единственному отчёту аудита, приведённому в поставке, — `evaluation_report.example.json` по `business_requirements.json`. Отдельных отчётов `quality-evaluator` по остальным артефактам в поставке нет, поэтому для них баллы не указаны: они утверждены в составе финального пакета на `FINAL_GATE`.
+Балл 88.5 с порогом 85 и вердиктом `passed: true` относятся к единственному отчёту аудита, приведённому в поставке, — `evaluation_report.example.json` по `business_requirements.json`. Отдельных отчётов `quality-evaluator` по остальным артефактам в поставке нет, поэтому для них баллы не указаны: они утверждены в составе финального пакета на `FINAL_GATE`.
 
 Zero Critical Legal Risks: подтверждено заключением `legal_compliance_report.json` — максимальный уровень риска `MEDIUM`, единственное замечание (`38-ФЗ`, размер шрифта приветственной ставки и МГС) закрыто, `mitigation_status: DONE`, статус `APPROVED_WITH_RESERVATIONS`.
 
@@ -83,7 +83,7 @@ First-Time Right Rate (FTR): по подтверждённым данным чи
 | Итоговый дайджест синтеза | [`synthesist_output.example.json`](synthesist_output.example.json) |
 | Постпроектная рефлексия | [`project_aar.example.json`](project_aar.example.json) |
 
-Сам отчёт размещается рядом с артефактами — `/memory/cases/SAV_DEP_2026_01/project_final_review.md`.
+Сам отчёт размещается рядом с артефактами — `cases/SAV_DEP_2026_01/project_final_review.md`.
 
 ## 6. Затраченные ресурсы
 

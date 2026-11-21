@@ -1,0 +1,18 @@
+{
+  "task_id": "REQ_RES_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "key_takeaways": [
+    "test"
+  ],
+  "quantifiable_metrics": [],
+  "conflicts_and_limitations": [],
+  "sources": [
+    {
+      "source_id": "SRC_1",
+      "url": "https://127.0.0.1/",
+      "tier_level": "TIER_1",
+      "reliability_score": 0.9,
+      "illustrative": false
+    }
+  ]
+}

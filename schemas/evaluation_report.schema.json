@@ -34,7 +34,8 @@
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
     },
     "passed": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Единственный вердикт качества. true только если overall_score >= quality_threshold и среди critical_findings нет находок уровня CRITICAL; любой CRITICAL даёт false даже при балле выше порога."
     },
     "score_breakdown": {
       "type": "object",
@@ -76,6 +77,7 @@
     },
     "critical_findings": {
       "type": "array",
+      "description": "Только находки уровня HIGH или CRITICAL. MEDIUM/LOW-замечания переносятся в actionable_fixes.",
       "items": {
         "type": "object",
         "required": [
@@ -90,7 +92,12 @@
             "type": "string"
           },
           "severity": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/RiskLevel"
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "CRITICAL"
+            ],
+            "description": "Уровень находки. CRITICAL — стоп-кран: passed обязан быть false."
           },
           "field": {
             "type": "string"

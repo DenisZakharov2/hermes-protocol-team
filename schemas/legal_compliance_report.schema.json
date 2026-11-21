@@ -71,7 +71,7 @@
           "required_mitigation": {
             "type": "string",
             "minLength": 1,
-            "description": "Конкретная мера смягчения риска."
+            "description": "Конкретная мера смягчения риска. Формулировка должна быть непустой после trim(): строка из одних пробелов недопустима (проверяется scripts/validate-json.mjs)."
           },
           "mitigation_status": {
             "type": "string",
@@ -79,7 +79,7 @@
               "OPEN",
               "DONE"
             ],
-            "description": "Статус исполнения required_mitigation. При OPEN пакет не передаётся в синтез."
+            "description": "Статус исполнения required_mitigation. OPEN при HIGH/CRITICAL означает, что пакет нельзя утверждать (APPROVED/APPROVED_WITH_RESERVATIONS), но можно отклонить (REJECTED): отклонение — честная фиксация открытого риска."
           }
         },
         "additionalProperties": false,
@@ -101,7 +101,12 @@
             "then": {
               "required": [
                 "mitigation_status"
-              ]
+              ],
+              "properties": {
+                "mitigation_status": {
+                  "$ref": "#/properties/compliance_audit/items/properties/mitigation_status"
+                }
+              }
             }
           }
         ]

@@ -1,0 +1,22 @@
+{
+  "project_id": "FLIGHT_LOG_DUPLICATE_2026",
+  "agent_id": "hermes-orchestrator",
+  "entries": [
+    {
+      "timestamp": "2026-11-20T10:30:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Первая попытка Self-Healing",
+      "self_healing_attempt": 1
+    },
+    {
+      "timestamp": "2026-11-20T10:40:00Z",
+      "phase": "self_healing",
+      "event_type": "SELF_HEALING",
+      "status": "OK",
+      "details": "Дубликат номера попытки вместо второй",
+      "self_healing_attempt": 1
+    }
+  ]
+}

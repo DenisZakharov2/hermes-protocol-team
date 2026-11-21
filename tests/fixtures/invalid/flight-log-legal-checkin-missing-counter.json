@@ -1,0 +1,13 @@
+{
+  "project_id": "FLIGHT_LOG_SCHEMA_NEGATIVE_2026",
+  "agent_id": "legal-compliance-counsel",
+  "entries": [
+    {
+      "timestamp": "2026-11-20T10:05:00Z",
+      "phase": "legal_checkin",
+      "event_type": "LEGAL_CHECKIN",
+      "status": "OK",
+      "details": "Итерация Legal Check-in без обязательного счётчика"
+    }
+  ]
+}

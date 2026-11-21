@@ -1,7 +1,7 @@
 ---
 name: hermes-orchestrator
 description: "Ведущий агент-оркестратор мультиагентной команды Hermes Protocol"
-version: 3.0.2
+version: 4.0.0
 ---
 
 # Hermes Orchestrator Agent skill (hermes-orchestrator)
@@ -53,7 +53,7 @@ version: 3.0.2
 4. **Организация Triple-Gate Control & Self-Healing Loop**:
    - Синтаксический контроль через валидацию по JSON-схеме (до 3 попыток автоисправления).
    - Правовой Check-in (`legal-compliance-counsel`) с ограничением до 3 итераций доработок. При неисправимых критических рисках — эскалация Человеку.
-   - Смысловой аудит Критиком (`quality-evaluator`). При `overall_score < 85` — запуск цикла Self-Healing. При устранении правовых замечаний — повторная отправка на Legal Check-in.
+   - Смысловой аудит Критиком (`quality-evaluator`). При `passed = false` (балл ниже `quality_threshold` или `CRITICAL` finding) — запуск цикла Self-Healing. При устранении правовых замечаний — повторная отправка на Legal Check-in.
 5. **Проведение AAR и консолидация памяти**: Запуск рефлексии после сдачи проекта в соответствии с **Глобальной Конституцией Непрерывного Развития Hermes Protocol**.
 
 ### Б. Не входит в компетенцию:
@@ -85,7 +85,7 @@ version: 3.0.2
 ```json
 {
   "project_id": "STRING",
-  "artifact_root": "/memory/cases/{project_id}/artifacts/",
+  "artifact_root": "cases/{project_id}/artifacts/",
   "execution_status": "COMPLETED_APPROVED | REJECTED | ESCALATED | STOPPED | PENDING_HUMAN",
   "stage_gate_history": [
     { "stage": 1, "approved_by_human": true, "human_verdict": "APPROVED | REJECTED | NEEDS_REWORK", "timestamp": "2026-10-03T10:00:00Z" }
@@ -120,7 +120,7 @@ version: 3.0.2
    - При обнаружении рисков категории `CRITICAL` или `HIGH` — доработка в `research-synthesist` (до 3 итераций), затем повторный `LEGAL_SYNTHESIS`.
 6. **`QUALITY_AUDIT` и Self-Healing**:
    - Направить скомпонованный пакет в `quality-evaluator` только после `LEGAL_SYNTHESIS`.
-   - В случае `overall_score < 85` сформировать задачу на доработку владельцу артефакта — соответствующему воркеру, не напрямую к юристу (максимум 3 цикла Self-Healing).
+   - В случае `passed = false` (балл ниже `quality_threshold` или `CRITICAL` finding) сформировать задачу на доработку владельцу артефакта — соответствующему воркеру, не напрямую к юристу (максимум 3 цикла Self-Healing).
    - Если дефект регуляторный/юридический (код `REG_*`, риск `CRITICAL`/`HIGH`), после доработки повторить Legal Check-in того контура, к которому относится дефект: `LEGAL_CONCEPT`, `LEGAL_BRD` или `LEGAL_SYNTHESIS`. Не запускать AAR и не считать исчерпание лимита успехом.
    - При исчерпании 3 итераций без устранения блока — эскалировать Человеку, статус `execution_status` = `ESCALATED`.
 7. **`FINAL_GATE`**: Передать результаты Человеку на утверждение. Только после явного одобрения статус `execution_status` = `COMPLETED_APPROVED`.
@@ -133,15 +133,15 @@ version: 3.0.2
    - Время начала и завершения каждой фазы DAG-графа.
    - Статусы централизованной передачи контекста между агентами-воркерами.
    - Все решения Человека на этапе Stage-Gate (одобрено / отклонено / отправлено на доработку).
-   - Итерации цикла Self-Healing и правовых согласований (контроль лимита в 3 попытки).
-   - Логи ошибок/сбоев исполнения.
+   - Итерации цикла Self-Healing и правовых согласований (контроль лимита в 3 попытки). Для событий `SELF_HEALING` обязателен `self_healing_attempt`, для `LEGAL_CHECKIN` — `legal_iteration`; в рамках одной `phase` счётчики идут строго 1 → 2 → 3.
+   - Логи ошибок/сбоев исполнения. После неудачной попытки 3 записывается `ERROR` со статусом `BLOCKED` в той же `phase` либо выставляется `execution_status: ESCALATED` у `orchestration_output`.
 
 ## 8. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `hermes-orchestrator` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.
 
-- **Episodic Case Memory**: `/memory/cases/{project_id}/` (сохранение успешных DAG и планов).
-- **Semantic Memory**: `/memory/domain_knowledge/` (чек-листы контроля процессов).
+- **Episodic Case Memory**: `cases/{project_id}/` (сохранение успешных DAG и планов; путь относительно `memory_root`).
+- **Semantic Memory**: `domain_knowledge/` (чек-листы контроля процессов; путь относительно `memory_root`).
 - **AAR & Refactoring**: Проводит рефлексию после завершения проекта и переносит `skill_patches` из `project_aar.json` в раздел `## Learned Guardrails` соответствующего скилла воркера при плановом рефакторинге.
 
 ## Learned Guardrails
@@ -166,12 +166,12 @@ version: 3.0.2
 
 ### 3. Границы Tool-Use для `multi-source-researcher`
 
-- **Разрешённые источники (Tier 1–3):** Официальные госсайты (cbr.ru, gov.ru, суды), авторитетные СМИ/консалтинг, открытая отчётность. Доменные списки — в семантической памяти `/memory/domain_knowledge/sources/`.
+- **Разрешённые источники (Tier 1–3):** Официальные госсайты (cbr.ru, gov.ru, суды), авторитетные СМИ/консалтинг, открытая отчётность. Коммитируемая allow-list — `schemas/common/source-allowlist.json`; runtime-копия — `domain_knowledge/sources/allowlist.json`.
 - **Запрещено:**
   - Поиск/переход на ресурсы с динамическим исполнением кода, подозрительными редиректами, файловые хостинги.
   - Data exfiltration: синтез/агрегация данных с последующей отправкой во внешние эндпоинты (webhook, API, email) — только возврат структурированного `research_output.json` оркестратору.
   - Использование инструментов поиска для сканирования внутренней инфраструктуры, localhost, приватных IP-диапазонов.
-- Валидация URL перед fetch: схема `https://`, домен в allow-list Tier 1–2, отсутствие в block-list.
+- Валидация URL перед fetch: схема `https://`, отсутствие userinfo и IP-литералов, host в allow-list (точное совпадение или поддомен), отсутствие в block-list.
 
 ### 4. Границы Tool-Use для остальных воркеров
 
@@ -191,6 +191,7 @@ version: 3.0.2
 
 | Версия | Дата | Изменения |
 |--------|------|-----------|
+| Unreleased | 2026-11-20 | Self-Healing запускается по `passed = false`, включая CRITICAL finding при балле выше порога |
 | Unreleased | 2026-11-10 | Добавлен раздел «Learned Guardrails»; имя секции унифицировано для AAR |
 | 2.1.0 | 2026-10-18 | Синхронизация с релизом 2.1.0, обновлены контракты |
 | 2.0.0 | 2026-10-17 | Первая версия скилла в составе Hermes Protocol v2 |

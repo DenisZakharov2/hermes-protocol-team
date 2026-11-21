@@ -9,10 +9,10 @@ flowchart TD
             PM["skills/*/SKILL.md — роли и алгоритмы"]
             SC["schemas/ — JSON-контракты"]
         end
-        subgraph Runtime["Каталоги рантайма"]
-            EM["/memory/cases/{project_id}/<br/>эпизодическая память; пишет hermes-orchestrator после AAR"]
-            LM["/memory/legal_precedents/<br/>подраздел эпизодической памяти; пишет legal-compliance-counsel"]
-            SM["/memory/domain_knowledge/<br/>семантическая память; пишет сопровождающий домена"]
+        subgraph Runtime["Каталоги рантайма (относительно memory_root)"]
+            EM["cases/{project_id}/<br/>эпизодическая память; пишет hermes-orchestrator после AAR"]
+            LM["legal_precedents/<br/>подраздел эпизодической памяти; пишет legal-compliance-counsel"]
+            SM["domain_knowledge/<br/>семантическая память; пишет сопровождающий домена"]
         end
     end
 

@@ -4,19 +4,110 @@
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-11-21
+
 ### Added
 
+- `schemas/common/source-allowlist.json` — коммитируемая allow-list доменов для `research_output.sources[].url`. Валидатор проверяет её в CI; `npm run init:memory` создаёт только runtime-копию в `memory/domain_knowledge/sources/allowlist.json`.
+- `scripts/validate-json.mjs`: инвариант `researchOutputInvariantErrors` — HTTPS, запрет userinfo, IP-литералов, loopback/link-local/private диапазонов (включая CGNAT, `fc00::/7`, `fe80::/10` и IPv4-mapped IPv6), allow-list по host после `new URL()` (точное совпадение или поддомен).
+- `schemas/execution_request.schema.json`: `user_prompt` ограничен `minLength: 1`, `maxLength: 5000`; `schemas/flight_log.schema.json`: опциональный `sanitized_user_prompt` (до 5000 символов).
+- `eval_request`: инварианты вложенного артефакта вызываются рекурсивно; неизвестный `artifact_type` отклоняется явно; не-JSON типы (`presentation`, `executive_summary`, `analytical_memo`, `market_research_whitepaper`) получили минимальный контракт с обязательным `project_id`.
+- Негативные фикстуры Block 2: prompt-too-long, unknown artifact type, non-JSON без `project_id`, SSRF (loopback, link-local, private, CGNAT, unique-local/link-local IPv6, IPv4-mapped, `0.0.0.0`), userinfo, IP-литерал, HTTP, домен вне allow-list и lookalike-домен.
+- Негативные фикстуры Block 1: пустая `stage_gate_history` при `COMPLETED_APPROVED`, одноэтапный план, `REJECTED` после финального `APPROVED`, план без утверждения, path traversal в `artifact_root`.
+- `tests/fixtures/invalid/manifest.json`: поле `expectedSchemaErrorPattern` для schema-negative фикстур; self-test запускает инварианты и для них (defense-in-depth).
+- Block 3: позитивные фикстуры `tests/fixtures/valid/` с манифестом; self-test проверяет их на успешное прохождение схемы и инвариантов.
+- Block 3: `product_strategy` — обязательные допущения `funding_volume_rub`, `welcome_rate_share_percent`, `placement_rate_percent`, `opex_percent` и компоненты RICE (`reach`, `impact`, `confidence_percent`, `effort`, `score`).
+- Block 3: инварианты `product_strategy` (blended CoF, NIM, NII, RICE) и `research_output` (уникальные `source_id`, ссылки метрик на источники, минимум один `illustrative: false` с конкретной страницей).
+- Block 3, негативные фикстуры: открытая мера HIGH/CRITICAL запрещает утверждение, но разрешает `REJECTED`; `required_mitigation` из пробелов; `passed: true` с `CRITICAL`; расхождения CoF/NIM/NII/RICE; неизвестный/дублирующийся `source_id`; отсутствие первичного источника; корень раздела вместо страницы.
+- Block 4: `schemas/common/quality-weights.json` — единственный нормативный источник весов качества. `QualityWeights` в общих определениях оставлен только как схема формы, без `examples`.
+- Block 4: фикстуры на пустой/дублирующийся `context_artifacts`, отсутствующие счётчики и нарушение монотонности `flight_log`, эскалацию после третьей неудачной попытки, `masking_exception`, пустой/дублирующийся `target_artifacts`; позитивные фикстуры `flight_log` и BRD.
+- Block 4: `schemas/common/quality-weights.json` и `schemas/common/definitions.schema.json` проверяются `strictRequired: true`; генератор документации падает при сумме отображаемых процентов ≠ 100.
+
+### Changed
+
+- Память в контрактах переведена на относительные пути от `memory_root`: `artifact_root` — `^cases/[A-Z0-9_]+/artifacts/$`, `lessons_indexed_to` — `^cases/[A-Z0-9_]+/$`. Валидатор дополнительно сверяет путь с `project_id`. Обновлены README, Конституция, `docs/`, все семь `skills/*/SKILL.md`, диаграммы и примеры. Ломающее изменение для потребителей контрактов.
+- `scripts/init-memory.mjs` больше не изменяет `.gitignore`; шаблон структуры памяти коммитится, runtime-содержимое игнорируется. Allow-list копируется из `schemas/common/source-allowlist.json`.
 - `product_strategy.schema.json` + `product_strategy.example.json`: поля `allocation_assumption` (обоснование NII/NIM для продуктов-пассивов) и `illustrative` (флаг ознакомительного характера финмодели).
+- Block 3: `evaluation_report` — единственный вердикт `passed`; `critical_findings[].severity` ограничен `HIGH`/`CRITICAL`; любой `CRITICAL` блокирует передачу; `quality_threshold` остаётся полем контракта (85 — типовой пример). Из quality-доков и skills убраны статусы `PASSED`/`REJECTED`.
+- Block 3: `product_strategy.example.json` пересчитан по явным допущениям: blended CoF 11.0 %, NIM 1.5 %, NII 75 000 000 руб. при объёме 5 млрд руб.; RICE хранит компоненты.
+- Block 3: `research_output.example.json` содержит первичный источник `illustrative: false` с конкретной страницей; правила прослеживаемости описаны в схеме и skill исследователя.
 - `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection и границы Tool-Use» — санитизация `user_prompt`, нормализация research query, allow-list источников Tier 1–3, запрет data exfiltration, аудит безопасности в QUALITY_AUDIT.
+- `execution_plan.schema.json`: нормативный `definitions.MandatoryPipeline` — 11 этапов с фиксированным порядком, флагами `approval_required` и минимальными зависимостями. Валидатор читает список из схемы и проверяет полноту и порядок пайплайна.
+- `orchestration_output.schema.json`: `stage_gate_history[].stage_code` стал обязательным. `COMPLETED_APPROVED` требует `APPROVED` на `PLAN_APPROVAL` и `FINAL_GATE`; `REJECTED` после финального `APPROVED` запрещён. Ломающее изменение для потребителей контракта.
+- `vitest` обновлён до 5.1.1; конфиг переведён с удалённого `poolOptions` на `maxWorkers: 1`. Закрыты critical/moderate уязвимости `tinypool` и `@vitest/mocker`.
+- Block 4: `eval_request.context_artifacts` — непустой массив уникальных `ArtifactRef` (`minItems: 1`, `uniqueItems: true`); `ArtifactRef.ref` получил `minLength: 1`. Обновлены пример, контракт `quality-evaluator`, docs и все фикстуры. Ломающее изменение.
+- Block 4: `flight_log` — `SELF_HEALING` требует `self_healing_attempt`, `LEGAL_CHECKIN` — `legal_iteration`; инвариант проверяет последовательность 1→2→3 внутри `phase` и эскалацию после третьей неудачной попытки. Ломающее изменение.
+- Block 4: `business_requirements.regulatory_nfr` — SLA-паттерн `^99\.9\d*%$` принимает три девятки; `data_masking_152_fz: false` требует непустой `masking_exception`. Ломающее изменение.
+- Block 4: `execution_request.output_requirements` закрыт (`additionalProperties: false`), `target_artifacts` — `minItems: 1`, `uniqueItems: true`. Ломающее изменение.
+- Block 4: `CHANGELOG.md` восстановлены релизные секции `[3.0.1]`/`[3.0.2]`; `_overrides_comment` содержит реальные GHSA/CVE; политика `mermaid` синхронизирована с Dependabot (`>= 12.0.0`).
+- Block 4: `vitest.config.mjs` больше не исключает `scripts/` из coverage; self-test безопасно компилирует regex из манифеста.
+- Версия команды повышена до `4.0.0` во всех файлах через `scripts/sync-version.mjs`.
 
-### Planned (v3.1.0 — minor)
+### Breaking Changes
 
-- Миграция абсолютных путей памяти `/memory/cases/...`, `/memory/legal_precedents/`, `/memory/domain_knowledge/` на конфигурируемый `memory_root` с относительными путями в контрактах (`artifact_root`, `lessons_indexed_to`). Требует обновления `schemas/common/definitions.schema.json`, всех ссылок в Constitution, docs, skills, examples. Не смешивается с текущими правками аудита.
+- Переход на относительные пути памяти (`artifact_root`, `lessons_indexed_to`) — ломающее изменение контрактов.
+- Block 3 меняет контракты `evaluation_report` (enum `critical_findings.severity`, вердикт `passed`), `product_strategy` (обязательные поля финмодели и RICE) и `research_output` (прослеживаемость источников).
+- Block 4 меняет контракты `eval_request` (`context_artifacts` — массив), `flight_log` (условно обязательные счётчики), `business_requirements` (`masking_exception`, SLA) и `execution_request` (закрытый `output_requirements`).
 
 ### Fixed
 
+- `tests/fixtures/invalid/execution-request-prompt-too-long.json` содержит валидный JSON с 5001 символом вместо JS-выражения `repeat(5001)`.
+- Self-test различает schema-negative и invariant-negative фикстуры: `maxLength`, `pattern: ^https://`, enum и traversal-паттерны проверяются по `expectedSchemaErrorPattern`.
+- `artifact-root-traversal.json` помечен как schema-negative; инвариант на `..` сохранён как defense-in-depth.
+- `scripts/sync-version.mjs`: идемпотентная работа, дедупликация таблицы `SECURITY.md`, атомарная запись; `package-lock.json` синхронизирован с `package.json`.
+- CI запускает `npm test` и `npm audit --audit-level=high`; таблица поддержки `SECURITY.md` содержит одну строку на версию и одну `✅ Да`.
+- Закрыт HITL-байпас: `COMPLETED_APPROVED` больше не проходит с пустой историей гейтов; план со всеми `COMPLETED` и `approval.status: PENDING` отклоняется; `REJECTED` после финального `APPROVED` запрещён.
+- `artifact_root` с сегментом `..` отклоняется (path traversal).
+- `npm audit --audit-level=high` — 0 уязвимостей.
 - Унифицирована версия Node.js: `>=22.22.2` везде (package.json engines, README badge, README текст, CI workflow).
 - `docs/01-how-to-use.md`: добавлены русские эквиваленты в скобках для ключевых англицизмов (Stage-Gate HITL, Self-Healing, DAG, AAR, Triple-Gate, First-Time Right Rate) при первом упоминании.
+- Block 3: юридический инвариант больше не отклоняет `REJECTED` при `HIGH`/`CRITICAL` + `OPEN`; проверяется, что утверждающие статусы не используются, а `required_mitigation` непуст после `trim()`.
+- Block 3: `passed: true` больше несовместим с `CRITICAL` finding; пример и контракт `quality-evaluator` очищены от `MEDIUM` в `critical_findings`.
+- Block 3: финансовый пример сходится арифметически; `illustrative: true` не отключает проверки CoF/NIM/NII и RICE.
+- Block 3: `source_id` метрик обязан ссылаться на существующий источник; добавлен первичный источник с конкретной страницей.
+- Block 4: после ошибки отсутствующего `project_id` в `examples/` больше не печатается `OK` для того же файла; итоговый exit code остаётся 1.
+- Block 4: `README.md` — опечатка «памяти команд» → «памяти команды»; `docs/01-how-to-use.md` — `88.5` вместо `88,5`.
+- Block 4: `sync-version` получил snapshot-тест на отсутствие заголовка версии в `CHANGELOG.md`; сообщения «already-current» и «pattern-not-matched» уже разделены (пункт аудита устарел).
+
+## [3.0.2] - 2026-11-14
+
+### Added
+
+- `tests/snapshot/sync-version.test.mjs` — snapshot-тесты для `scripts/sync-version.mjs`: patch/minor/major bump, обновление `SECURITY.md`, `package-lock.json` и error cases. Добавлены `vitest.config.mjs` и `tmp-promise`.
+- `WORK_PLAN_v2.md` — план работ по аудиту.
+
+### Changed
+
+- GitHub Actions (`actions/checkout`, `actions/setup-node`) закреплены на полные SHA коммитов для защиты supply-chain.
+- Версия синхронизирована до `3.0.2` во всех 21 файле через `scripts/sync-version.mjs`; post-validation прошла.
+
+## [3.0.1] - 2026-11-14
+
+### Added
+
+- `--self-test` в `scripts/validate-json.mjs` и декларативный манифест `tests/fixtures/invalid/manifest.json`; 10 негативных фикстур для DAG, качества, юридических рисков, Stage-Gate и `project_id`.
+- `QualityWeights` в `schemas/common/definitions.schema.json` и генерация таблицы весов в `docs/04-quality.md` из единого определения.
+- `.npmrc` с `engine-strict=true`; CI использует кэш `setup-node`.
+- `product_strategy`: `allocation_assumption` и `illustrative` для обоснования NII/NIM пассивных продуктов.
+- Раздел «Защита от Prompt Injection и границы Tool-Use» в скилле `hermes-orchestrator`.
+- Пометка о планируемом переходе на настраиваемый `memory_root` в `docs/MAINTAINERS.md` (v3.1.0).
+
+### Changed
+
+- `scripts/sync-version.mjs`: таблица `SECURITY.md` обрабатывается как данные (дедупликация, upgrade/downgrade, без ложных «pattern not found»), добавлена пост-проверка `npm run validate:json`.
+- `scripts/generate-docs.mjs` падает, если для схемы нет маппинга агента; `check-mermaid` сканирует inline-диаграммы в Markdown.
+- CI получил фильтр push-веток, concurrency, timeout и проверку единственной строки `✅ Да` в `SECURITY.md`.
+- `init-memory`: исправлено дерево каталогов и `.gitkeep`; правила `.gitignore`.
+- `dependabot.yml`: игнорируются мажорные обновления `mermaid` начиная с 12.
+- Node.js унифицирован до `>=22.22.2`; в `docs/01-how-to-use.md` добавлены русские эквиваленты ключевых терминов.
+- Описание репозитория и документация tooling приведены в соответствие с фактическими требованиями; версия синхронизирована.
+
+### Fixed
+
+- NaN-guard для суммы весов и `overall_score`; `minItems: 1` для `compliance_audit` и `minLength: 1` для `required_mitigation`.
+- `sync-version`: экранирование точек через `replaceAll`, `JSON.parse`/`JSON.stringify` для bump версии, идемпотентность.
+- `CurrencyAmount` получил `minimum: 0`.
+- Удалён мёртвый код self-test.
 
 ## [3.0.0] - 2026-11-10
 
@@ -99,7 +190,7 @@
 ### Added
 
 - `CODEOWNERS` — владельцы кода для обязательного ревью критических путей (схемы, скиллы, примеры, docs, CI)
-- `dependabot.yml` — еженедельные обновления npm (devDependencies) и GitHub Actions с игнором мажорных версий `mermaid@13` и `markdownlint-cli2@1`
+- `dependabot.yml` — еженедельные обновления npm (devDependencies) и GitHub Actions с игнором мажорных версий `mermaid` (`>= 12.0.0`) и `markdownlint-cli2@1`
 - `scripts/init-memory.mjs` — инициализация структуры трёхуровневой памяти (`memory/cases`, `memory/domain_knowledge`, `memory/legal_precedents`) + `npm run init:memory`
 - `schemas/common/definitions.schema.json` — 22 переиспользуемых определения типов (ProjectId, AgentId, RiskLevel, CurrencyAmount, SourceId, CourtRef и др.)
 - `scripts/generate-docs.mjs` — автогенерация справочников из JSON-схем (`docs/03-artifacts-generated.md`, `docs/schemas-reference.md`)

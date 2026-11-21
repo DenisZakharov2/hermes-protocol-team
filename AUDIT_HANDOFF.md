@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCKS 0–1 COMPLETE** — Block 2 next
+**Status:** 🟢 **BLOCKS 0–4 COMPLETE**
 
 ---
 
@@ -61,7 +61,9 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-## 🟠 BLOCK 2: Memory Paths & Input Security (High)
+## 🟠 BLOCK 2: Memory Paths & Input Security (High) — ✅ **COMPLETE (PR #20)**
+
+**Status:** завершён в `9bde88e` на ветке `fix/block-2-security-paths`, PR [#20](https://github.com/DenisZakharov2/hermes-protocol-team/pull/20). Выбрана модель B (относительные пути). Промт сессии — [`docs/block-2-session-prompt.md`](docs/block-2-session-prompt.md). Отчёт по предыдущим блокам — [`docs/blocks-0-1-report.md`](docs/blocks-0-1-report.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -70,9 +72,23 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **2.3** | `eval_request` validates nested artifact against schema + `project_id` but **skips regulatory invariants** (legal, quality formula). 4 artifact types (`presentation`, `executive_summary`, `analytical_memo`, `market_research_whitepaper`) → early `return`, no `project_id` check. Unknown type = silent pass. | `scripts/validate-json.mjs` (`evalRequestInvariantErrors`, `ARTIFACT_SCHEMA_BY_TYPE`) | After schema validation of `artifact_data`, call `invariantChecks[schemaBase]` if exists. Replace early return for unmapped types with explicit policy: unknown type = validator error (map and enum generated from single source). For non-JSON artifacts, separate tiny contract with required `project_id`. |
 | **2.4** | `init-memory` appends broken `.gitignore` rules: `memory/domain_knowledge/*` ignores the directories themselves (`regulatory`, `nfr_profiles`, `templates`). `!memory/domain_knowledge/*/.gitkeep` doesn't work for new leaves (git can't re-include file in excluded dir). Script silently edits repo file on user machine. | `scripts/init-memory.mjs`, `.gitignore` | **Remove all `.gitignore` writes from init-memory**. Keep only directory creation + `.gitkeep` files. Delete the second block from `.gitignore` (lines 50-56), keep first block (lines 40-44) which is correct. Test with `git check-ignore` in CI. |
 
+### ✅ Block 2 — Definition of Done (PR #20)
+
+- [x] `artifact_root` и `lessons_indexed_to` относительные; путь сверяется с `project_id`, сегмент `..` невозможен
+- [x] В README, Конституции, docs, skills и диаграммах нет абсолютных `/memory/...` как единственной модели
+- [x] `user_prompt` ограничен 5000 символами; `sanitized_user_prompt` описан в `flight_log`
+- [x] URL: HTTPS + SSRF-инвариант + коммитируемая allow-list `schemas/common/source-allowlist.json`, работает в CI
+- [x] `eval_request` рекурсивно проверяет инварианты; неизвестные типы отклоняются явно; не-JSON типы имеют контракт с `project_id`
+- [x] `init-memory` не пишет в `.gitignore`; шаблон памяти коммитится, runtime-содержимое игнорируется
+- [x] Все инварианты и фикстуры Block 1 сохранены (34 негативные фикстуры)
+- [x] `CHANGELOG.md` и документация обновлены; `docs/schemas-reference.md` перегенерирован
+- [x] `npm ci && npm test && npm run validate && npm audit --audit-level=high` — зелёные; CI PR #20 зелёный
+
 ---
 
-## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High)
+## 🟠 BLOCK 3: Legal Invariant & Quality Scoring (High) — ✅ **COMPLETE (PR #21)**
+
+**Status:** завершён в `cb9fe19` на ветке `fix/block-3-legal-quality`, PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) (базируется на Block 2 / PR #20, пока не влитом в `main`). Промт сессии — [`docs/block-3-session-prompt.md`](docs/block-3-session-prompt.md).
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -80,9 +96,19 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **3.2** | Quality scoring: `passed: true` compatible with `CRITICAL` finding. Docs/skills require non-existent status `PASSED` and hardcoded threshold 85. Schema has `quality_threshold` field (0-100), validator compares correctly, but `critical_findings.severity` allows `LOW`, invariant ignores findings. | `schemas/evaluation_report.schema.json`, `scripts/validate-json.mjs` (`evaluationReportInvariantErrors`), `skills/quality-evaluator/SKILL.md`, `docs/02-team-guide.md`, `docs/04-quality.md` | Single word: `passed` (boolean). Remove `PASSED`/`REJECTED` from skills/docs. Invariant: **any `CRITICAL` finding ⇒ `passed = false`** (stop-crane). Restrict `critical_findings.severity` to `HIGH|CRITICAL` (or rename array to `findings` and move `MEDIUM`/`LOW` elsewhere). Threshold 85 = example default in `QualityThreshold`, not second rule. |
 | **3.3** | Financial example math doesn't add up: NIM 4.5% vs spread 2pp (13% placement - 11% CoF). Welcome rate 14% > placement 13% → negative margin but NII +150M. `illustrative: true` doesn't excuse arithmetic. RICE = single number (no components). `source_id` on non-existent source passes. | `examples/product_strategy.example.json`, `examples/research_output.example.json`, `schemas/product_strategy.schema.json` | Recalculate from explicit assumptions: funding volume, welcome-rate share, placement rate, opex. Invariant: `projected_nim_percent` matches formula ±0.05pp, `projected_nii` = volume × NIM. RICE → store components, compute score in validator. `source_id` must reference existing `sources[]` entry. At least one source with `illustrative: false` pointing to specific page (not section root). |
 
+### ✅ Block 3 — Definition of Done
+
+- [x] 3.1: `REJECTED` + `HIGH`/`CRITICAL` + `OPEN` проходит; `APPROVED`/`APPROVED_WITH_RESERVATIONS` + `OPEN` падает; `required_mitigation` из пробелов падает; описания схемы совпадают с кодом.
+- [x] 3.2: `passed` — единственный вердикт качества; `critical_findings.severity` только `HIGH`/`CRITICAL`; любой `CRITICAL` даёт `passed = false`; `PASSED`/`REJECTED` убраны из quality-доков и skills; `quality_threshold` остаётся полем контракта, 85 — только пример.
+- [x] 3.3: финансовый пример сходится по CoF/NIM/NII; RICE считается из компонентов; `source_id` ссылается на существующий источник; есть минимум один `illustrative: false` источник с конкретной страницей; негативные фикстуры покрывают каждое правило.
+- [x] Инварианты и фикстуры Blocks 1–2 сохранены: 11-этапный пайплайн, HITL-гейты, относительные пути `cases/...`, SSRF/allow-list, рекурсия `eval_request`, прежние 34 негативные фикстуры.
+- [x] `CHANGELOG.md` обновлён в `[Unreleased]`; `docs/schemas-reference.md` перегенерирован; версия не поднята.
+- [x] `npm ci && npm test && npm run validate && npm audit --audit-level=high` — зелёные; `generate:docs` без диффа.
+- [x] PR [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) создан в `main` с зависимостью от PR #20 (Block 2).
+
 ---
 
-## 🟡 BLOCK 4: CI, Schemas, Hygiene (Medium/Low)
+## 🟡 BLOCK 4: CI, Schemas, Hygiene (Medium/Low) — ✅ **COMPLETE**
 
 | # | Issue | File(s) | Fix |
 |---|-------|---------|-----|
@@ -94,6 +120,21 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **4.6** | Changelog: no `[3.0.1]`, `[3.0.2]` sections; `Unreleased` contains shipped changes. `_overrides_comment`: fake `CVE-2024-XXXX` ×3. Dependabot: changelog says ignore `mermaid@13`, YAML ignores `>=12`. | `CHANGELOG.md`, `package.json`, `.github/dependabot.yml` | Move shipped items from `Unreleased` → `[3.0.2]` (and `[3.0.1]` if tag exists) with tag date. Replace fake CVEs with real GHSA from `npm audit` or delete comment. Sync Dependabot comment to YAML (`>=12`). Add `sync-version` check: fail if new version header missing in CHANGELOG. |
 | **4.7** | Low: typo "памяти команд" → "памяти команды" in README tree. Validator messages: "version not found" used for both "pattern mismatch" and "already this version" — split. `docs/01-how-to-use.md`: `88,5` vs JSON `88.5`. `output_requirements` not closed (`additionalProperties: false`, `minItems: 1`, `uniqueItems: true`). Self-test: regex compile unchecked, manifest extra entry not error, schema negatives not tested (fixtures must pass schema). Coverage excludes `scripts/` (only tested code). Generator: `NaN%` if weight key missing. | Various | Point fixes. |
 
+### ✅ Block 4 — Definition of Done
+
+- [x] 4.1: веса читаются из `schemas/common/quality-weights.json`; `QualityWeights.examples` удалён; `strictRequired: true`; сумма и состав осей проверяются валидатором и генератором; таблица 25/25/20/15/15 без диффа.
+- [x] 4.2: `context_artifacts` — непустой массив уникальных `ArtifactRef`; пример, skill-контракт, docs и все фикстуры обновлены; пустой массив и дубликат падают.
+- [x] 4.3: `SELF_HEALING`/`LEGAL_CHECKIN` требуют счётчики; последовательность 1→2→3 монотонна; третья неудачная попытка без эскалации отклоняется; позитивная фикстура проходит.
+- [x] 4.4: `99.9%` принимается; `99.9` без `%` и `99%` отклоняются; `data_masking_152_fz: false` без `masking_exception` падает, с исключением — проходит.
+- [x] 4.5: после ошибки отсутствующего `project_id` нет `OK` для этого файла; exit code 1. В текущих схемах `project_id` обязателен, поэтому ветка работает как defense-in-depth.
+- [x] 4.6: секции `[3.0.1]`/`[3.0.2]` восстановлены по тегам; фиктивных CVE нет; политика `mermaid` согласована; тест на отсутствие заголовка версии добавлен.
+- [x] 4.7: опечатка и `88.5` исправлены; `output_requirements` закрыт; regex self-test компилируется безопасно; `scripts/` не исключён из coverage; генератор не даёт `NaN%`.
+- [x] Инварианты Blocks 0–3 сохранены: 11-этапный пайплайн, HITL-гейты, относительные пути `cases/...`, SSRF/allow-list, рекурсия `eval_request`, юридический OPEN-риск, `passed` + CRITICAL, финансовые формулы, прослеживаемость источников.
+- [x] `CHANGELOG.md` обновлён в `[Unreleased]`; `docs/schemas-reference.md` перегенерирован; версия не поднята.
+- [x] `npm test`, `npm run validate`, `npm audit --audit-level=high`, `generate:docs` без диффа — зелёные.
+
+**Устаревшие пункты аудита:** разделение сообщений `sync-version` («already-current» / «pattern-not-matched») уже было в коде; проверки манифеста (лишняя запись и отсутствие записи) и schema-negative фикстур уже реализованы в `checkManifestCoverage`/`runInvalidFixtures`. Переписывать работающий код не потребовалось.
+
 ---
 
 ## 📦 PR Strategy (One PR per Block)
@@ -103,8 +144,8 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 | **#1** | `fix: sync-version idempotency, lockfile via npm version, CI runs tests, SECURITY.md cleanup` | `fix/block-0-corruption` | `main` | 0.1-0.4 |
 | **#2** | `fix: enforce HITL approvals for COMPLETED_APPROVED, mandatory 11-stage pipeline, negative fixtures` | `fix/block-1-hitl-pipeline` | `main` | 1.1-1.4 |
 | **#3** | `fix: memory paths (relative + ProjectId pattern), input security (prompt/URL schema), eval_request invariants, gitignore cleanup` | `fix/block-2-security-paths` | `main` | 2.1-2.4 |
-| **#4** | `fix: legal invariant allows REJECTED with open HIGH, quality scoring blocks CRITICAL, financial example recalc` | `fix/block-3-legal-quality` | `main` | 3.1-3.3 |
-| **#5** | `chore: CI hardening, quality weights extraction, context_artifacts array, SLA pattern, changelog/CVE hygiene, low fixes` | `fix/block-4-ci-hygiene` | `main` | 4.1-4.7 |
+| **#4** | `fix: legal invariant allows REJECTED with open HIGH, quality scoring blocks CRITICAL, financial example recalc` | `fix/block-3-legal-quality` | `main` (после merge #20) | 3.1-3.3 |
+| **#5** | `chore: CI hardening, quality weights extraction, context_artifacts array, SLA pattern, changelog/CVE hygiene, low fixes` | `fix/block-4-ci-hygiene` | `fix/block-3-legal-quality` (после merge #20/#21 — `main`) | 4.1-4.7 |
 
 **Each PR:** passes `npm test && npm run validate` locally before push; CI runs same; no drive-by fixes outside block scope.
 
@@ -163,6 +204,52 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 - [x] CI workflow updated (runs `npm test`, `npm audit --audit-level=high`)
 - [x] `SECURITY.md` matches target table exactly
 - [ ] CHANGELOG.md has `[3.0.3]` section (sync-version should verify header exists) — *deferred to release process*
+
+---
+
+## ✅ Verification log (2026-11-19)
+
+Итоговый `main` после merge Blocks 0–1 и обновления `vitest`:
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 24 md (0 issues), 3 контрактных блока, self-test 15/15 |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| Таблица версий `SECURITY.md` | ✅ `3.0.x` — одна строка `✅ Да` |
+
+Итог Block 2 (PR #20, коммит `9bde88e`):
+
+| Проверка | Результат |
+|---|---|
+| `npm ci` | ✅ lockfile без расхождений |
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 26 md (0 issues), 3 контрактных блока, self-test 34/34 |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| `npm run init:memory` | ✅ идемпотентен, `.gitignore` не изменяется, runtime-allowlist игнорируется |
+| CI PR #20 | ✅ validate, docs, CodeQL — все зелёные |
+
+Итог Block 3 (коммит `cb9fe19`):
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 15/15 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 26 md (0 issues), 3 контрактных блока, self-test 46/46 (44 негативные + 2 позитивные) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| `git status --short` | ✅ чисто, runtime-память не отслеживается |
+
+Итог Block 4 (ветка `fix/block-4-ci-hygiene`, база `fix/block-3-legal-quality`):
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 16/16 (добавлен sync-version test на отсутствие заголовка CHANGELOG) |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 27 md (0 issues), 3 контрактных блока, self-test 59/59 (54 негативные + 5 позитивных) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет, таблица весов 25/25/20/15/15 |
+| `git status --short` | ✅ только осознанные изменения, runtime-память не отслеживается |
 
 ---
 

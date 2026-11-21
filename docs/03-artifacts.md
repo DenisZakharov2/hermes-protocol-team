@@ -2,7 +2,7 @@
 
 > Источник: папка `schemas/` (21 контрактная схема Draft-07 и 1 общий файл определений) и файлы `skills/*/SKILL.md`.
 >
-> Версия: 3.0.2.
+> Версия: 4.0.0.
 
 ## 1. Общий принцип
 
@@ -10,7 +10,7 @@
 
 1. **Синтаксический контроль** — валидация по JSON-схеме (до 3 попыток автоисправления).
 2. **Правовая экспертиза** — `legal-compliance-counsel` (лимитируется не более 3 итераций).
-3. **Смысловой аудит** — `quality-evaluator` по 5 осям, порог ≥ 85 баллов.
+3. **Смысловой аудит** — `quality-evaluator` по 5 осям; `quality_threshold` — поле контракта (типовой пример 85), `CRITICAL` finding блокирует передачу.
 
 ## 2. Полный перечень схем
 
@@ -26,14 +26,14 @@
 | `research_plan.schema.json` | `research_plan.json` | `multi-source-researcher` | `hermes-orchestrator` | Внутренний план исследования: подзапросы, целевые Tier и статусы |
 | `research_output.schema.json` | `research_output.json` | `multi-source-researcher` | `hermes-orchestrator` → PM, BA | Исследование: выводы, метрики с source_id, конфликты данных, каталог источников с tier/reliability |
 | `product_brief.schema.json` | `product_brief.json` | `hermes-orchestrator` | `product-manager` | Бриф стратега: тип продукта, контекст банка, ссылка на исследование |
-| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция, ценностное предложение, тарифы, финмодель (NII, NIM, CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE |
+| `product_strategy.schema.json` | `product_strategy.json` | `product-manager` | Оркестратор → BA, юрист | Продуктовая концепция, ценностное предложение, тарифы, финмодель с явными допущениями (NII, NIM, blended CoF, LTV/CAC), нормативы ЦБ РФ, приоритизация RICE с компонентами |
 | `ba_input_contract.schema.json` | `ba_input_contract.json` | Оркестратор | `business-analyst` | Вход аналитика: ссылки на стратегию, регуляторный чек-лист, IT-ландшафт, формат вывода |
 | `business_requirements.schema.json` | `business_requirements.json` | `business-analyst` | Оркестратор → юрист, синтетик | BRD, AS-IS→TO-BE, User Stories с Gherkin, NFR, матрица влияния на ИТ |
 | `legal_review_request.schema.json` | `legal_review_request.json` | Оркестратор | `legal-compliance-counsel` | Запрос на правовую проверку концепции или BRD (BRD опционален на этапе концепции) |
 | `legal_compliance_report.schema.json` | `legal_compliance_report.json` | `legal-compliance-counsel` | Оркестратор → критик, синтетик | Юридическое заключение: статус, общий риск, реестр нарушений с нормами/прецедентами/мерами смягчения, необходимые дисклеймеры |
 | `brief_schema.schema.json` | `brief_schema.json` | Оркестратор | `research-synthesist` | Бриф на синтез: тип документа, формат вывода, аудитория, брендинг, ссылка на данные |
 | `eval_request.schema.json` | `eval_request.json` | Оркестратор | `quality-evaluator` | Запрос на аудит: целевой агент, тип артефакта, данные, контекст, порог качества |
-| `evaluation_report.schema.json` | `evaluation_report.json` | `quality-evaluator` | Оркестратор | Отчет аудита: балл 0–100, разбивка по 5 осям, критические находки с кодами REG_*, actionable_fixes |
+| `evaluation_report.schema.json` | `evaluation_report.json` | `quality-evaluator` | Оркестратор | Отчет аудита: балл 0–100, разбивка по 5 осям, boolean `passed`, критические находки HIGH/CRITICAL, actionable_fixes |
 | `orchestration_output.schema.json` | `orchestration_output.json` | `hermes-orchestrator` | Заказчик | Итоговый отчет: статус выполнения, история Stage-Gate, финальный пакет объектов, ссылка на AAR |
 | `project_aar.schema.json` | `project_aar.json` | `hermes-orchestrator` | Заказчик, память системы | Постпроектная рефлексия: оценка Человека, уроки, патчи скиллов и адрес индексации |
 | `agent_tuning_log.schema.json` | `agent_tuning_log.json` | все агенты | `hermes-orchestrator` | Журнал оперативных замечаний и предложенных патчей скиллов |
@@ -47,7 +47,7 @@
 Производители `it_landscape.json` и `regulatory_checklist.json` закреплены однозначно, по одному владельцу на каждый артефакт:
 
 - `it_landscape.json` собирает `hermes-orchestrator` на старте проекта, до этапа `BUSINESS_REQUIREMENTS`, из `execution_request.json` и входных данных Заказчика. Если данных недостаточно, оркестратор фиксирует пробел и эскалирует его, а не выдумывает системы.
-- `regulatory_checklist.json` формирует `legal-compliance-counsel` на этапе `LEGAL_CONCEPT` из `product_strategy.json` и семантической памяти `/memory/domain_knowledge/regulatory/`. Обновление чек-листа в доменной памяти — зона юриста.
+- `regulatory_checklist.json` формирует `legal-compliance-counsel` на этапе `LEGAL_CONCEPT` из `product_strategy.json` и семантической памяти `domain_knowledge/regulatory/`. Обновление чек-листа в доменной памяти — зона юриста.
 - `business-analyst` в обоих случаях только потребитель: файлы приходят к нему через `ba_input_contract.json` и он их не переписывает.
 
 ## 3. Пример заполнения ключевых контрактов
@@ -72,11 +72,11 @@ Markdown-шаблон итогового отчёта: [`../examples/project_fin
 
 ## 5. Хранение артефактов
 
-Память делится на три уровня. Процедурная память хранится в репозитории — `skills/*/SKILL.md` и `schemas/`. Ниже перечислены каталоги рантайма: `/memory/cases/{project_id}/` (эпизодическая память), её подраздел `/memory/legal_precedents/` и `/memory/domain_knowledge/` (семантическая память). `memory/README.md` и `.gitkeep` образуют коммитируемый шаблон; содержимое памяти не коммитится.
+Память делится на три уровня. Процедурная память хранится в репозитории — `skills/*/SKILL.md` и `schemas/`. Ниже — локальный шаблон `memory/`, который создаёт `npm run init:memory`; в контрактах и рантайме пути задаются относительно сконфигурированного `memory_root` Hermes: `cases/{project_id}/` (эпизодическая память), `legal_precedents/` (её подраздел) и `domain_knowledge/` (семантическая память). `memory/README.md` и `.gitkeep` образуют коммитируемый шаблон; runtime-содержимое не коммитится.
 
 ```text
 /
-└── memory/
+└── memory/                      # локальный шаблон; runtime-корень задаётся memory_root
     ├── README.md                # шаблон структуры памяти
     ├── cases/                   # эпизодическая память (пишет hermes-orchestrator после AAR)
     │   └── {project_id}/        # создаётся оркестратором при старте проекта
@@ -89,11 +89,14 @@ Markdown-шаблон итогового отчёта: [`../examples/project_fin
     ├── domain_knowledge/        # семантическая память (пишет сопровождающий домена)
     │   ├── regulatory/          # регуляторные чек-листы (ЦБ РФ, ФЗ, ГОСТ)
     │   ├── nfr_profiles/        # профили NFR (SLA, RPO/RTO)
-    │   └── templates/           # шаблоны правовых оговорок и дисклеймеров
+    │   ├── templates/           # шаблоны правовых оговорок и дисклеймеров
+    │   └── sources/             # runtime-копия allow-list (allowlist.json)
     └── legal_precedents/        # подраздел эпизодической памяти (пишет legal-compliance-counsel)
         ├── vs_rf/               # ВС РФ
         ├── as_rf/               # АС РФ
         └── ks_rf/               # КС РФ
 ```
 
-В контрактах 2.2.x поля `artifact_root` и `lessons_indexed_to` остаются абсолютными путями `/memory/...`. Это осознанное решение: переход на относительный путь `memory/cases/{project_id}/...` с корнем из конфигурации Hermes — отдельный минорный релиз, чтобы не смешивать смену контракта с правками аудита. Новые примеры и скиллы не должны представлять абсолютный путь как единственно возможный.
+В контрактах поля `artifact_root` и `lessons_indexed_to` задаются относительными путями от `memory_root`: `cases/{project_id}/artifacts/` и `cases/{project_id}/`. Абсолютные `/memory/...` не используются, сегмент `..` запрещён схемой и инвариантом. `scripts/init-memory.mjs` создаёт локальный шаблон в `memory/` и не изменяет `.gitignore` и другие файлы репозитория.
+
+Allow-list источников — коммитируемая политика [`schemas/common/source-allowlist.json`](../schemas/common/source-allowlist.json). `scripts/validate-json.mjs` проверяет по ней `research_output.sources[].url` в CI: HTTPS, запрет userinfo, IP-литералов и приватных диапазонов, точное совпадение домена или его поддомена. `init-memory` создаёт runtime-копию в `memory/domain_knowledge/sources/allowlist.json`; она не коммитится.

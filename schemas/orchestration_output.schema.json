@@ -16,8 +16,8 @@
     },
     "artifact_root": {
       "type": "string",
-      "pattern": "^/memory/cases/[^/]+/artifacts/$",
-      "description": "Абсолютный путь к каталогу артефактов проекта. Зафиксирован в контракте 2.2.x; переход на относительный путь — отдельный минорный релиз."
+      "pattern": "^cases/[A-Z0-9_]+/artifacts/$",
+      "description": "Относительный путь к каталогу артефактов проекта: cases/{project_id}/artifacts/. ProjectId — UPPER_SNAKE_CASE."
     },
     "execution_status": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ExecutionStatus"
@@ -107,7 +107,12 @@
       "then": {
         "required": [
           "final_package"
-        ]
+        ],
+        "properties": {
+          "final_package": {
+            "$ref": "#/properties/final_package"
+          }
+        }
       }
     },
     {
@@ -124,7 +129,12 @@
       "then": {
         "required": [
           "project_aar"
-        ]
+        ],
+        "properties": {
+          "project_aar": {
+            "$ref": "#/properties/project_aar"
+          }
+        }
       }
     },
     {
@@ -148,6 +158,11 @@
           "required": [
             "project_aar"
           ]
+        },
+        "properties": {
+          "project_aar": {
+            "$ref": "#/properties/project_aar"
+          }
         }
       }
     }

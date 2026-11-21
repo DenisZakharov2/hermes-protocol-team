@@ -16,6 +16,12 @@
     "agent_id": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
     },
+    "sanitized_user_prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000,
+      "description": "Очищенный от потенциальных инъекций запрос Заказчика. Макс. 5000 символов. Заполняется оркестратором перед стартом."
+    },
     "entries": {
       "type": "array",
       "items": {
@@ -70,15 +76,53 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер попытки Self-Healing (0–3); 3 — лимит до эскалации"
+            "description": "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
           },
           "legal_iteration": {
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер итерации Legal Check-in (0–3)"
+            "description": "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
           }
         },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "event_type": {
+                  "const": "SELF_HEALING"
+                }
+              },
+              "required": ["event_type"]
+            },
+            "then": {
+              "required": ["self_healing_attempt"],
+              "properties": {
+                "self_healing_attempt": {
+                  "$ref": "#/properties/entries/items/properties/self_healing_attempt"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "event_type": {
+                  "const": "LEGAL_CHECKIN"
+                }
+              },
+              "required": ["event_type"]
+            },
+            "then": {
+              "required": ["legal_iteration"],
+              "properties": {
+                "legal_iteration": {
+                  "$ref": "#/properties/entries/items/properties/legal_iteration"
+                }
+              }
+            }
+          }
+        ],
         "additionalProperties": false
       }
     }
