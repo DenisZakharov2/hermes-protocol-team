@@ -4,6 +4,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- Фикстуры `score-missing-axis.json`, `duplicate-stage-code.json`, `plan-approval-flag-mismatch.json` (PR #24).
+- Граничные фикстуры tolerance `0.05`: `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
+
+### Changed
+
+- `docs/MAINTAINERS.md`: релиз v4.0.0, CodeQL Action v4, актуальные технические долги.
+- `AUDIT_HANDOFF.md`: финальный статус v4.0.0, merge-коммиты, CodeQL 10 → 0, verification log.
+
+### Fixed
+
+- W2: неполный `score_breakdown` больше не отключает проверку взвешенной суммы.
+- W3: fail-fast сверка осей `QualityWeights` ↔ `score_breakdown.required`; генератор требует подпись для каждой оси.
+- V3: пре-валидация манифеста негативных фикстур.
+- V5: порядок вывода self-test, устранение затенения `failed`, однократная JSON-валидация в `npm run validate`.
+
 ## [4.0.0] - 2026-11-21
 
 ### Added

@@ -19,6 +19,10 @@
     "brd-sla-three-nines.json": {
       "schema": "business_requirements",
       "description": "SLA 99.9% (три девятки) проходит паттерн ^99\\.9\\d*%$"
+    },
+    "evaluation-tolerance-0-04.json": {
+      "schema": "evaluation_report",
+      "description": "Расхождение 0.04 при tolerance 0.05 проходит схему и инвариант"
     }
   }
 }

@@ -36,6 +36,11 @@
       "expectedErrorPattern": "overall_score.*!= weighted",
       "description": "overall_score не совпадает с взвешенной суммой score_breakdown"
     },
+    "score-tolerance-0-06.json": {
+      "schema": "evaluation_report",
+      "expectedErrorPattern": "overall_score.*!= weighted",
+      "description": "Расхождение 0.06 превышает tolerance 0.05 — схема проходит, инвариант падает"
+    },
     "score-passed-mismatch.json": {
       "schema": "evaluation_report",
       "expectedErrorPattern": "passed must equal .*no CRITICAL",

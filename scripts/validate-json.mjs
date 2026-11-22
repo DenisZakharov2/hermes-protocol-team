@@ -1107,28 +1107,31 @@ if (failed > 0) {
   process.exit(1);
 }
 
+const selfTestMode = process.argv.includes('--self-test');
+
+// Self-test mode: validate negative and positive fixtures before success messages.
+// runSelfTest exits the process on failure, so "All ..." is never printed after a failed test.
+if (selfTestMode) {
+  await runSelfTest(validators, invariantChecks);
+}
+
 console.log(`\nAll ${examples.length} examples are valid and covered by schemas.`);
 console.log(`All ${skillBlocks} marked skill contract blocks are valid.`);
 
-// Self-test mode: validate negative and positive fixtures
-if (process.argv.includes('--self-test')) {
-  await runSelfTest(ajv, validators, invariantChecks);
-}
-
-async function runSelfTest(ajv, validators, invariantChecks) {
-  let passed = 0;
-  let failed = 0;
+async function runSelfTest(validators, invariantChecks) {
+  let totalPassed = 0;
+  let totalFailed = 0;
 
   const invalidResult = runInvalidFixtures(validators, invariantChecks);
-  passed += invalidResult.passed;
-  failed += invalidResult.failed;
+  totalPassed += invalidResult.passed;
+  totalFailed += invalidResult.failed;
 
   const validResult = runValidFixtures(validators, invariantChecks);
-  passed += validResult.passed;
-  failed += validResult.failed;
+  totalPassed += validResult.passed;
+  totalFailed += validResult.failed;
 
-  console.log(`\nSelf-test: ${passed} passed, ${failed} failed`);
-  if (failed > 0) {
+  console.log(`\nSelf-test: ${totalPassed} passed, ${totalFailed} failed`);
+  if (totalFailed > 0) {
     process.exit(1);
   }
 }
@@ -1267,8 +1270,8 @@ function runInvalidFixtures(validators, invariantChecks) {
 
   prevalidateInvalidFixtureManifest(invalidDir, fixtureMap, validators, invariantChecks);
 
-  let passed = 0;
-  let failed = 0;
+  let passedCount = 0;
+  let failedCount = 0;
 
   for (const fixture of fixtures) {
     const fixturePath = path.join(invalidDir, fixture);
@@ -1278,14 +1281,14 @@ function runInvalidFixtures(validators, invariantChecks) {
       data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
     } catch (error) {
       console.error(`❌ ${fixture}: invalid JSON (${error.message})`);
-      failed++;
+      failedCount++;
       continue;
     }
 
     const fixtureMeta = fixtureMap[fixture];
     if (!fixtureMeta) {
       console.error(`❌ ${fixture}: no entry in manifest.json`);
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1293,7 +1296,7 @@ function runInvalidFixtures(validators, invariantChecks) {
     const validate = validators.get(schemaName);
     if (!validate) {
       console.error(`❌ ${fixture}: validator not found for schema ${schemaName}`);
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1321,7 +1324,7 @@ function runInvalidFixtures(validators, invariantChecks) {
       console.error(
         `❌ ${fixture}: укажите expectedErrorPattern и/или expectedSchemaErrorPattern в manifest.json`
       );
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1374,17 +1377,17 @@ function runInvalidFixtures(validators, invariantChecks) {
     if (failedExpectations.length === 0) {
       const details = [schemaErrorText, invariantErrorText].filter(Boolean).join('; ');
       console.log(`✅ ${fixture}: correctly rejected (${details || 'expected negative'})`);
-      passed++;
+      passedCount++;
     } else {
       console.error(`❌ ${fixture}: negative test expectations not met`);
       for (const expectation of failedExpectations) {
         console.error(`   expected ${expectation.label}; got: ${expectation.actual}`);
       }
-      failed++;
+      failedCount++;
     }
   }
 
-  return { passed, failed };
+  return { passed: passedCount, failed: failedCount };
 }
 
 function runValidFixtures(validators, invariantChecks) {
@@ -1403,8 +1406,8 @@ function runValidFixtures(validators, invariantChecks) {
     process.exit(1);
   }
 
-  let passed = 0;
-  let failed = 0;
+  let passedCount = 0;
+  let failedCount = 0;
 
   for (const fixture of fixtures) {
     const fixturePath = path.join(validDir, fixture);
@@ -1414,14 +1417,14 @@ function runValidFixtures(validators, invariantChecks) {
       data = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
     } catch (error) {
       console.error(`❌ ${fixture}: invalid JSON (${error.message})`);
-      failed++;
+      failedCount++;
       continue;
     }
 
     const fixtureMeta = fixtureMap[fixture];
     if (!fixtureMeta) {
       console.error(`❌ ${fixture}: no entry in manifest.json`);
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1429,7 +1432,7 @@ function runValidFixtures(validators, invariantChecks) {
     const validate = validators.get(schemaName);
     if (!validate) {
       console.error(`❌ ${fixture}: validator not found for schema ${schemaName}`);
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1438,7 +1441,7 @@ function runValidFixtures(validators, invariantChecks) {
         .map((error) => `${error.instancePath || '/'} ${error.message}`)
         .join('; ') || 'schema validation failed';
       console.error(`❌ ${fixture}: expected schema validation to pass; got: ${schemaErrorText}`);
-      failed++;
+      failedCount++;
       continue;
     }
 
@@ -1453,13 +1456,13 @@ function runValidFixtures(validators, invariantChecks) {
       console.error(
         `❌ ${fixture}: expected invariants to pass; got: ${invariantErrorText}`
       );
-      failed++;
+      failedCount++;
       continue;
     }
 
     console.log(`✅ ${fixture}: valid (schema and invariants passed)`);
-    passed++;
+    passedCount++;
   }
 
-  return { passed, failed };
+  return { passed: passedCount, failed: failedCount };
 }

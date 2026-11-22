@@ -292,7 +292,6 @@ describe('sync-version.mjs snapshot tests', () => {
 
     it('should pass npm run validate after bump', () => {
       // Run validate steps manually, excluding CHANGELOG.md from markdownlint (MD024 false positive for Keep a Changelog format)
-      execSync('npm run validate:json', { cwd, stdio: 'pipe' });
       execSync('npm run validate:mermaid', { cwd, stdio: 'pipe' });
       execSync(`npx markdownlint-cli2 --config .markdownlint-cli2.jsonc "README.md" "Hermes_Protocol_Constitution.md" "docs/**/*.md" "skills/**/SKILL.md" ".github/**/*.md" "!.github/CODE_OF_CONDUCT.md" "examples/README.md" "examples/*.example.md" "SECURITY.md"`, { cwd, stdio: 'pipe' });
       execSync('npm run validate:self-test', { cwd, stdio: 'pipe' });
@@ -363,7 +362,6 @@ describe('sync-version.mjs snapshot tests', () => {
 
     it('should pass npm run validate after bump', () => {
       // Run validate steps manually, excluding CHANGELOG.md from markdownlint (MD024 false positive for Keep a Changelog format)
-      execSync('npm run validate:json', { cwd, stdio: 'pipe' });
       execSync('npm run validate:mermaid', { cwd, stdio: 'pipe' });
       execSync(`npx markdownlint-cli2 --config .markdownlint-cli2.jsonc "README.md" "Hermes_Protocol_Constitution.md" "docs/**/*.md" "skills/**/SKILL.md" ".github/**/*.md" "!.github/CODE_OF_CONDUCT.md" "examples/README.md" "examples/*.example.md" "SECURITY.md"`, { cwd, stdio: 'pipe' });
       execSync('npm run validate:self-test', { cwd, stdio: 'pipe' });
@@ -429,7 +427,6 @@ describe('sync-version.mjs snapshot tests', () => {
 
     it('should pass npm run validate after bump', () => {
       // Run validate steps manually, excluding CHANGELOG.md from markdownlint (MD024 false positive for Keep a Changelog format)
-      execSync('npm run validate:json', { cwd, stdio: 'pipe' });
       execSync('npm run validate:mermaid', { cwd, stdio: 'pipe' });
       execSync(`npx markdownlint-cli2 --config .markdownlint-cli2.jsonc "README.md" "Hermes_Protocol_Constitution.md" "docs/**/*.md" "skills/**/SKILL.md" ".github/**/*.md" "!.github/CODE_OF_CONDUCT.md" "examples/README.md" "examples/*.example.md" "SECURITY.md"`, { cwd, stdio: 'pipe' });
       execSync('npm run validate:self-test', { cwd, stdio: 'pipe' });
