@@ -15,6 +15,22 @@
       "expectedErrorPattern": "no gaps",
       "description": "Пропуск в нумерации stage_id (должен быть последовательным от 1)"
     },
+    "duplicate-stage-code.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "duplicate stage_code",
+      "description": "Дублирование stage_code AAR: схема проходит, инвариант падает"
+    },
+    "plan-approval-flag-mismatch.json": {
+      "schema": "execution_plan",
+      "expectedErrorPattern": "must have approval_required: true",
+      "description": "PLAN_APPROVAL без обязательного approval_required: true — схема проходит, инвариант падает"
+    },
+    "score-missing-axis.json": {
+      "schema": "evaluation_report",
+      "expectedSchemaErrorPattern": "must have required property 'security'",
+      "expectedErrorPattern": "score_breakdown is missing axis",
+      "description": "score_breakdown без оси security: schema-negative и отказ инварианта вместо молчаливого пропуска"
+    },
     "score-wrong-weighted-sum.json": {
       "schema": "evaluation_report",
       "expectedErrorPattern": "overall_score.*!= weighted",

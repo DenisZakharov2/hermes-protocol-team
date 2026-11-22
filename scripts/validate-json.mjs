@@ -76,7 +76,39 @@ function loadQualityWeights() {
   return weights;
 }
 
+// Fail-fast: оси QualityWeights и обязательные оси score_breakdown в схеме отчёта
+// должны совпадать как множества. Иначе взвешенная сумма проверяется по неполному набору.
+function assertQualityAxesMatchSchema(weights) {
+  const schemaPath = path.join(schemasDir, 'evaluation_report.schema.json');
+  let schema;
+  try {
+    schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Не удалось прочитать ${schemaPath}: ${error.message}`);
+    process.exit(1);
+  }
+
+  const required = schema?.properties?.score_breakdown?.required;
+  if (!Array.isArray(required) || required.length === 0) {
+    console.error(`❌ ${schemaPath}: не найден непустой properties.score_breakdown.required`);
+    process.exit(1);
+  }
+
+  const weightKeys = Object.keys(weights).sort();
+  const schemaKeys = [...new Set(required)].sort();
+  const missingInSchema = weightKeys.filter((key) => !schemaKeys.includes(key));
+  const missingInWeights = schemaKeys.filter((key) => !weightKeys.includes(key));
+
+  if (missingInSchema.length > 0 || missingInWeights.length > 0) {
+    console.error(
+      `❌ Оси QualityWeights не совпадают со score_breakdown.required: нет в схеме: ${missingInSchema.join(', ') || '—'}; нет в весах: ${missingInWeights.join(', ') || '—'}`
+    );
+    process.exit(1);
+  }
+}
+
 const QUALITY_WEIGHTS = loadQualityWeights();
+assertQualityAxesMatchSchema(QUALITY_WEIGHTS);
 
 const RISK_ORDER = {
   LOW: 0,
@@ -384,16 +416,25 @@ function evaluationReportInvariantErrors(data) {
   const breakdown = data.score_breakdown ?? {};
 
   let expected = 0;
-  let complete = true;
+  const missingAxes = [];
   for (const [axis, weight] of Object.entries(QUALITY_WEIGHTS)) {
     if (typeof breakdown[axis] !== 'number') {
-      complete = false;
-      break;
+      missingAxes.push(axis);
+      continue;
     }
     expected += breakdown[axis] * weight;
   }
 
-  if (complete && Number.isFinite(expected) && Math.abs(data.overall_score - expected) > 0.05) {
+  // Неполный breakdown не должен молча отключать проверку суммы: отсутствующая ось —
+  // это дрейф между QualityWeights и evaluation_report.schema.json, а не валидный отчёт.
+  if (missingAxes.length > 0) {
+    errors.push(
+      `score_breakdown is missing axis ${missingAxes.map((axis) => `"${axis}"`).join(', ')} required by QualityWeights`
+    );
+  } else if (
+    Number.isFinite(expected) &&
+    Math.abs(data.overall_score - expected) > 0.05
+  ) {
     errors.push(
       `overall_score ${data.overall_score} != weighted ${expected.toFixed(2)} (tolerance 0.05)`
     );
@@ -1138,6 +1179,60 @@ function compileExpectedPattern(pattern) {
   }
 }
 
+// Пре-валидация манифеста: ошибка конфигурации должна падать до запуска тестов,
+// а не превращаться в «should have been rejected but passed» в рантайме.
+function prevalidateInvalidFixtureManifest(fixtureDir, fixtureMap, validators, invariantChecks) {
+  let problems = 0;
+
+  for (const [fixture, meta] of Object.entries(fixtureMap)) {
+    const schemaName = meta?.schema;
+    if (typeof schemaName !== 'string' || !validators.has(schemaName)) {
+      console.error(`❌ manifest: ${fixture}: validator для схемы "${schemaName}" не найден`);
+      problems += 1;
+    }
+
+    const expectedPattern = meta?.expectedErrorPattern;
+    const expectedSchemaPattern = meta?.expectedSchemaErrorPattern;
+
+    if (!expectedPattern && !expectedSchemaPattern) {
+      console.error(
+        `❌ manifest: ${fixture}: укажите expectedErrorPattern и/или expectedSchemaErrorPattern`
+      );
+      problems += 1;
+      continue;
+    }
+
+    if (expectedPattern) {
+      if (typeof schemaName !== 'string' || !invariantChecks[schemaName]) {
+        console.error(
+          `❌ manifest: ${fixture}: для expectedErrorPattern у схемы "${schemaName}" нет invariant-функции`
+        );
+        problems += 1;
+      }
+      const compiled = compileExpectedPattern(expectedPattern);
+      if (compiled.error) {
+        console.error(`❌ manifest: ${fixture}: ${compiled.error}`);
+        problems += 1;
+      }
+    }
+
+    if (expectedSchemaPattern) {
+      const compiled = compileExpectedPattern(expectedSchemaPattern);
+      if (compiled.error) {
+        console.error(`❌ manifest: ${fixture}: ${compiled.error}`);
+        problems += 1;
+      }
+    }
+  }
+
+  if (problems > 0) {
+    console.error(
+      `\n❌ Манифест ${path.join(fixtureDir, 'manifest.json')}: ${problems} проблем(ы). Self-test не запущен.`
+    );
+    process.exit(1);
+  }
+}
+
 function invariantErrorsForFixture(data, schemaName, validators, invariantChecks) {
   const check = invariantChecks[schemaName];
   if (!check) return '';
@@ -1169,6 +1264,8 @@ function runInvalidFixtures(validators, invariantChecks) {
   if (!checkManifestCoverage(invalidDir, fixtures, fixtureMap)) {
     process.exit(1);
   }
+
+  prevalidateInvalidFixtureManifest(invalidDir, fixtureMap, validators, invariantChecks);
 
   let passed = 0;
   let failed = 0;

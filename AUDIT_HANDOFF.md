@@ -2,7 +2,8 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Status:** 🟢 **BLOCKS 0–4 COMPLETE**
+**Updated:** 2026-11-21
+**Status:** 🟢 **BLOCKS 0–4 COMPLETE · v4.0.0 RELEASED · CODEQL 0**
 
 ---
 
@@ -137,6 +138,51 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
+## ✅ Final status (v4.0.0, 2026-11-21)
+
+**Релиз:** [v4.0.0](https://github.com/DenisZakharov2/hermes-protocol-team/releases/tag/v4.0.0) опубликован 2026-11-21. Тег `v4.0.0` указывает на `7daa485`.
+
+**Состояние `main`:** на момент релиза и закрытия CodeQL-сессии — `7daa485` (v4.0.0); после high-priority сессии — `b3be0f2` (merge PR #23). После merge follow-up PR `chore/audit-followups` HEAD сместится; `b3be0f2` не является вечным указателем на актуальный `main`.
+
+### Влитые PR
+
+| PR | Содержание | Merge-коммит |
+|---|---|---|
+| [#20](https://github.com/DenisZakharov2/hermes-protocol-team/pull/20) | Block 2: memory paths & input security | `30f3ca4` (ветка `9bde88e`) |
+| [#21](https://github.com/DenisZakharov2/hermes-protocol-team/pull/21) | Block 3: legal invariant & quality scoring | `18379e5` (ветка `cb9fe19`) |
+| [#22](https://github.com/DenisZakharov2/hermes-protocol-team/pull/22) | Block 4: CI, schemas, hygiene | `6fd7a4c` (ветка `affd67a`) |
+| [#8](https://github.com/DenisZakharov2/hermes-protocol-team/pull/8) | Dependabot: `github/codeql-action` v3 → v4 | `4e9bed8` |
+| [#16](https://github.com/DenisZakharov2/hermes-protocol-team/pull/16) | Dependabot: jsdom 31.0.1, markdownlint-cli2 0.24.1 | `63a2485` |
+| [#23](https://github.com/DenisZakharov2/hermes-protocol-team/pull/23) | CodeQL alerts: 10 → 0 | `b3be0f2` |
+
+### CodeQL
+
+- Было **10 открытых алертов**: 1 error `js/regex-injection` + 9 warning.
+- Стало **0**; dismissals не использовались — все исправлены кодом.
+- Исправления: `scripts/sync-version.mjs`, `scripts/init-memory.mjs`, `scripts/generate-docs.mjs`, `tests/snapshot/sync-version.test.mjs`.
+
+### Verification log v4.0.0
+
+| Проверка | Результат |
+|---|---|
+| `npm ci` | ✅ 0 vulnerabilities |
+| `npm test` | ✅ 16/16 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 27 md (0 issues), 3 skill-контракта, self-test 59/59 |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| `npm run init:memory` | ✅ идемпотентен; fresh-run проверен в temp-каталоге |
+
+Follow-up `chore/audit-followups` (W2/W3/V3 + 3 фикстуры): `npm test` 16/16, `npm run validate` exit 0, self-test **62/62** (57 негативных + 5 позитивных), `npm audit` 0, `generate:docs` без диффа.
+
+### Остаточные low-priority пункты
+
+- **PR #15** закрыт как superseded: ветка `vibe/code-review-468a7e` базировалась на `0f058ce` (v3.0.2), конфликтовала с `main`; находки F1–F4, V1–V2, V4, W1, W4 уже были закрыты в Blocks 2–4 в другой реализации, W2/W3/V3 закрыты follow-up PR.
+- **F5 (cwd-relative paths)** — by design: snapshot-тест запускает `sync-version` в temp-копии репозитория; менять только вместе с редизайном тестового харнесса.
+- **V5 (косметика self-test)** и **W5 (граничная фикстура tolerance 0.05)** — сознательно отложены, на корректность не влияют.
+- Актуальный перечень — [`docs/MAINTAINERS.md` §5](docs/MAINTAINERS.md#5-известные-технические-долги--плановые-улучшения).
+
+---
+
 ## 📦 PR Strategy (One PR per Block)
 
 | PR | Title | Branch | Base | Blocks |
@@ -253,4 +299,4 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 ---
 
-*This handoff lives in the repo at `AUDIT_HANDOFF.md`. Update as blocks complete.*
+*This handoff lives in the repo at `AUDIT_HANDOFF.md`. Actual for v4.0.0; update only for new blocks or releases.*

@@ -1,0 +1,18 @@
+{
+  "eval_id": "EVAL_2026_01",
+  "project_id": "SAV_DEP_2026_01",
+  "target_worker": "business-analyst",
+  "overall_score": 88.5,
+  "quality_threshold": 85,
+  "passed": true,
+  "score_breakdown": {
+    "accuracy_and_grounding": 90,
+    "cross_artifact_consistency": 90,
+    "structural_completeness": 85,
+    "practical_executability": 85
+  },
+  "critical_findings": [],
+  "actionable_fixes": [
+    "MEDIUM (BRD_DISCLOSURE_DETAIL): уточнить classic_brd.functional_requirements[1] — требование о раскрытии приветственной ставки и МГС не фиксирует равный размер шрифта; добавить acceptance-критерий равного размера шрифта и ссылку на макет карточки."
+  ]
+}

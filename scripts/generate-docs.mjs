@@ -214,6 +214,14 @@ function renderQualityWeightsTable() {
     practical_executability: 'Practical Executability & Feasibility'
   };
 
+  const missingLabels = QUALITY_WEIGHT_KEYS.filter((key) => !axisLabels[key]);
+  if (missingLabels.length > 0) {
+    console.error(
+      `❌ Нет подписи в axisLabels для осей: ${missingLabels.join(', ')} (${qualityWeightsPath})`
+    );
+    process.exit(1);
+  }
+
   const percentages = QUALITY_WEIGHT_KEYS.map((key) => {
     if (!Object.prototype.hasOwnProperty.call(weights, key)) {
       console.error(`❌ ${qualityWeightsPath}: отсутствует вес оси "${key}"`);
