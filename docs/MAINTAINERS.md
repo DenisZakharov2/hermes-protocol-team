@@ -82,7 +82,24 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
 - Тег: `git tag -a v4.0.0 -m "Hermes Protocol 4.0.0" && git push origin v4.0.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
+- Текущий релиз — [v4.0.0](https://github.com/DenisZakharov2/hermes-protocol-team/releases/tag/v4.0.0) от 2026-11-21. Тег `v4.0.0` указывает на коммит `7daa485`.
+- Команда создания тега выше — шаблон для следующего релиза: замените версию в теге и аннотации.
+
+### 4.1 CodeQL / Actions
+
+- В `.github/workflows/codeql.yml` используются `github/codeql-action/init@v4` и `github/codeql-action/analyze@v4`.
+- Ветка `v3` CodeQL Action устаревает в декабре 2026; откат на `v3` недопустим.
+- Открытых CodeQL-алертов должно быть `0`. Проверка:
+
+```bash
+gh api "repos/DenisZakharov2/hermes-protocol-team/code-scanning/alerts?state=open&per_page=100" --jq 'length'
+```
+
+- Dependabot PR по `actions/*` и npm-зависимостям вливаются только после зелёного CI (`validate`, `docs`, CodeQL).
 
 ## 5. Известные технические долги / плановые улучшения
 
-- **v3.1.0 (Block 2)**: контракты переведены на относительные пути `cases/...` от `memory_root`; `scripts/init-memory.mjs` создаёт локальный шаблон `memory/` и runtime-копию allow-list. Решение по SemVer (минор или мажор) фиксируется мейнтейнером в PR и [`CHANGELOG.md`](../CHANGELOG.md).
+- **F5 / пути от текущего каталога (by design)**: скрипты `sync-version`, `validate-json`, `check-mermaid`, `init-memory`, `generate-docs` читают и пишут файлы относительно `cwd`. Это осознанное решение: snapshot-тест запускает `sync-version` в temp-копии репозитория, и переход на `import.meta.url` сломает проверку. Прямой запуск из другого каталога не поддерживается; менять только вместе с редизайном тестового харнесса.
+- **V5 / косметика self-test (отложено)**: порядок вывода, затенение переменной `failed`, повторный прогон при `validate:self-test` не влияют на корректность проверок.
+- **W5 / граничная фикстура tolerance 0.05 (отложено)**: покрытие границы допуска не добавлено; текущие негативные фикстуры проверяют расхождение выше допуска.
+- **PR #15**: закрыт как superseded — ветка `vibe/code-review-468a7e` базировалась на `0f058ce` (v3.0.2), конфликтовала с `main`, а находки реализованы в Blocks 2–4 и follow-up PR. История сохранена в [комментарии к PR #15](https://github.com/DenisZakharov2/hermes-protocol-team/pull/15) и в [`AUDIT_HANDOFF.md`](../AUDIT_HANDOFF.md).
