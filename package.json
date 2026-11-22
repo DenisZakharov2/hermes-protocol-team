@@ -30,7 +30,7 @@
   },
   "_engines_comment": "Точный пинг патч-версии 22.22.2: jsdom v31.0.0 + markdownlint-cli2 v0.24.0 требуют Node >= 22.22.2 (исправление CVE в зависимостях jsdom). Обновлять синхронно с зависимостями.",
   "scripts": {
-    "validate": "npm run validate:json && npm run validate:mermaid && npm run validate:md && npm run validate:self-test",
+    "validate": "npm run validate:self-test && npm run validate:mermaid && npm run validate:md",
     "validate:json": "node scripts/validate-json.mjs",
     "validate:self-test": "node scripts/validate-json.mjs --self-test",
     "validate:mermaid": "node scripts/check-mermaid.mjs",

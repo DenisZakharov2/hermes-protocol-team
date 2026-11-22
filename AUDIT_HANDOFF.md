@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Updated:** 2026-11-21
+**Updated:** 2026-11-22
 **Status:** 🟢 **BLOCKS 0–4 COMPLETE · v4.0.0 RELEASED · CODEQL 0**
 
 ---
@@ -174,11 +174,21 @@ The audit found **7 Critical**, **7 High**, **7 Medium**, and **7 Low** severity
 
 Follow-up `chore/audit-followups` (W2/W3/V3 + 3 фикстуры): `npm test` 16/16, `npm run validate` exit 0, self-test **62/62** (57 негативных + 5 позитивных), `npm audit` 0, `generate:docs` без диффа.
 
+### Verification log v4.0.0 + V5/W5
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ 16/16 |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 27 md (0 issues), 3 skill-контракта, self-test **64/64** (58 негативных + 6 позитивных) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+
 ### Остаточные low-priority пункты
 
 - **PR #15** закрыт как superseded: ветка `vibe/code-review-468a7e` базировалась на `0f058ce` (v3.0.2), конфликтовала с `main`; находки F1–F4, V1–V2, V4, W1, W4 уже были закрыты в Blocks 2–4 в другой реализации, W2/W3/V3 закрыты follow-up PR.
 - **F5 (cwd-relative paths)** — by design: snapshot-тест запускает `sync-version` в temp-копии репозитория; менять только вместе с редизайном тестового харнесса.
-- **V5 (косметика self-test)** и **W5 (граничная фикстура tolerance 0.05)** — сознательно отложены, на корректность не влияют.
+- **V5 (косметика self-test)** — закрыто: self-test выполняется до success-сообщений, внутренние счётчики не затеняют модульную `failed`, JSON-валидация в `npm run validate` выполняется один раз.
+- **W5 (граничная фикстура tolerance 0.05)** — закрыто: добавлены `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
 - Актуальный перечень — [`docs/MAINTAINERS.md` §5](docs/MAINTAINERS.md#5-известные-технические-долги--плановые-улучшения).
 
 ---
