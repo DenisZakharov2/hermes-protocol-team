@@ -1469,3 +1469,28 @@ function runValidFixtures(validators, invariantChecks) {
 
   return { passed: passedCount, failed: failedCount };
 }
+
+// Экспорт для unit-тестирования pure-функций инвариантов
+// (review-hermes.md M1: выделить pure-функции и покрыть vitest unit-тестами).
+export {
+  invariantChecks,
+  QUALITY_WEIGHTS,
+  RISK_ORDER,
+  PROJECT_ID_PATTERN,
+  SOURCE_ALLOWLIST,
+  executionPlanInvariantErrors,
+  evaluationReportInvariantErrors,
+  legalComplianceInvariantErrors,
+  productStrategyInvariantErrors,
+  orchestrationOutputInvariantErrors,
+  nonJsonArtifactInvariantErrors,
+  evalRequestInvariantErrors,
+  researchOutputInvariantErrors,
+  projectAarInvariantErrors,
+  flightLogInvariantErrors,
+  isAllowedSourceHost,
+  isForbiddenIpv4,
+  isForbiddenIpv6,
+  hostWithoutBrackets,
+  assertQualityAxesMatchSchema,
+};
