@@ -9,6 +9,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { enterRepoRoot, repoRoot } from './lib/repo-root.mjs';
+
+enterRepoRoot();
 
 const newVersion = process.argv[2];
 
@@ -393,7 +396,7 @@ console.log(`💡 Don't forget to update CHANGELOG.md and create git tag: git ta
 // Post-check: validate JSON schemas
 console.log('\n🔍 Post-check: validating JSON schemas...');
 try {
-  execSync('npm run validate:json', { stdio: 'inherit', cwd: process.cwd() });
+  execSync('npm run validate:json', { stdio: 'inherit', cwd: repoRoot });
   console.log('✅ JSON schemas valid after version synchronization');
 } catch {
   console.error('❌ JSON schema validation failed after synchronization');

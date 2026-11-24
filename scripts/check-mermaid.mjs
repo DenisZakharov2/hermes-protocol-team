@@ -19,6 +19,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { JSDOM } from 'jsdom';
+import { enterRepoRoot } from './lib/repo-root.mjs';
+
+enterRepoRoot();
 
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', { pretendToBeVisual: true });
 globalThis.window = dom.window;
