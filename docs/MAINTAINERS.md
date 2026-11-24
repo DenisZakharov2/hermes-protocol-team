@@ -99,6 +99,6 @@ gh api "repos/DenisZakharov2/hermes-protocol-team/code-scanning/alerts?state=ope
 
 ## 5. Известные технические долги / плановые улучшения
 
-- **F5 / пути от текущего каталога (by design)**: скрипты `sync-version`, `validate-json`, `check-mermaid`, `init-memory`, `generate-docs` читают и пишут файлы относительно `cwd`. Это осознанное решение: snapshot-тест запускает `sync-version` в temp-копии репозитория, и переход на `import.meta.url` сломает проверку. Прямой запуск из другого каталога не поддерживается; менять только вместе с редизайном тестового харнесса.
+- **F5 / пути от текущего каталога (закрыто)**: скрипты `sync-version`, `validate-json`, `check-mermaid`, `init-memory`, `generate-docs` определяют корень репозитория от `import.meta.dirname`; прямой запуск из другого каталога поддерживается; snapshot-тесты проверяют запуск из внешнего `cwd`.
 - **V5/W5 (закрыто)**: косметика self-test исправлена (порядок вывода, счётчики, однократная JSON-валидация), добавлены граничные фикстуры tolerance `0.05` — `evaluation-tolerance-0-04.json` и `score-tolerance-0-06.json`. Подробности — в `CHANGELOG.md` → `[Unreleased]`.
 - **PR #15**: закрыт как superseded — ветка `vibe/code-review-468a7e` базировалась на `0f058ce` (v3.0.2), конфликтовала с `main`, а находки реализованы в Blocks 2–4 и follow-up PR. История сохранена в [комментарии к PR #15](https://github.com/DenisZakharov2/hermes-protocol-team/pull/15) и в [`AUDIT_HANDOFF.md`](../AUDIT_HANDOFF.md).

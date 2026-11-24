@@ -8,6 +8,7 @@
 
 - Фикстуры `score-missing-axis.json`, `duplicate-stage-code.json`, `plan-approval-flag-mismatch.json` (PR #24).
 - Граничные фикстуры tolerance `0.05`: `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
+- Snapshot-тесты cwd-независимости: запуск `validate-json`, `check-mermaid`, `generate-docs`, `init-memory`, `sync-version` из внешнего каталога.
 
 ### Changed
 
@@ -20,6 +21,7 @@
 - W3: fail-fast сверка осей `QualityWeights` ↔ `score_breakdown.required`; генератор требует подпись для каждой оси.
 - V3: пре-валидация манифеста негативных фикстур.
 - V5: порядок вывода self-test, устранение затенения `failed`, однократная JSON-валидация в `npm run validate`.
+- F5: скрипты определяют корень репозитория от `import.meta.dirname` и не зависят от `cwd`; `check-mermaid` из чужого каталога больше не даёт ложный зелёный на 0 диаграмм, `init-memory` не создаёт каталоги в чужом `cwd`, `sync-version` выполняет post-check в корне репозитория.
 
 ## [4.0.0] - 2026-11-21
 

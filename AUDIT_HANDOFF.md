@@ -2,7 +2,7 @@
 
 **Source:** Independent code audit of `DenisZakharov2/hermes-protocol-team` (main branch, v3.0.2)
 **Date:** 2026-11-18
-**Updated:** 2026-11-22
+**Updated:** 2026-11-24
 **Status:** 🟢 **BLOCKS 0–4 COMPLETE · v4.0.0 RELEASED · CODEQL 0**
 
 ---
@@ -183,10 +183,20 @@ Follow-up `chore/audit-followups` (W2/W3/V3 + 3 фикстуры): `npm test` 16
 | `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
 | `npm run generate:docs` + diff | ✅ расхождений нет |
 
+### Verification log F5 (2026-11-24)
+
+| Проверка | Результат |
+|---|---|
+| `npm test` | ✅ **21/21** (16 существующих + 5 cwd-тестов) |
+| `npm run validate` | ✅ exit 0: 21 пример, 5 Mermaid, 27 md (0 issues), 3 skill-контракта, self-test **64/64** (58 негативных + 6 позитивных) |
+| `npm audit --audit-level=high` | ✅ 0 vulnerabilities |
+| `npm run generate:docs` + diff | ✅ расхождений нет |
+| cwd smoke | ✅ все пять скриптов из внешнего каталога: `validate-json` — 21 пример/3 контракта, `check-mermaid` — 5 диаграмм (не 0), `generate-docs` — без ошибок, `init-memory` не создаёт `memory/` в чужом `cwd`, `sync-version` обновляет temp-копию и выполняет post-check в ней |
+
 ### Остаточные low-priority пункты
 
 - **PR #15** закрыт как superseded: ветка `vibe/code-review-468a7e` базировалась на `0f058ce` (v3.0.2), конфликтовала с `main`; находки F1–F4, V1–V2, V4, W1, W4 уже были закрыты в Blocks 2–4 в другой реализации, W2/W3/V3 закрыты follow-up PR.
-- **F5 (cwd-relative paths)** — by design: snapshot-тест запускает `sync-version` в temp-копии репозитория; менять только вместе с редизайном тестового харнесса.
+- **F5 (cwd-relative paths)** — закрыто: добавлен `scripts/lib/repo-root.mjs`, все пять скриптов вызывают `enterRepoRoot()` и определяют корень от `import.meta.dirname`; `sync-version` выполняет post-check с `cwd: repoRoot`; добавлены 5 snapshot-тестов запуска из внешнего каталога.
 - **V5 (косметика self-test)** — закрыто: self-test выполняется до success-сообщений, внутренние счётчики не затеняют модульную `failed`, JSON-валидация в `npm run validate` выполняется один раз.
 - **W5 (граничная фикстура tolerance 0.05)** — закрыто: добавлены `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
 - Актуальный перечень — [`docs/MAINTAINERS.md` §5](docs/MAINTAINERS.md#5-известные-технические-долги--плановые-улучшения).

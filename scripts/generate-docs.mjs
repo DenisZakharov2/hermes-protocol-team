@@ -14,6 +14,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { enterRepoRoot } from './lib/repo-root.mjs';
+
+enterRepoRoot();
 
 const schemasDir = 'schemas';
 const referencePath = path.join('docs', 'schemas-reference.md');

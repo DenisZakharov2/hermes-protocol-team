@@ -3,6 +3,9 @@ import net from 'node:net';
 import path from 'node:path';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
+import { enterRepoRoot } from './lib/repo-root.mjs';
+
+enterRepoRoot();
 
 const schemasDir = 'schemas';
 const examplesDir = 'examples';
