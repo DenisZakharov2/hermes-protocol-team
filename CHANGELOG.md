@@ -4,24 +4,28 @@
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-11-25
+
 ### Added
 
-- Фикстуры `score-missing-axis.json`, `duplicate-stage-code.json`, `plan-approval-flag-mismatch.json` (PR #24).
-- Граничные фикстуры tolerance `0.05`: `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
-- Snapshot-тесты cwd-независимости: запуск `validate-json`, `check-mermaid`, `generate-docs`, `init-memory`, `sync-version` из внешнего каталога.
+- Обязательное поле `data_origin: "untrusted"` в `schemas/research_output.schema.json` (M2 из review-hermes.md) — защита от prompt injection: research_output помечается как данные, не инструкции.
+- `scripts/sanitize-prompt.mjs` — reference-модуль санитизации `user_prompt`: удаление zero-width/control chars, обнаружение инъекций (EN/RU), нормализация whitespace, обрезка до 5000 символов. Возвращает `{ sanitized, wasSanitized, appliedRules }`.
+- `tests/unit/sanitize-prompt.test.mjs` — 46 unit-тестов для санитайзера.
+- Папки `memory/domain_knowledge/.gitkeep`, `memory/legal_precedents/.gitkeep` для структуры памяти.
 
 ### Changed
 
-- `docs/MAINTAINERS.md`: релиз v4.0.0, CodeQL Action v4, актуальные технические долги.
-- `AUDIT_HANDOFF.md`: финальный статус v4.0.0, merge-коммиты, CodeQL 10 → 0, verification log.
+- `skills/*/SKILL.md` (все 7): добавлены маркеры `<!-- validate-json: ... -->` во все JSON-примеры контрактов (теперь 9 блоков проходят валидацию).
+- `skills/legal-compliance-counsel/SKILL.md`: эмодзи 🔴🟠🟡🟢 заменены на текст (Critical/High/Medium/Low).
+- `skills/research-synthesist/SKILL.md`: эмодзи ⚠️ заменено на `[WARNING]`.
+- `skills/hermes-orchestrator/SKILL.md`: ссылка на `scripts/sanitize-prompt.mjs` как reference implementation.
+- `docs/schemas-reference.md`: регенерировано с новым полем `data_origin` для research_output.
+- CI: `github/codeql-action` зафиксирован на полный SHA `915412ff23e8b7659517e607487dbeae018f2934` (supply-chain hygiene).
 
 ### Fixed
 
-- W2: неполный `score_breakdown` больше не отключает проверку взвешенной суммы.
-- W3: fail-fast сверка осей `QualityWeights` ↔ `score_breakdown.required`; генератор требует подпись для каждой оси.
-- V3: пре-валидация манифеста негативных фикстур.
-- V5: порядок вывода self-test, устранение затенения `failed`, однократная JSON-валидация в `npm run validate`.
-- F5: скрипты определяют корень репозитория от `import.meta.dirname` и не зависят от `cwd`; `check-mermaid` из чужого каталога больше не даёт ложный зелёный на 0 диаграмм, `init-memory` не создаёт каталоги в чужом `cwd`, `sync-version` выполняет post-check в корне репозитория.
+- `docs/code-review-2026-11-23.md`: исправлены 15 ошибок markdownlint (MD034 bare URL, MD032 списки, MD022 заголовки, MD009 trailing spaces, MD047 final newline).
+- `tests/snapshot/cwd-independence.test.mjs`: ожидание обновлено на "All 9 marked skill contract blocks are valid."
 
 ## [4.0.0] - 2026-11-21
 

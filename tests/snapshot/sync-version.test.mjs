@@ -368,18 +368,18 @@ describe('sync-version.mjs snapshot tests', () => {
     });
   });
 
-  describe('major bump (3.0.1 -> 4.0.0)', () => {
+  describe('major bump (3.0.1 -> 5.0.0)', () => {
     let cwd;
     let cleanup;
 
     beforeAll(async () => {
       ({ cwd, cleanup } = await setupTempRepo());
       tempRepos.push({ cleanup });
-      addChangelogHeader(cwd, '4.0.0');
+      addChangelogHeader(cwd, '5.0.0');
     }, 120000);
 
     it('should update all expected files', () => {
-      const output = runSyncVersion(cwd, '4.0.0');
+      const output = runSyncVersion(cwd, '5.0.0');
       // Minor/major bumps: SECURITY.md changes
       expect(output).toContain(`${MINOR_MAJOR_BUMP_UPDATED} files updated`);
       expect(output).not.toMatch(/[1-9]\d* issues/);
@@ -388,30 +388,30 @@ describe('sync-version.mjs snapshot tests', () => {
         const content = getFileContent(cwd, file);
         expect(content, `File ${file} should exist`).not.toBeNull();
         if (file === 'SECURITY.md') {
-          const minorVersion = '4.0.x';
+          const minorVersion = '5.0.x';
           expect(content, `File ${file} should contain minor version ${minorVersion}`).toMatch(new RegExp(minorVersion.replace('.', '\\.')));
         } else {
-          expect(content, `File ${file} should contain version 4.0.0`).toMatch(/4\.0\.0/);
+          expect(content, `File ${file} should contain version 5.0.0`).toMatch(/5\.0\.0/);
         }
       }
     });
 
     it('should update package.json version correctly', () => {
-      expect(getVersionFromPackageJson(cwd)).toBe('4.0.0');
+      expect(getVersionFromPackageJson(cwd)).toBe('5.0.0');
     });
 
     it('should update SECURITY.md table correctly for major bump', () => {
       const rows = getSecurityTableRows(cwd);
 
       expect(countCheckmarks(rows)).toBe(1);
-      expect(getCheckmarkVersion(rows)).toBe('4.0.x');
+      expect(getCheckmarkVersion(rows)).toBe('5.0.x');
 
       // Should have exactly one row per version
       const versions = getAllVersions(rows);
       const uniqueVersions = new Set(versions);
       expect(versions.length).toBe(uniqueVersions.size);
 
-      // Should have 3.0.x downgraded to ⚠️ (direct jump from 3.0.1, no 3.1.x in table)
+      // Should have 3.0.x downgraded to ⚠️ (direct jump from 3.0.1, no 3.1.x/4.x in table)
       const warningRows = rows.filter(r => r.includes('⚠️ Только критические исправления'));
       expect(warningRows.some(r => r.includes('3.0.x'))).toBe(true);
 
@@ -420,7 +420,7 @@ describe('sync-version.mjs snapshot tests', () => {
         const match = v.match(/^(\d+)\.(\d+)\.x$/);
         if (!match) return false;
         const major = parseInt(match[1]);
-        return major > 4;
+        return major > 5;
       });
       expect(futureVersions.length).toBe(0);
     });
