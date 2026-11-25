@@ -56,13 +56,14 @@ version: 4.0.0
 
 ### А. Входной контракт (`brief_schema.json`):
 
+<!-- validate-json: brief_schema -->
 ```json
 {
   "task_id": "SYNTH_2026_01",
   "project_id": "STRING",
-  "document_type": "pitch_deck | executive_summary | analytical_memo | market_research_whitepaper",
-  "output_format": "markdown_marp | python_pptx_script | html_tailwind_deck | structured_slides_json | markdown_report | python_docx_script | typst_pdf_markup",
-  "target_audience": "executive | investor | technical | general_business",
+  "document_type": "executive_summary",
+  "output_format": "markdown_marp",
+  "target_audience": "executive",
   "custom_branding": {
     "primary_color": "#1E3A8A",
     "accent_color": "#0D9488",
@@ -74,6 +75,7 @@ version: 4.0.0
 
 ### Б. Выходной контракт (Deliverable Code / Markup):
 
+<!-- validate-json: synthesist_output -->
 ```json
 {
   "task_id": "SYNTH_2026_01",
@@ -99,7 +101,7 @@ version: 4.0.0
 
 1. **Тон**: Нейтрально-деловой, фактологический, авторитетный.
 2. **Визуализация**: Графики, таблицы сравнения, KPI-карточки. Запрещен сплошной несформированный текст.
-3. **Блок предупреждений в данных**: Оформление блоков ⚠️ при выявлении конфликтов в данных из `conflicts_and_limitations`.
+3. **Блок предупреждений в данных**: Оформление блоков **[WARNING]** при выявлении конфликтов в данных из `conflicts_and_limitations`.
 
 ### Б. Правила наполнения информацией (Презентации и Отчеты)
 

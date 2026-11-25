@@ -54,6 +54,7 @@ version: 4.0.0
 
 ### А. Входной контракт (`ba_input_contract.json`):
 
+<!-- validate-json: ba_input_contract -->
 ```json
 {
   "task_id": "BA_2026_01",
@@ -61,12 +62,13 @@ version: 4.0.0
   "product_strategy": { "ref": "product_strategy.json" },
   "regulatory_checklist": { "ref": "regulatory_checklist.json" },
   "it_landscape": { "ref": "it_landscape.json" },
-  "output_format": "CLASSIC_BRD | AGILE_USER_STORIES | HYBRID"
+  "output_format": "HYBRID"
 }
 ```
 
 ### Б. Выходной контракт (`business_requirements.json`):
 
+<!-- validate-json: business_requirements -->
 ```json
 {
   "task_id": "BA_2026_01",
@@ -89,7 +91,8 @@ version: 4.0.0
     "correlation_id_logging": true,
     "sla_availability": "99.95%",
     "rpo_minutes": 5,
-    "rto_minutes": 30
+    "rto_minutes": 30,
+    "masking_exception": "STRING"
   }
 }
 ```

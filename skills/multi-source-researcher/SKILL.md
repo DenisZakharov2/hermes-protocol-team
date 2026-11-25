@@ -56,14 +56,15 @@ version: 4.0.0
 
 ### А. Входной контракт (`research_task.json`):
 
+<!-- validate-json: research_task -->
 ```json
 {
   "task_id": "REQ_RES_2026_01",
   "project_id": "STRING",
   "query": "STRING",
   "research_objective": "STRING",
-  "target_audience": "executive | technical | general",
-  "depth_level": "fast_scan | standard_deep | exhaustive",
+  "target_audience": "executive",
+  "depth_level": "standard_deep",
   "required_entities": ["metric", "timeline", "market_share"],
   "out_of_scope": ["STRING"]
 }
@@ -71,13 +72,14 @@ version: 4.0.0
 
 ### Б. Выходной контракт (`research_output.json`):
 
+<!-- validate-json: research_output -->
 ```json
 {
   "task_id": "REQ_RES_2026_01",
   "project_id": "STRING",
   "key_takeaways": ["STRING"],
   "quantifiable_metrics": [
-    { "metric_name": "STRING", "value": "NUMBER", "unit": "STRING", "source_id": "SRC_1" }
+    { "metric_name": "STRING", "value": 123.45, "unit": "STRING", "source_id": "SRC_1" }
   ],
   "conflicts_and_limitations": [
     { "issue": "STRING", "source_a_claim": "STRING", "source_b_claim": "STRING" }
@@ -97,7 +99,8 @@ version: 4.0.0
       "reliability_score": 0.8,
       "illustrative": true
     }
-  ]
+  ],
+  "data_origin": "untrusted"
 }
 ```
 

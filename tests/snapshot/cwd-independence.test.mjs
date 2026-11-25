@@ -99,7 +99,7 @@ describe('cwd independence of repository scripts', () => {
     });
 
     expect(output).toContain('All 21 examples are valid and covered by schemas.');
-    expect(output).toContain('All 3 marked skill contract blocks are valid.');
+    expect(output).toContain('All 9 marked skill contract blocks are valid.');
     expect(fs.readdirSync(foreignDir)).toEqual([]);
   });
 
