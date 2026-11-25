@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 4.1.0 — действующая
+> **Статус:** версия 4.1.1 — действующая
 >
 > **Лицензия:** MIT
 >
@@ -107,6 +107,42 @@
 - **Доступ в сеть** для `multi-source-researcher` (Tier 1/2: cbr.ru, суды, отчётность)
 - **Рендер презентаций:** Marp / python-pptx / Typst
 - **Node.js 22.22.2+** — только для локальной валидации: `npm ci && npm run validate` (в CI используется Node 22)
+
+---
+
+## Локальная установка (Local setup)
+
+Для работы с репозиторием локально нужен **Node.js 22.22.2**.
+
+### Через nvm
+
+```bash
+nvm install 22.22.2
+nvm use 22.22.2
+```
+
+### Через fnm
+
+```bash
+fnm install 22.22.2
+fnm use 22.22.2
+```
+
+### Через volta
+
+```bash
+volta install node@22.22.2
+```
+
+### Установка зависимостей и проверка
+
+```bash
+npm ci
+npm test
+npm run validate
+```
+
+> **Примечание:** Файлы `.nvmrc` и `.node-version` в корне репозитория фиксируют версию 22.22.2. Менеджеры версий (nvm, fnm, volta) автоматически подхватят её при входе в директорию проекта.
 
 ---
 

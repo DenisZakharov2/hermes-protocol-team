@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- `.nvmrc` и `.node-version` (22.22.2) — фиксация версии Node.js для менеджеров версий
+- README: раздел "Локальная установка (Local setup)" с инструкциями для nvm, fnm, volta
+
 ## [4.1.0] - 2026-11-25
 
 ### Added
