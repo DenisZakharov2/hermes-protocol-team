@@ -28,7 +28,7 @@
 | `product_strategy.schema.json` | `product-manager` | Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения. | task_id, project_id, product_concept, financial_model, regulatory_guardrails, prioritization_rice |
 | `project_aar.schema.json` | `hermes-orchestrator` | Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов. | project_id, human_rating, human_feedback, successful_patterns, problems_found, skill_patches, lessons_indexed_to |
 | `regulatory_checklist.schema.json` | `legal-compliance-counsel` | Регуляторный чек-лист требований РФ и способов проверки. | project_id, checklist_items |
-| `research_output.schema.json` | `multi-source-researcher` | Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников. | task_id, project_id, key_takeaways, quantifiable_metrics, conflicts_and_limitations, sources |
+| `research_output.schema.json` | `multi-source-researcher` | Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников. | task_id, project_id, key_takeaways, quantifiable_metrics, conflicts_and_limitations, sources, data_origin |
 | `research_plan.schema.json` | `multi-source-researcher` | Внутренний план исследования: подзапросы, целевые Tier и статусы. | task_id, project_id, created_at, subqueries |
 | `research_task.schema.json` | `multi-source-researcher` | Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности. | task_id, project_id, query, research_objective, target_audience, depth_level, required_entities, out_of_scope |
 | `synthesist_output.schema.json` | `research-synthesist` | Выходной контракт синтеза: разметка или код документа, диаграммы и сноски. | task_id, project_id, output_format, deliverable_content |
