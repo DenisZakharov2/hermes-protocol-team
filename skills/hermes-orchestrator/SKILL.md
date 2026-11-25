@@ -154,9 +154,12 @@ version: 4.0.0
 
 ### 1. Санитизация пользовательского ввода (`user_prompt`)
 
-- Перед передачей `user_prompt` любому воркеру (включая `multi-source-researcher`) оркестратор обязан выполнить базовую санитизацию:
-  - Удаление/экранирование явных инъекций инструкций: `ignore previous instructions`, `system prompt`, `you are now`, `act as`, `forget`, `override`, `disregard`, `bypass`, `jailbreak`.
-  - Нормализация пробелов и контроль длины (макс. 5000 символов для `user_prompt` в `execution_request.json`).
+- Перед передачей `user_prompt` любому воркеру (включая `multi-source-researcher`) оркестратор обязан выполнить базовую санитизацию с помощью reference-модуля `scripts/sanitize-prompt.mjs`:
+  - Удаление нулевой ширины и управляющих символов (обход фильтров через Unicode).
+  - Обнаружение паттернов инъекций инструкций: `ignore previous instructions`, `system prompt`, `you are now`, `act as`, `forget`, `override`, `disregard`, `bypass`, `jailbreak` — включая русские эквиваленты (`проигнорируй все инструкции`, `ты теперь система` и др.).
+  - Нормализация пробелов и переносов строк.
+  - Контроль длины (макс. 5000 символов для `user_prompt` в `execution_request.json`).
+  - Результат — объект `{ sanitized, wasSanitized, appliedRules }`; если `wasSanitized === true`, запрос считается потенциально инжекшенным и требует ручного или автоматического рассмотрения перед передаче воркеру.
   - Логирование санитизированной версии в `hermes_flight_log.json` (поле `sanitized_user_prompt`).
 
 ### 2. Защита Research Query (вход `multi-source-researcher`)
