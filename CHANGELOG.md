@@ -11,6 +11,8 @@
 - `bin/hermes-validate.mjs` — CLI валидатор артефактов: `npx hermes-validate <file.json> [--schema <type>] [--json] [--self-test]`
 - `package.json`: добавлен `bin` entry для `hermes-validate`
 - README: раздел "CLI валидатор (hermes-validate)" с примерами использования
+- `scripts/simulate-pipeline.mjs` — локальный симулятор оркестратора (MVP): прогон 11 этапов MandatoryPipeline, mock-воркеры, валидация на каждом шаге, flight_log, метрики
+- README: раздел "Локальный симулятор оркестратора (simulate-pipeline)" с документацией
 
 ## [4.1.0] - 2026-11-25
 

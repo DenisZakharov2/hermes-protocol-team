@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 4.1.2 — действующая
+> **Статус:** версия 4.1.3 — действующая
 >
 > **Лицензия:** MIT
 >
@@ -194,6 +194,67 @@ npx hermes-validate --self-test
 ## Дисклеймер
 
 Материалы репозитория носят информационный и методический характер. Выводы агентов (включая юридические оценки `legal-compliance-counsel`) **не заменяют** консультации квалифицированного адвоката и не являются стандартом правовой точности. Заказчик несет полную ответственность за утверждение артефактов на Stage-Gate и compliance-решения по итоговому продукту.
+
+---
+
+## Локальный симулятор оркестратора (`simulate-pipeline`)
+
+MVP-симулятор для end-to-end прогона 11-этапного MandatoryPipeline без полного Hermes Agent:
+
+```bash
+# Установка
+npm ci
+
+# Прогон полного пайплайна от execution_request.json
+npx simulate-pipeline examples/execution_request.example.json --output-dir ./my-simulation
+
+# Чтение из stdin
+cat execution_request.json | npx simulate-pipeline --output-dir ./sim-out
+
+# Машинный вывод (JSON с метриками)
+npx simulate-pipeline examples/execution_request.example.json --json
+```
+
+**Этапы (11 обязательных):**
+
+| # | Stage Code | Agent | Output Artifact |
+|---|------------|-------|-----------------|
+| 1 | PLAN_APPROVAL | hermes-orchestrator | execution_plan.json |
+| 2 | RESEARCH | multi-source-researcher | research_output.json |
+| 3 | PRODUCT_STRATEGY | product-manager | product_strategy.json |
+| 4 | LEGAL_CONCEPT | legal-compliance-counsel | legal_review_request.json |
+| 5 | BUSINESS_REQUIREMENTS | business-analyst | business_requirements.json |
+| 6 | LEGAL_BRD | legal-compliance-counsel | legal_compliance_report.json |
+| 7 | SYNTHESIS | research-synthesist | synthesist_output.json |
+| 8 | LEGAL_SYNTHESIS | legal-compliance-counsel | legal_compliance_report.json (updated) |
+| 9 | QUALITY_AUDIT | quality-evaluator | evaluation_report.json |
+| 10 | FINAL_GATE | hermes-orchestrator | orchestration_output.json |
+| 11 | AAR | hermes-orchestrator | project_aar.json |
+
+**На каждом этапе:**
+
+- Mock-воркер производит артефакт (из examples/ или генерация)
+- Валидация по JSON Schema + инварианты (через `hermes-validate`)
+- Запись в `flight_log.json` (PHASE_START, STAGE_GATE, PHASE_END, ERROR, SELF_HEALING)
+- HITL-утверждение на PLAN_APPROVAL и FINAL_GATE (симулируется)
+- Self-Healing до 3 попыток при ошибках
+
+**Выходные данные:**
+
+- `<output-dir>/cases/{project_id}/artifacts/` — все артефакты этапов
+- `flight_log.json` — полный бортовой журнал
+- `orchestration_output.json` — итоговый вывод оркестратора
+- `project_aar.json` — постпроектная рефлекция
+- `metrics.json` — длительность, токены, стоимость, first-time-right rate
+
+**Коды выхода:**
+
+| Код | Значение |
+|-----|----------|
+| 0   | OK (пайплайн завершён успешно) |
+| 1   | Пайплайн провален (валидация / max self-healing) |
+| 2   | Ошибка ввода (файл не найден, невалидный JSON) |
+| 3   | Ошибка использования |
 
 ---
 
