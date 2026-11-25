@@ -8,6 +8,9 @@
 
 - `.nvmrc` и `.node-version` (22.22.2) — фиксация версии Node.js для менеджеров версий
 - README: раздел "Локальная установка (Local setup)" с инструкциями для nvm, fnm, volta
+- `bin/hermes-validate.mjs` — CLI валидатор артефактов: `npx hermes-validate <file.json> [--schema <type>] [--json] [--self-test]`
+- `package.json`: добавлен `bin` entry для `hermes-validate`
+- README: раздел "CLI валидатор (hermes-validate)" с примерами использования
 
 ## [4.1.0] - 2026-11-25
 

@@ -5,7 +5,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D22.22.2-brightgreen)
 ![Validation](https://github.com/DenisZakharov2/hermes-protocol-team/actions/workflows/validate.yml/badge.svg)
 
-> **Статус:** версия 4.1.1 — действующая
+> **Статус:** версия 4.1.2 — действующая
 >
 > **Лицензия:** MIT
 >
@@ -143,6 +143,45 @@ npm run validate
 ```
 
 > **Примечание:** Файлы `.nvmrc` и `.node-version` в корне репозитория фиксируют версию 22.22.2. Менеджеры версий (nvm, fnm, volta) автоматически подхватят её при входе в директорию проекта.
+
+---
+
+## CLI валидатор (`hermes-validate`)
+
+Репозиторий поставляется с CLI-инструментом для валидации артефактов Hermes Protocol:
+
+```bash
+# Установка (внутри репозитория)
+npm ci
+
+# Валидация файла с автоопределением схемы по имени
+npx hermes-validate examples/execution_plan.example.json
+
+# Явное указание схемы
+npx hermes-validate artifact.json --schema execution_plan
+
+# Чтение из stdin
+cat artifact.json | npx hermes-validate --schema research_output
+
+# Машинный вывод (JSON)
+npx hermes-validate artifact.json --schema product_strategy --json
+
+# Самотестирование (все примеры + негативные фикстуры)
+npx hermes-validate --self-test
+```
+
+**Коды выхода:**
+
+| Код | Значение |
+|-----|----------|
+| 0   | OK (схема + инварианты валидны) |
+| 1   | Ошибка JSON Schema |
+| 2   | Ошибка инвариантов (бизнес-правила) |
+| 3   | Ошибка использования / аргументов |
+| 4   | Файл не найден / невалидный JSON |
+
+**Доступные схемы:**
+`execution_plan`, `research_output`, `product_strategy`, `business_requirements`, `legal_compliance_report`, `evaluation_report`, `orchestration_output`, `flight_log`, `eval_request`, `project_aar`, `brief_schema`, `research_task`, `research_plan`, `synthesist_output`, `agent_tuning_log`, `ba_input_contract`, `product_brief`, `it_landscape`, `legal_review_request`, `regulatory_checklist`
 
 ---
 

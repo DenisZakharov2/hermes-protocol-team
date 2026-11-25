@@ -1,6 +1,6 @@
 {
   "name": "hermes-protocol-team",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "private": true,
   "type": "module",
   "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
@@ -13,6 +13,9 @@
   },
   "homepage": "https://github.com/DenisZakharov2/hermes-protocol-team#readme",
   "license": "MIT",
+  "bin": {
+    "hermes-validate": "./bin/hermes-validate.mjs"
+  },
   "keywords": [
     "ai-agents",
     "multi-agent-system",
