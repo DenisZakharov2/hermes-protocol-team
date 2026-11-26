@@ -31,7 +31,11 @@
         ],
         "properties": {
           "query": {
-            "type": "string"
+            "type": "string",
+            "x-i18n": {
+              "title_ru": "Поисковый запрос",
+              "description_ru": "Текст поискового запроса"
+            }
           },
           "target_tier": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"
@@ -50,8 +54,16 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Подзапросы",
+        "description_ru": "Список подзапросов для исследования"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "research_plan.json",
+    "description_ru": "Внутренний план исследования: подзапросы, целевые Tier и статусы."
+  }
 }

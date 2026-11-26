@@ -40,6 +40,10 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Матрица влияния на системы",
+        "description_ru": "Матрица влияния продукта на IT-системы"
       }
     },
     "classic_brd": {
@@ -59,7 +63,11 @@
           }
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Классический BRD",
+        "description_ru": "Классический документ бизнес-требований"
+      }
     },
     "agile_backlog": {
       "type": "array",
@@ -78,6 +86,10 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Agile бэклог",
+        "description_ru": "Бэклог пользовательских историй в формате Gherkin"
       }
     },
     "regulatory_nfr": {
@@ -124,10 +136,14 @@
                 "const": false
               }
             },
-            "required": ["data_masking_152_fz"]
+            "required": [
+              "data_masking_152_fz"
+            ]
           },
           "then": {
-            "required": ["masking_exception"],
+            "required": [
+              "masking_exception"
+            ],
             "properties": {
               "masking_exception": {
                 "$ref": "#/properties/regulatory_nfr/properties/masking_exception"
@@ -136,8 +152,16 @@
           }
         }
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Регуляторные NFR",
+        "description_ru": "Нефункциональные требования регуляторного характера"
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "business_requirements.json",
+    "description_ru": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт."
+  }
 }

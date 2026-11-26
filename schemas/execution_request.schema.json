@@ -18,7 +18,11 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 5000,
-      "description": "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме."
+      "description": "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме.",
+      "x-i18n": {
+        "title_ru": "Запрос пользователя",
+        "description_ru": "Текстовый запрос Заказчика"
+      }
     },
     "domain_context": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/DomainContext"
@@ -45,11 +49,23 @@
           }
         },
         "quality_threshold": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold",
+          "x-i18n": {
+            "title_ru": "Порог качества",
+            "description_ru": "Целевой порог качества (0-100)"
+          }
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Требования к выводу",
+        "description_ru": "Требуемые артефакты и порог качества"
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "execution_request.json",
+    "description_ru": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества."
+  }
 }

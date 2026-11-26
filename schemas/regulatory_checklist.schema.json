@@ -34,7 +34,11 @@
         ],
         "type": "object"
       },
-      "type": "array"
+      "type": "array",
+      "x-i18n": {
+        "title_ru": "Пункты чек-листа",
+        "description_ru": "Элементы регуляторного чек-листа"
+      }
     },
     "project_id": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
@@ -43,5 +47,9 @@
   "required": [
     "project_id",
     "checklist_items"
-  ]
+  ],
+  "x-i18n": {
+    "title_ru": "regulatory_checklist.json",
+    "description_ru": "Регуляторный чек-лист требований РФ и способов проверки."
+  }
 }

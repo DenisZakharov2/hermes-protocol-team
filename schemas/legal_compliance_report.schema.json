@@ -110,14 +110,26 @@
             }
           }
         ]
+      },
+      "x-i18n": {
+        "title_ru": "Аудит соответствия",
+        "description_ru": "Детальный аудит соответствия нормативным актам"
       }
     },
     "contract_disclaimers_required": {
       "type": "array",
       "items": {
         "type": "string"
+      },
+      "x-i18n": {
+        "title_ru": "Требуемые отказные заявления",
+        "description_ru": "Список обязательных отказных заявлений в договорах"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "legal_compliance_report.json",
+    "description_ru": "Юридическое заключение: статус, риски, прецеденты и меры смягчения."
+  }
 }

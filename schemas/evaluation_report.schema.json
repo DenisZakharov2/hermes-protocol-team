@@ -28,14 +28,22 @@
     "overall_score": {
       "type": "number",
       "minimum": 0,
-      "maximum": 100
+      "maximum": 100,
+      "x-i18n": {
+        "title_ru": "Общий балл",
+        "description_ru": "Общий балл качества (0-100)"
+      }
     },
     "quality_threshold": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
     },
     "passed": {
       "type": "boolean",
-      "description": "Единственный вердикт качества. true только если overall_score >= quality_threshold и среди critical_findings нет находок уровня CRITICAL; любой CRITICAL даёт false даже при балле выше порога."
+      "description": "Единственный вердикт качества. true только если overall_score >= quality_threshold и среди critical_findings нет находок уровня CRITICAL; любой CRITICAL даёт false даже при балле выше порога.",
+      "x-i18n": {
+        "title_ru": "Пройдено",
+        "description_ru": "Флаг прохождения аудита качества"
+      }
     },
     "score_breakdown": {
       "type": "object",
@@ -73,7 +81,11 @@
           "maximum": 100
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Разбор по осям",
+        "description_ru": "Детальные баллы по пяти осям качества"
+      }
     },
     "critical_findings": {
       "type": "array",
@@ -110,14 +122,26 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Критические находки",
+        "description_ru": "Список критических находок аудита"
       }
     },
     "actionable_fixes": {
       "type": "array",
       "items": {
         "type": "string"
+      },
+      "x-i18n": {
+        "title_ru": "Действенные исправления",
+        "description_ru": "Список конкретных исправлений для Self-Healing"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "evaluation_report.json",
+    "description_ru": "Отчёт аудита по пяти осям качества с находками и actionable_fixes."
+  }
 }

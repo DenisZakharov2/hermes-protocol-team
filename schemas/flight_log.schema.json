@@ -38,7 +38,20 @@
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "phase": {
-            "type": "string"
+            "type": "string",
+            "x-i18n": {
+              "title_ru": "Фаза",
+              "description_ru": "Тип фазы бортового журнала",
+              "enum_labels_ru": [
+                "Начало фазы",
+                "Конец фазы",
+                "Stage-Gate",
+                "Ошибка",
+                "Self-Healing",
+                "HITL",
+                "Эскалация"
+              ]
+            }
           },
           "event_type": {
             "type": "string",
@@ -76,13 +89,21 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
+            "description": "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.",
+            "x-i18n": {
+              "title_ru": "Попытка Self-Healing",
+              "description_ru": "Номер попытки автоматического восстановления"
+            }
           },
           "legal_iteration": {
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
+            "description": "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.",
+            "x-i18n": {
+              "title_ru": "Итерация Legal",
+              "description_ru": "Номер итерации правового согласования"
+            }
           }
         },
         "allOf": [
@@ -93,10 +114,14 @@
                   "const": "SELF_HEALING"
                 }
               },
-              "required": ["event_type"]
+              "required": [
+                "event_type"
+              ]
             },
             "then": {
-              "required": ["self_healing_attempt"],
+              "required": [
+                "self_healing_attempt"
+              ],
               "properties": {
                 "self_healing_attempt": {
                   "$ref": "#/properties/entries/items/properties/self_healing_attempt"
@@ -111,10 +136,14 @@
                   "const": "LEGAL_CHECKIN"
                 }
               },
-              "required": ["event_type"]
+              "required": [
+                "event_type"
+              ]
             },
             "then": {
-              "required": ["legal_iteration"],
+              "required": [
+                "legal_iteration"
+              ],
               "properties": {
                 "legal_iteration": {
                   "$ref": "#/properties/entries/items/properties/legal_iteration"
@@ -124,8 +153,16 @@
           }
         ],
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Записи журнала",
+        "description_ru": "Хронологические записи бортового журнала агента"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "flight_log.json",
+    "description_ru": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки."
+  }
 }
