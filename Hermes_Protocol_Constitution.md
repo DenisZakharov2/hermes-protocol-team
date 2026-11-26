@@ -116,6 +116,22 @@
 | `FINAL_GATE` | Финальное утверждение и передача пакета | `hermes-orchestrator` + Человек |
 | `AAR` | Постпроектная рефлексия | `hermes-orchestrator` |
 
+<!-- BEGIN GENERATED: pipeline-stages-detailed -->
+| `stage_code` | Этап | Владелец | Approval Required | Minimal Depends On |
+|---|---|---|---|---|
+| `PLAN_APPROVAL` | Утверждение плана (Stage-Gate 1) | `hermes-orchestrator` | Да | — |
+| `RESEARCH` | Исследование рынка и первичных данных | `multi-source-researcher` | Нет | PLAN_APPROVAL |
+| `PRODUCT_STRATEGY` | Продуктовая стратегия и финансовая модель | `product-manager` | Нет | RESEARCH |
+| `LEGAL_CONCEPT` | Legal Check-in концепции | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
+| `BUSINESS_REQUIREMENTS` | BRD, Gherkin, NFR | `business-analyst` | Нет | LEGAL_CONCEPT |
+| `LEGAL_BRD` | Legal Check-in BRD | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
+| `SYNTHESIS` | Синтез и верстка | `research-synthesist` | Нет | LEGAL_BRD |
+| `LEGAL_SYNTHESIS` | Legal Check-in синтеза | `legal-compliance-counsel` | Нет | SYNTHESIS |
+| `QUALITY_AUDIT` | Аудит качества по 5 осям | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
+| `FINAL_GATE` | Финальное утверждение и передача пакета | `hermes-orchestrator` | Да | QUALITY_AUDIT |
+| `AAR` | Постпроектная рефлексия (AAR) | `hermes-orchestrator` | Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-detailed -->
+
 `stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
 
 ```text

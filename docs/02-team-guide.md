@@ -165,7 +165,31 @@
 
 ---
 
-## 8. Бортовой журнал (flight log)
+## 8. Обязательный пайплайн (MandatoryPipeline) — автогенерируемая таблица
+
+### 8.1. Таблица этапов
+
+<!-- BEGIN GENERATED: pipeline-stages -->
+| № | Stage Code | Agent | Approval Required | Minimal Depends On |
+|---|---|---|---|---|
+| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Да | — |
+| 2 | `RESEARCH` | `multi-source-researcher` | Нет | PLAN_APPROVAL |
+| 3 | `PRODUCT_STRATEGY` | `product-manager` | Нет | RESEARCH |
+| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
+| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | Нет | LEGAL_CONCEPT |
+| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
+| 7 | `SYNTHESIS` | `research-synthesist` | Нет | LEGAL_BRD |
+| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | Нет | SYNTHESIS |
+| 9 | `QUALITY_AUDIT` | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
+| 10 | `FINAL_GATE` | `hermes-orchestrator` | Да | QUALITY_AUDIT |
+| 11 | `AAR` | `hermes-orchestrator` | Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages -->
+
+Источник истины: `schemas/execution_plan.schema.json` → `definitions.MandatoryPipeline.const`.
+
+---
+
+## 9. Бортовой журнал (flight log)
 
 Каждый агент ведет собственный журнал `*_flight_log.json` с фиксацией: времени фаз, статусов передач контекста, решений Заказчика на Stage-Gate, итераций доработок, логов ошибок. Оркестратор ведет общий `hermes_flight_log.json`. Журналы — первичный источник при расследовании инцидентов и аудите.
 

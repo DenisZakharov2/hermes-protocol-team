@@ -53,6 +53,21 @@ const AGENT_BY_SCHEMA = {
   flight_log: 'все агенты'
 };
 
+// Mapping of stage_code to responsible agent (for pipeline stages table)
+const STAGE_CODE_TO_AGENT = {
+  PLAN_APPROVAL: 'hermes-orchestrator',
+  RESEARCH: 'multi-source-researcher',
+  PRODUCT_STRATEGY: 'product-manager',
+  LEGAL_CONCEPT: 'legal-compliance-counsel',
+  BUSINESS_REQUIREMENTS: 'business-analyst',
+  LEGAL_BRD: 'legal-compliance-counsel',
+  SYNTHESIS: 'research-synthesist',
+  LEGAL_SYNTHESIS: 'legal-compliance-counsel',
+  QUALITY_AUDIT: 'quality-evaluator',
+  FINAL_GATE: 'hermes-orchestrator',
+  AAR: 'hermes-orchestrator'
+};
+
 /**
  * Многоточие ставится только при реальном обрезании текста.
  * Угловые скобки экранируются: иначе markdownlint считает их inline-HTML.
@@ -264,6 +279,87 @@ function renderQualityWeightsTable() {
   return lines.join('\n');
 }
 
+/**
+ * Load MandatoryPipeline from execution_plan.schema.json
+ */
+function loadMandatoryPipeline() {
+  const executionPlanPath = path.join(schemasDir, 'execution_plan.schema.json');
+  const content = fs.readFileSync(executionPlanPath, 'utf8');
+  const schema = JSON.parse(content);
+  const pipeline = schema.definitions?.MandatoryPipeline?.const;
+  if (!pipeline || !Array.isArray(pipeline)) {
+    console.error(`❌ MandatoryPipeline not found in ${executionPlanPath}`);
+    process.exit(1);
+  }
+  return pipeline;
+}
+
+/**
+ * Render pipeline stages table for team guide (simplified)
+ */
+function renderPipelineStagesTable(pipeline) {
+  const lines = [];
+  lines.push('| № | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  lines.push('|---|---|---|---|---|');
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Render detailed pipeline stages table for Constitution (with Russian names)
+ */
+const STAGE_CODE_TO_RUSSIAN = {
+  PLAN_APPROVAL: 'Утверждение плана (Stage-Gate 1)',
+  RESEARCH: 'Исследование рынка и первичных данных',
+  PRODUCT_STRATEGY: 'Продуктовая стратегия и финансовая модель',
+  LEGAL_CONCEPT: 'Legal Check-in концепции',
+  BUSINESS_REQUIREMENTS: 'BRD, Gherkin, NFR',
+  LEGAL_BRD: 'Legal Check-in BRD',
+  SYNTHESIS: 'Синтез и верстка',
+  LEGAL_SYNTHESIS: 'Legal Check-in синтеза',
+  QUALITY_AUDIT: 'Аудит качества по 5 осям',
+  FINAL_GATE: 'Финальное утверждение и передача пакета',
+  AAR: 'Постпроектная рефлексия (AAR)'
+};
+
+function renderPipelineStagesDetailedTable(pipeline) {
+  const lines = [];
+  lines.push('| `stage_code` | Этап | Владелец | Approval Required | Minimal Depends On |');
+  lines.push('|---|---|---|---|---|');
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    const russian = STAGE_CODE_TO_RUSSIAN[stage.stage_code] ?? stage.stage_code;
+    lines.push(`| \`${stage.stage_code}\` | ${russian} | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Render pipeline stages table for skill (with additional columns)
+ */
+function renderPipelineStagesSkillTable(pipeline) {
+  const lines = [];
+  lines.push('| № | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  lines.push('|---|---|---|---|---|');
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
 function replaceBlock(content, name, body) {
   const begin = `<!-- BEGIN GENERATED: ${name} -->`;
   const end = `<!-- END GENERATED: ${name} -->`;
@@ -332,3 +428,55 @@ if (qualityContent !== undefined) {
 } else {
   console.warn(`⚠️  Не найден ${qualityPath}, таблица весов не обновлена`);
 }
+
+// Генерация таблиц этапов пайплайна
+console.log('\n📝 Генерация таблиц этапов пайплайна...');
+
+const pipeline = loadMandatoryPipeline();
+
+// 1. docs/02-team-guide.md — simplified table
+const teamGuidePath = path.join('docs', '02-team-guide.md');
+try {
+  let teamGuideContent = fs.readFileSync(teamGuidePath, 'utf8');
+  teamGuideContent = replaceBlock(teamGuideContent, 'pipeline-stages', renderPipelineStagesTable(pipeline));
+  fs.writeFileSync(teamGuidePath, teamGuideContent, 'utf8');
+  console.log(`✅ Обновлено: ${teamGuidePath} (таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${teamGuidePath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+// 2. Hermes_Protocol_Constitution.md — detailed table
+const constitutionPath = 'Hermes_Protocol_Constitution.md';
+try {
+  let constitutionContent = fs.readFileSync(constitutionPath, 'utf8');
+  constitutionContent = replaceBlock(constitutionContent, 'pipeline-stages-detailed', renderPipelineStagesDetailedTable(pipeline));
+  fs.writeFileSync(constitutionPath, constitutionContent, 'utf8');
+  console.log(`✅ Обновлено: ${constitutionPath} (детальная таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${constitutionPath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+// 3. skills/hermes-orchestrator/SKILL.md — skill table
+const skillPath = path.join('skills', 'hermes-orchestrator', 'SKILL.md');
+try {
+  let skillContent = fs.readFileSync(skillPath, 'utf8');
+  skillContent = replaceBlock(skillContent, 'pipeline-stages-skill', renderPipelineStagesSkillTable(pipeline));
+  fs.writeFileSync(skillPath, skillContent, 'utf8');
+  console.log(`✅ Обновлено: ${skillPath} (таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${skillPath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+console.log('\n✅ Генерация таблиц этапов пайплайна завершена');
