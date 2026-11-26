@@ -258,6 +258,52 @@ npx simulate-pipeline examples/execution_request.example.json --json
 
 ---
 
+## TypeScript типы из JSON Schema (`generate:types`)
+
+Все 21 контрактные JSON-схемы имеют сгенерированные TypeScript объявления (`.d.ts`):
+
+```bash
+# Генерация типов (создаёт/обновляет папку types/)
+npm run generate:types
+
+# Результат: 21 файл в types/
+ls types/
+# agent_tuning_log.d.ts
+# ba_input_contract.d.ts
+# brief_schema.d.ts
+# business_requirements.d.ts
+# eval_request.d.ts
+# evaluation_report.d.ts
+# execution_plan.d.ts
+# execution_request.d.ts
+# flight_log.d.ts
+# it_landscape.d.ts
+# legal_compliance_report.d.ts
+# legal_review_request.d.ts
+# orchestration_output.d.ts
+# product_brief.d.ts
+# product_strategy.d.ts
+# project_aar.d.ts
+# regulatory_checklist.d.ts
+# research_output.d.ts
+# research_plan.d.ts
+# research_task.d.ts
+# synthesist_output.d.ts
+```
+
+**Использование в проекте:**
+
+```typescript
+import { ExecutionPlanJson } from './types/execution_plan';
+import { ResearchOutputJson } from './types/research_output';
+import { ProductStrategyJson } from './types/product_strategy';
+// ... и остальные
+```
+
+> **Важно:** Типы генерируются из JSON Schema автоматически. Не редактируйте `.d.ts` файлы вручную — правьте схемы в `schemas/` и перезапустите `npm run generate:types`. Папка `types/` в `.gitignore` (генерируется в CI).
+
+---
+
 ## Проверка синхронизации Schema ↔ Skill (`check-schema-skill-sync`)
 
 Инструмент для верификации соответствия JSON-схем и документов скиллов:

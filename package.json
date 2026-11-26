@@ -41,6 +41,7 @@
     "init:memory": "node scripts/init-memory.mjs",
     "sync:version": "node scripts/sync-version.mjs",
     "generate:docs": "node scripts/generate-docs.mjs",
+    "generate:types": "node scripts/generate-types.mjs",
     "test": "vitest run",
     "test:snapshot": "vitest run tests/snapshot"
   },
@@ -48,6 +49,7 @@
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "jsdom": "^31.0.1",
+    "json-schema-to-typescript": "^16.0.0",
     "markdownlint-cli2": "^0.24.1",
     "mermaid": "^11.17.2",
     "tmp-promise": "^3.0.3",
