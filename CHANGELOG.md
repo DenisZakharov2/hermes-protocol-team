@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.0](https://github.com/DenisZakharov2/hermes-protocol-team/compare/v4.1.4...v4.2.0) (2026-11-26)
+
+### Features
+
+* P2.1 — TypeScript types from JSON Schema ([94f1016](https://github.com/DenisZakharov2/hermes-protocol-team/commit/94f101650e0964f473b433d7c84a58ee938d6303))
+* P4.1 — add release-it automation with conventional changelog ([78ce688](https://github.com/DenisZakharov2/hermes-protocol-team/commit/78ce688aefe51bc4d4c8d26aca170cc8977b40d7))
+
 Все значимые изменения проекта документируются в этом файле. Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версионирование — [Semantic Versioning](https://semver.org/lang/ru/).
 
 ## [Unreleased]
