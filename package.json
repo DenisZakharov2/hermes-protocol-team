@@ -43,15 +43,19 @@
     "generate:docs": "node scripts/generate-docs.mjs",
     "generate:types": "node scripts/generate-types.mjs",
     "test": "vitest run",
-    "test:snapshot": "vitest run tests/snapshot"
+    "test:snapshot": "vitest run tests/snapshot",
+    "release": "release-it",
+    "release:dry-run": "release-it --dry-run"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^12.0.2",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "jsdom": "^31.0.1",
     "json-schema-to-typescript": "^16.0.0",
     "markdownlint-cli2": "^0.24.1",
     "mermaid": "^11.17.2",
+    "release-it": "^21.1.3",
     "tmp-promise": "^3.0.3",
     "vitest": "^5.1.1"
   },
