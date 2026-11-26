@@ -10,7 +10,7 @@ import { execSync } from 'node:child_process';
 import tmp from 'tmp-promise';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
-const EXCLUDED_ENTRIES = new Set(['node_modules', '.git', '.hermes', '.cache']);
+const EXCLUDED_ENTRIES = new Set(['node_modules', '.git', '.hermes', '.cache', '.venv']);
 
 function copyRepoTo(dest) {
   function copyRecursive(src, destDir, rel = '') {

@@ -95,7 +95,7 @@ async function setupTempRepo() {
   const tmpDir = await tmp.dir({ unsafeCleanup: true });
   const cwd = tmpDir.path;
 
-  const excludePatterns = ['node_modules', '.git', 'tests/snapshot', '.hermes', '.cache'];
+  const excludePatterns = ['node_modules', '.git', 'tests/snapshot', '.hermes', '.cache', '.venv'];
 
   function shouldExclude(name) {
     return excludePatterns.some(p => name === p || name.startsWith(p + '/'));
