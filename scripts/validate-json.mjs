@@ -11,13 +11,60 @@ const schemasDir = 'schemas';
 const examplesDir = 'examples';
 const skillsDir = 'skills';
 
+// Current schema version (from package.json)
+const VERSION = '4.1.4';
+
 const definitions = JSON.parse(
   fs.readFileSync(path.join(schemasDir, 'common', 'definitions.schema.json'), 'utf8')
 );
 
 const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: true });
 addFormats(ajv);
-ajv.addSchema(definitions);
+
+// Add definitions under both the new $id (https://...) and the legacy URN
+// Strip fragment from $id for Ajv resolution
+const definitionsBaseId = definitions.$id.split('#')[0];
+ajv.addSchema(definitions, definitionsBaseId);
+ajv.addSchema(definitions, 'urn:hermes-protocol:schemas:common:definitions.schema.json');
+
+// Pre-load all contract schemas and register under both new $id and legacy URN
+// This must be done BEFORE compiling validators so that cross-schema $ref resolution works
+const contractSchemaFiles = [
+  'agent_tuning_log.schema.json',
+  'ba_input_contract.schema.json',
+  'brief_schema.schema.json',
+  'business_requirements.schema.json',
+  'eval_request.schema.json',
+  'evaluation_report.schema.json',
+  'execution_plan.schema.json',
+  'execution_request.schema.json',
+  'flight_log.schema.json',
+  'it_landscape.schema.json',
+  'legal_compliance_report.schema.json',
+  'legal_review_request.schema.json',
+  'orchestration_output.schema.json',
+  'product_brief.schema.json',
+  'product_strategy.schema.json',
+  'project_aar.schema.json',
+  'regulatory_checklist.schema.json',
+  'research_output.schema.json',
+  'research_plan.schema.json',
+  'research_task.schema.json',
+  'synthesist_output.schema.json',
+];
+
+for (const schemaFile of contractSchemaFiles) {
+  const schemaPath = path.join(schemasDir, schemaFile);
+  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  // Register under new $id (strip fragment for Ajv resolution)
+  if (schema.$id) {
+    const baseId = schema.$id.split('#')[0];
+    ajv.addSchema(schema, baseId);
+  }
+  // Register under legacy URN for backward compatibility
+  const urnId = `urn:hermes-protocol:schemas:${schemaFile}`;
+  ajv.addSchema(schema, urnId);
+}
 
 // Единственный нормативный источник весов качества. definitions.schema.json
 // описывает только форму объекта и не хранит значения (иначе появляется второй источник).
@@ -927,7 +974,14 @@ const validators = new Map();
 for (const schemaFile of schemaFiles) {
   const base = schemaFile.replace('.schema.json', '');
   const schema = JSON.parse(fs.readFileSync(path.join(schemasDir, schemaFile), 'utf8'));
-  validators.set(base, ajv.compile(schema));
+  // Get validator using the schema's $id (pre-registered)
+  const schemaId = schema.$id || `urn:hermes-protocol:schemas:${schemaFile}`;
+  const validator = ajv.getSchema(schemaId);
+  if (!validator) {
+    console.error(`❌ Schema not found in Ajv: ${schemaId}`);
+    process.exit(1);
+  }
+  validators.set(base, validator);
 }
 
 const examples = fs
@@ -971,6 +1025,16 @@ for (const example of examples) {
       console.error(`  ${error.instancePath || '/'} ${error.message}`);
     }
     continue;
+  }
+
+  // Schema version check (warning only, not error)
+  const schemaVersion = data.schema_version;
+  if (typeof schemaVersion === 'string') {
+    if (schemaVersion !== VERSION) {
+      console.warn(`⚠️  VERSION MISMATCH ${examplePath}: schema_version "${schemaVersion}" != current schema version "${VERSION}"`);
+    }
+  } else {
+    console.warn(`⚠️  MISSING VERSION ${examplePath}: no schema_version field (recommended for traceability)`);
   }
 
   // Pass orchestration output for cross-check if this is execution_plan
@@ -1076,6 +1140,16 @@ for (const skillFile of skillFiles) {
         console.error(`  ${error.instancePath || '/'} ${error.message}`);
       }
       continue;
+    }
+
+    // Schema version check for skill contracts (warning only)
+    const schemaVersion = data.schema_version;
+    if (typeof schemaVersion === 'string') {
+      if (schemaVersion !== VERSION) {
+        console.warn(`⚠️  VERSION MISMATCH ${label}: schema_version "${schemaVersion}" != current schema version "${VERSION}"`);
+      }
+    } else {
+      console.warn(`⚠️  MISSING VERSION ${label}: no schema_version field (recommended for traceability)`);
     }
 
     const check = invariantChecks[base];

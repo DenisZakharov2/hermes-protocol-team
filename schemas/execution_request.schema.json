@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:execution_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/execution_request.schema.json#v4.1.4",
   "title": "execution_request.json",
   "description": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.",
   "type": "object",
@@ -49,6 +49,9 @@
         }
       },
       "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

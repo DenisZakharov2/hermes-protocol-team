@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:brief_schema.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/brief_schema.schema.json#v4.1.4",
   "title": "brief_schema.json",
   "description": "Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг.",
   "type": "object",
@@ -65,6 +65,9 @@
     },
     "research_data": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:regulatory_checklist.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/regulatory_checklist.schema.json#v4.1.4",
   "title": "regulatory_checklist.json",
   "description": "Регуляторный чек-лист требований РФ и способов проверки.",
   "type": "object",
@@ -38,6 +38,9 @@
     },
     "project_id": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "required": [

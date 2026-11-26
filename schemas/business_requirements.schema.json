@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:business_requirements.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/business_requirements.schema.json#v4.1.4",
   "title": "business_requirements.json",
   "description": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт.",
   "type": "object",
@@ -124,10 +124,14 @@
                 "const": false
               }
             },
-            "required": ["data_masking_152_fz"]
+            "required": [
+              "data_masking_152_fz"
+            ]
           },
           "then": {
-            "required": ["masking_exception"],
+            "required": [
+              "masking_exception"
+            ],
             "properties": {
               "masking_exception": {
                 "$ref": "#/properties/regulatory_nfr/properties/masking_exception"
@@ -137,6 +141,9 @@
         }
       ],
       "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

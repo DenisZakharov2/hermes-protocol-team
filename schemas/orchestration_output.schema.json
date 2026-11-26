@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:orchestration_output.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/orchestration_output.schema.json#v4.1.4",
   "title": "orchestration_output.json",
   "description": "Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.",
   "type": "object",
@@ -86,6 +86,9 @@
     },
     "project_aar": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false,

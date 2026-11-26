@@ -100,6 +100,12 @@ function readSchema(relativePath) {
       process.exit(1);
     }
   }
+  // Extract version from $id
+  let schemaVersion = '—';
+  if (schema.$id && typeof schema.$id === 'string') {
+    const match = schema.$id.match(/#v(\d+\.\d+\.\d+)$/);
+    if (match) schemaVersion = match[1];
+  }
   return {
     relativePath,
     basename,
@@ -108,18 +114,19 @@ function readSchema(relativePath) {
     description: schema.description ?? '',
     required: Array.isArray(schema.required) ? schema.required : [],
     properties: Object.keys(schema.properties ?? {}),
-    agent
+    agent,
+    schemaVersion
   };
 }
 
 function renderSchemaTable(schemas) {
   const lines = [];
 
-  lines.push('| Файл | Агент | Назначение | Обязательные поля |');
-  lines.push('|---|---|---|---|');
+  lines.push('| Файл | Версия | Агент | Назначение | Обязательные поля |');
+  lines.push('|---|---|---|---|---|');
   for (const schema of schemas.filter((item) => !item.isCommon)) {
     const required = schema.required.length > 0 ? schema.required.join(', ') : '—';
-    lines.push(`| \`${schema.relativePath}\` | \`${schema.agent}\` | ${truncate(schema.description, 120)} | ${required} |`);
+    lines.push(`| \`${schema.relativePath}\` | \`${schema.schemaVersion}\` | \`${schema.agent}\` | ${truncate(schema.description, 120)} | ${required} |`);
   }
   lines.push('');
 

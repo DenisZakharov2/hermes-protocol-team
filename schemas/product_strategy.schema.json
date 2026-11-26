@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:product_strategy.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/product_strategy.schema.json#v4.1.4",
   "title": "product_strategy.json",
   "description": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.",
   "type": "object",
@@ -279,6 +279,9 @@
       },
       "additionalProperties": false,
       "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно."
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

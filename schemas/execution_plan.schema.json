@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:execution_plan.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/execution_plan.schema.json#v4.1.4",
   "title": "execution_plan.json",
   "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
   "type": "object",
@@ -33,27 +33,97 @@
           "minimal_depends_on"
         ],
         "properties": {
-          "stage_code": { "$ref": "#/definitions/StageCode" },
-          "approval_required": { "type": "boolean" },
+          "stage_code": {
+            "$ref": "#/definitions/StageCode"
+          },
+          "approval_required": {
+            "type": "boolean"
+          },
           "minimal_depends_on": {
             "type": "array",
-            "items": { "$ref": "#/definitions/StageCode" },
+            "items": {
+              "$ref": "#/definitions/StageCode"
+            },
             "uniqueItems": true
           }
         }
       },
       "const": [
-        { "stage_code": "PLAN_APPROVAL", "approval_required": true, "minimal_depends_on": [] },
-        { "stage_code": "RESEARCH", "approval_required": false, "minimal_depends_on": ["PLAN_APPROVAL"] },
-        { "stage_code": "PRODUCT_STRATEGY", "approval_required": false, "minimal_depends_on": ["RESEARCH"] },
-        { "stage_code": "LEGAL_CONCEPT", "approval_required": false, "minimal_depends_on": ["PRODUCT_STRATEGY"] },
-        { "stage_code": "BUSINESS_REQUIREMENTS", "approval_required": false, "minimal_depends_on": ["LEGAL_CONCEPT"] },
-        { "stage_code": "LEGAL_BRD", "approval_required": false, "minimal_depends_on": ["BUSINESS_REQUIREMENTS"] },
-        { "stage_code": "SYNTHESIS", "approval_required": false, "minimal_depends_on": ["LEGAL_BRD"] },
-        { "stage_code": "LEGAL_SYNTHESIS", "approval_required": false, "minimal_depends_on": ["SYNTHESIS"] },
-        { "stage_code": "QUALITY_AUDIT", "approval_required": false, "minimal_depends_on": ["LEGAL_SYNTHESIS"] },
-        { "stage_code": "FINAL_GATE", "approval_required": true, "minimal_depends_on": ["QUALITY_AUDIT"] },
-        { "stage_code": "AAR", "approval_required": false, "minimal_depends_on": ["FINAL_GATE"] }
+        {
+          "stage_code": "PLAN_APPROVAL",
+          "approval_required": true,
+          "minimal_depends_on": []
+        },
+        {
+          "stage_code": "RESEARCH",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "PLAN_APPROVAL"
+          ]
+        },
+        {
+          "stage_code": "PRODUCT_STRATEGY",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "RESEARCH"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_CONCEPT",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "PRODUCT_STRATEGY"
+          ]
+        },
+        {
+          "stage_code": "BUSINESS_REQUIREMENTS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_CONCEPT"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_BRD",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "BUSINESS_REQUIREMENTS"
+          ]
+        },
+        {
+          "stage_code": "SYNTHESIS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_BRD"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_SYNTHESIS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "SYNTHESIS"
+          ]
+        },
+        {
+          "stage_code": "QUALITY_AUDIT",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_SYNTHESIS"
+          ]
+        },
+        {
+          "stage_code": "FINAL_GATE",
+          "approval_required": true,
+          "minimal_depends_on": [
+            "QUALITY_AUDIT"
+          ]
+        },
+        {
+          "stage_code": "AAR",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "FINAL_GATE"
+          ]
+        }
       ]
     }
   },
@@ -168,6 +238,9 @@
         }
       },
       "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

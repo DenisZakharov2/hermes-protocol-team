@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:agent_tuning_log.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/agent_tuning_log.schema.json#v4.1.4",
   "title": "agent_tuning_log.json",
   "description": "Журнал оперативных корректировок агентов и предложенных патчей скиллов.",
   "type": "object",
@@ -50,6 +50,9 @@
         },
         "additionalProperties": false
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:eval_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/eval_request.schema.json#v4.1.4",
   "title": "eval_request.json",
   "description": "Запрос на аудит качества: артефакт, контекст и целевой порог.",
   "type": "object",
@@ -54,6 +54,9 @@
     },
     "quality_threshold": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

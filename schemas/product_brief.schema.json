@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:product_brief.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/product_brief.schema.json#v4.1.4",
   "title": "product_brief.json",
   "description": "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование.",
   "type": "object",
@@ -58,6 +58,9 @@
     },
     "market_data": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:flight_log.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/flight_log.schema.json#v4.1.4",
   "title": "flight_log.json",
   "description": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.",
   "type": "object",
@@ -93,10 +93,14 @@
                   "const": "SELF_HEALING"
                 }
               },
-              "required": ["event_type"]
+              "required": [
+                "event_type"
+              ]
             },
             "then": {
-              "required": ["self_healing_attempt"],
+              "required": [
+                "self_healing_attempt"
+              ],
               "properties": {
                 "self_healing_attempt": {
                   "$ref": "#/properties/entries/items/properties/self_healing_attempt"
@@ -111,10 +115,14 @@
                   "const": "LEGAL_CHECKIN"
                 }
               },
-              "required": ["event_type"]
+              "required": [
+                "event_type"
+              ]
             },
             "then": {
-              "required": ["legal_iteration"],
+              "required": [
+                "legal_iteration"
+              ],
               "properties": {
                 "legal_iteration": {
                   "$ref": "#/properties/entries/items/properties/legal_iteration"
@@ -125,6 +133,9 @@
         ],
         "additionalProperties": false
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

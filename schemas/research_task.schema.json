@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:research_task.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/research_task.schema.json#v4.1.4",
   "title": "research_task.json",
   "description": "Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности.",
   "type": "object",
@@ -54,6 +54,9 @@
       "items": {
         "type": "string"
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false

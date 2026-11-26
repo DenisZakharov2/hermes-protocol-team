@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:legal_review_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/legal_review_request.schema.json#v4.1.4",
   "title": "legal_review_request.json",
   "description": "Запрос на правовую проверку концепции или BRD.",
   "type": "object",
@@ -32,6 +32,9 @@
     },
     "jurisdiction": {
       "type": "string"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "additionalProperties": false
