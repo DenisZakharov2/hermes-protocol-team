@@ -121,6 +121,30 @@ version: 4.0.0
 1. Агент `research-synthesist` обязан непрерывно вести бортовой журнал `synthesist_flight_log.json`.
 2. В журнале фиксируются выбранные стили, количество сгенерированных слайдов/страниц, метрики плотности текста и ошибки компиляции.
 
+### 7.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `synthesist_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T14:45:00Z",
+  "phase": "SYNTHESIS",
+  "event_type": "PHASE_END",
+  "status": "OK",
+  "details": "Generated Marp presentation, 22 slides",
+  "duration_ms": 18000,
+  "tokens_used": { "input": 12000, "output": 4500, "total": 16500 },
+  "model": "gpt-4o",
+  "retry_reason": "VALIDATION_ERROR",
+  "sanitization_applied": false,
+  "original_prompt_hash": "c3d4e5f6a7890123"
+}
+```
+
 ## 8. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `research-synthesist` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.

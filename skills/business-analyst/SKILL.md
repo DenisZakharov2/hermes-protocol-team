@@ -112,6 +112,30 @@ version: 4.0.0
 1. Агент `business-analyst` обязан непрерывно вести бортовой журнал `ba_flight_log.json`.
 2. В журнале фиксируются все проанализированные потоки, шаги декомпозиции User Stories, проверенные NFR и результаты согласований.
 
+### 6.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `ba_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T13:15:00Z",
+  "phase": "BUSINESS_REQUIREMENTS",
+  "event_type": "PHASE_END",
+  "status": "OK",
+  "details": "BRD completed, 45 User Stories, NFR validated",
+  "duration_ms": 12000,
+  "tokens_used": { "input": 9800, "output": 4100, "total": 13900 },
+  "model": "gpt-4o",
+  "retry_reason": "VALIDATION_ERROR",
+  "sanitization_applied": false,
+  "original_prompt_hash": "e5f6a78901234567"
+}
+```
+
 ## 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `business-analyst` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.

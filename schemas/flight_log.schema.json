@@ -31,7 +31,10 @@
           "phase",
           "event_type",
           "status",
-          "details"
+          "details",
+          "duration_ms",
+          "tokens_used",
+          "model"
         ],
         "properties": {
           "timestamp": {
@@ -71,6 +74,59 @@
             "items": {
               "type": "string"
             }
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Длительность операции в миллисекундах."
+          },
+          "tokens_used": {
+            "type": "object",
+            "required": ["input", "output", "total"],
+            "additionalProperties": false,
+            "properties": {
+              "input": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Количество входных токенов."
+              },
+              "output": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Количество выходных токенов."
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Общее количество токенов (input + output)."
+              }
+            },
+            "description": "Токены, использованные при вызове LLM."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Идентификатор модели (например, gpt-4o, claude-3.5-sonnet)."
+          },
+          "retry_reason": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_ERROR",
+              "INVARIANT_ERROR",
+              "TIMEOUT",
+              "RATE_LIMIT",
+              "OTHER"
+            ],
+            "description": "Причина ретрая, если операция была повторена."
+          },
+          "sanitization_applied": {
+            "type": "boolean",
+            "description": "Был ли применен санитайзер к user_prompt (true если были изменения)."
+          },
+          "original_prompt_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{16}$",
+            "description": "SHA256 хеш оригинального user_prompt (первые 16 символов) для аудита в flight_log."
           },
           "self_healing_attempt": {
             "type": "integer",

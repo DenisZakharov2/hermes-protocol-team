@@ -126,6 +126,30 @@ version: 4.0.0
 1. Агент `product-manager` обязан непрерывно и автономно вести собственный бортовой журнал `pm_flight_log.json`.
 2. В журнале фиксируются все вводные гипотезы, шаги расчета финмодели, проверки нормативов ЦБ РФ и статус взаимодействия с `hermes-orchestrator`.
 
+### 6.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `pm_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T11:00:00Z",
+  "phase": "PRODUCT_STRATEGY",
+  "event_type": "PHASE_END",
+  "status": "OK",
+  "details": "Financial model calculated, CoF=11.0%, NIM=1.5%",
+  "duration_ms": 9500,
+  "tokens_used": { "input": 6200, "output": 2800, "total": 9000 },
+  "model": "gpt-4o",
+  "retry_reason": "INVARIANT_ERROR",
+  "sanitization_applied": false,
+  "original_prompt_hash": "d4e5f6a789012345"
+}
+```
+
 ## 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `product-manager` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.
