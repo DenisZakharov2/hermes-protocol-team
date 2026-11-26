@@ -1,0 +1,2404 @@
+openapi: 3.0.3
+info:
+  title: Hermes Protocol API
+  version: 4.2.0
+  description: |-
+    Hermes Protocol — Multi-Agent AI System for Banking/Fintech Projects.
+
+    This OpenAPI specification describes the REST API interfaces for integrating with
+    the Hermes Protocol multi-agent system. The system consists of 7 specialized AI agents
+    orchestrated by the Hermes Orchestrator.
+
+    ## Agent Roles
+
+    | Agent | Role |
+    |-------|------|
+    | `hermes-orchestrator` | Orchestrator, DAG dispatcher, Stage-Gate HITL |
+    | `multi-source-researcher` | Researcher (Tier 1-3 sources) |
+    | `product-manager` | Product strategist, financial engineer |
+    | `business-analyst` | Business & systems analyst (BRD, Gherkin, NFR) |
+    | `legal-compliance-counsel` | Senior legal counsel & compliance officer (RF) |
+    | `research-synthesist` | Synthesis analyst, document renderer |
+    | `quality-evaluator` | Quality critic, 5-axis audit |
+
+    ## Pipeline Stages (11 Mandatory)
+
+    1. `PLAN_APPROVAL` - Plan approval (Stage-Gate 1)
+    2. `RESEARCH` - Market & primary data research
+    3. `PRODUCT_STRATEGY` - Product strategy & financial model
+    4. `LEGAL_CONCEPT` - Legal Check-in concept
+    5. `BUSINESS_REQUIREMENTS` - BRD, Gherkin, NFR
+    6. `LEGAL_BRD` - Legal Check-in BRD
+    7. `SYNTHESIS` - Synthesis & rendering
+    8. `LEGAL_SYNTHESIS` - Legal Check-in synthesis
+    9. `QUALITY_AUDIT` - 5-axis quality audit
+    10. `FINAL_GATE` - Final approval & package delivery
+    11. `AAR` - Post-project reflection
+
+    ## Key Features
+
+    - **Stage-Gate HITL**: Human approval at PLAN_APPROVAL and FINAL_GATE
+    - **Triple-Gate Control**: Syntax → Legal → Semantic quality
+    - **Self-Healing**: Up to 3 auto-repair cycles per artifact
+    - **Memory**: Three-tier (procedural, episodic, semantic)
+    - **Compliance**: Russian banking regulation (CBR, 152-FZ, 395-1-FZ)
+
+    ## Base URLs
+
+    - Production: `https://api.hermes-protocol.example.com/v1`
+    - Staging: `https://staging-api.hermes-protocol.example.com/v1`
+    - Local: `http://localhost:8080/v1`
+
+    ## Authentication
+
+    All endpoints require authentication via API Key or Bearer Token.
+  contact:
+    name: Hermes Protocol Team
+    url: https://github.com/DenisZakharov2/hermes-protocol-team
+    email: team@hermes-protocol.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hermes-protocol.example.com/v1
+    description: Production server
+  - url: https://staging-api.hermes-protocol.example.com/v1
+    description: Staging server
+  - url: http://localhost:8080/v1
+    description: Local development server
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key for service-to-service authentication
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token for user authentication
+  schemas:
+    ProjectId:
+      type: string
+      description: Уникальный идентификатор проекта (UPPER_SNAKE_CASE)
+      pattern: ^[A-Z0-9_]+$
+    TaskId:
+      type: string
+      description: Уникальный идентификатор задачи (UPPER_SNAKE_CASE)
+      pattern: ^[A-Z0-9_]+$
+    EvalId:
+      type: string
+      description: Идентификатор оценки качества
+      pattern: ^EVAL_[A-Z0-9_]+$
+    AgentId:
+      type: string
+      enum:
+        - hermes-orchestrator
+        - multi-source-researcher
+        - product-manager
+        - business-analyst
+        - legal-compliance-counsel
+        - research-synthesist
+        - quality-evaluator
+      description: Системный идентификатор агента
+    DomainContext:
+      type: string
+      enum:
+        - RETAIL_BANKING
+        - INVESTMENT
+        - PAYMENTS
+      description: Доменный контекст проекта (банковская сфера РФ)
+    QualityThreshold:
+      type: integer
+      description: 'Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог.'
+      minimum: 0
+      maximum: 100
+    QualityWeights:
+      type: object
+      description: Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1.
+      properties:
+        accuracy_and_grounding:
+          type: number
+          description: Вес оси Accuracy & Fact Grounding
+          minimum: 0
+          maximum: 1
+        security:
+          type: number
+          description: Вес оси Security & Data Protection
+          minimum: 0
+          maximum: 1
+        cross_artifact_consistency:
+          type: number
+          description: Вес оси Cross-Artifact Consistency
+          minimum: 0
+          maximum: 1
+        structural_completeness:
+          type: number
+          description: Вес оси Structural Completeness & Depth
+          minimum: 0
+          maximum: 1
+        practical_executability:
+          type: number
+          description: Вес оси Practical Executability & Feasibility
+          minimum: 0
+          maximum: 1
+      required:
+        - accuracy_and_grounding
+        - security
+        - cross_artifact_consistency
+        - structural_completeness
+        - practical_executability
+      additionalProperties: false
+    TimestampISO:
+      type: string
+      description: Временная метка в ISO 8601 (UTC)
+      format: date-time
+    VersionString:
+      type: string
+      description: Семантическая версия (MAJOR.MINOR.PATCH)
+      pattern: ^\d+\.\d+\.\d+$
+    Percentage:
+      type: number
+      description: Процентное значение (0-100)
+      minimum: 0
+      maximum: 100
+    BasisPoints:
+      type: number
+      description: Значение в базисных пунктах (1 bp = 0.01%)
+    CurrencyAmount:
+      type: number
+      description: Денежная сумма в рублях
+      minimum: 0
+    SourceId:
+      type: string
+      description: Идентификатор первичного источника
+      pattern: ^SRC_[A-Z0-9_]+$
+    RegulationRef:
+      type: string
+      description: Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)
+    CourtRef:
+      type: string
+      description: Ссылка на судебную практику
+    ImpactType:
+      type: string
+      enum:
+        - CREATE
+        - MODIFY
+        - DELETE
+        - NO_CHANGE
+      description: Тип влияния на IT-систему
+    SystemType:
+      type: string
+      enum:
+        - CORE
+        - CHANNEL
+        - INTEGRATION
+        - REPORTING
+        - SECURITY
+      description: Тип IT-системы
+    RiskLevel:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+      description: Уровень юридического/регуляторного риска
+    TargetWorker:
+      type: string
+      enum:
+        - multi-source-researcher
+        - research-synthesist
+        - business-analyst
+        - product-manager
+        - legal-compliance-counsel
+      description: Агент, чей артефакт проверяет критик
+    SourceTier:
+      type: string
+      enum:
+        - TIER_1
+        - TIER_2
+        - TIER_3
+      description: 'Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный'
+    LegalStatus:
+      type: string
+      enum:
+        - APPROVED
+        - APPROVED_WITH_RESERVATIONS
+        - REJECTED
+      description: Статус правового заключения
+    ExecutionStatus:
+      type: string
+      enum:
+        - COMPLETED_APPROVED
+        - REJECTED
+        - ESCALATED
+        - STOPPED
+        - PENDING_HUMAN
+      description: Статус исполнения проекта
+    StageGateVerdict:
+      type: string
+      enum:
+        - APPROVED
+        - REJECTED
+        - NEEDS_REWORK
+      description: Вердикт на Stage-Gate
+    OutputFormat:
+      type: string
+      enum:
+        - markdown_marp
+        - python_pptx_script
+        - html_tailwind_deck
+        - structured_slides_json
+        - markdown_report
+        - python_docx_script
+        - typst_pdf_markup
+      description: Формат выходного документа синтеза
+    ArtifactRef:
+      type: object
+      description: Ссылка на связанный артефакт
+      properties:
+        ref:
+          type: string
+          description: Ссылка на артефакт (путь или ID). Пустая строка недопустима.
+          minLength: 1
+      required:
+        - ref
+      additionalProperties: false
+    execution_request:
+      type: object
+      description: 'Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.'
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        user_prompt:
+          type: string
+          description: >-
+            Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание
+            валидируется в рантайме.
+          minLength: 1
+          maxLength: 5000
+        domain_context:
+          $ref: '#/components/schemas/DomainContext'
+        output_requirements:
+          type: object
+          properties:
+            target_artifacts:
+              type: array
+              items:
+                type: string
+                enum:
+                  - STRATEGY
+                  - BRD
+                  - PRESENTATION
+                  - LEGAL_REPORT
+              minItems: 1
+              uniqueItems: true
+            quality_threshold:
+              $ref: '#/components/schemas/QualityThreshold'
+          required:
+            - target_artifacts
+            - quality_threshold
+          additionalProperties: false
+      required:
+        - project_id
+        - user_prompt
+        - domain_context
+        - output_requirements
+      additionalProperties: false
+    execution_plan:
+      type: object
+      description: 'План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.'
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        plan_version:
+          $ref: '#/components/schemas/VersionString'
+        created_at:
+          $ref: '#/components/schemas/TimestampISO'
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              stage_id:
+                type: integer
+                description: >-
+                  Порядковый номер этапа внутри конкретного плана. Должен начинаться с 1 и идти последовательно без
+                  пропусков (stage_id === index + 1).
+                minimum: 1
+              stage_code:
+                $ref: '#/components/schemas/StageCode'
+              name:
+                type: string
+              owner_agent:
+                $ref: '#/components/schemas/AgentId'
+              inputs:
+                type: array
+                items:
+                  type: string
+              outputs:
+                type: array
+                items:
+                  type: string
+              depends_on:
+                type: array
+                description: Коды этапов, которые должны завершиться до старта этого этапа.
+                items:
+                  $ref: '#/components/schemas/StageCode'
+                uniqueItems: true
+              approval_required:
+                type: boolean
+              status:
+                type: string
+                enum:
+                  - PENDING
+                  - IN_PROGRESS
+                  - COMPLETED
+                  - BLOCKED
+                description: Текущий статус этапа в жизненном цикле проекта.
+            required:
+              - stage_id
+              - stage_code
+              - name
+              - owner_agent
+              - inputs
+              - outputs
+              - depends_on
+              - approval_required
+              - status
+            additionalProperties: false
+          minItems: 1
+        approval:
+          type: object
+          properties:
+            status:
+              type: string
+              enum:
+                - PENDING
+                - APPROVED
+                - REJECTED
+            approved_by_human:
+              type: boolean
+            approved_at:
+              $ref: '#/components/schemas/TimestampISO'
+            comments:
+              type: string
+          required:
+            - status
+            - approved_by_human
+          additionalProperties: false
+      required:
+        - project_id
+        - plan_version
+        - created_at
+        - stages
+        - approval
+      additionalProperties: false
+    orchestration_output:
+      allOf:
+        - if:
+            properties:
+              execution_status:
+                enum:
+                  - COMPLETED_APPROVED
+                  - PENDING_HUMAN
+            required:
+              - execution_status
+          then:
+            required:
+              - final_package
+            properties:
+              final_package:
+                $ref: '#/properties/final_package'
+        - if:
+            properties:
+              execution_status:
+                const: COMPLETED_APPROVED
+            required:
+              - execution_status
+          then:
+            required:
+              - project_aar
+            properties:
+              project_aar:
+                $ref: '#/properties/project_aar'
+        - if:
+            properties:
+              execution_status:
+                enum:
+                  - REJECTED
+                  - ESCALATED
+                  - STOPPED
+                  - PENDING_HUMAN
+            required:
+              - execution_status
+          then:
+            not:
+              required:
+                - project_aar
+            properties:
+              project_aar:
+                $ref: '#/properties/project_aar'
+      description: 'Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.'
+    project_aar:
+      type: object
+      description: 'Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.'
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        human_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        human_feedback:
+          type: string
+        successful_patterns:
+          type: array
+          items:
+            type: string
+        problems_found:
+          type: array
+          items:
+            type: string
+        skill_patches:
+          type: array
+          items:
+            type: object
+            properties:
+              agent_id:
+                $ref: '#/components/schemas/AgentId'
+              section:
+                type: string
+                const: Learned Guardrails
+                description: Единое имя раздела скилла. Агент, к которому относится патч, задаётся полем agent_id.
+              patch:
+                type: string
+            required:
+              - agent_id
+              - section
+              - patch
+            additionalProperties: false
+        lessons_indexed_to:
+          type: string
+          description: 'Относительный путь к эпизодической памяти проекта: cases/{project_id}/. ProjectId — UPPER_SNAKE_CASE.'
+          pattern: ^cases/[A-Z0-9_]+/$
+      required:
+        - project_id
+        - human_rating
+        - human_feedback
+        - successful_patterns
+        - problems_found
+        - skill_patches
+        - lessons_indexed_to
+      additionalProperties: false
+    it_landscape:
+      type: object
+      description: Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        systems:
+          type: array
+          items:
+            type: object
+            properties:
+              integration_points:
+                type: array
+                items:
+                  type: string
+              notes:
+                type: string
+              system_name:
+                type: string
+              system_type:
+                $ref: '#/components/schemas/SystemType'
+              impact_type:
+                $ref: '#/components/schemas/ImpactType'
+            required:
+              - system_name
+              - system_type
+              - impact_type
+              - integration_points
+            additionalProperties: false
+      required:
+        - project_id
+        - systems
+      additionalProperties: false
+    research_task:
+      type: object
+      description: 'Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности.'
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        query:
+          type: string
+        research_objective:
+          type: string
+        target_audience:
+          type: string
+          enum:
+            - executive
+            - technical
+            - general
+        depth_level:
+          type: string
+          enum:
+            - fast_scan
+            - standard_deep
+            - exhaustive
+        required_entities:
+          type: array
+          items:
+            type: string
+        out_of_scope:
+          type: array
+          items:
+            type: string
+      required:
+        - task_id
+        - project_id
+        - query
+        - research_objective
+        - target_audience
+        - depth_level
+        - required_entities
+        - out_of_scope
+      additionalProperties: false
+    research_plan:
+      type: object
+      description: 'Внутренний план исследования: подзапросы, целевые Tier и статусы.'
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        created_at:
+          $ref: '#/components/schemas/TimestampISO'
+        subqueries:
+          type: array
+          items:
+            type: object
+            properties:
+              query:
+                type: string
+              target_tier:
+                $ref: '#/components/schemas/SourceTier'
+              status:
+                type: string
+                enum:
+                  - PLANNED
+                  - IN_PROGRESS
+                  - DONE
+                  - BLOCKED
+              blocked_reason:
+                type: string
+            required:
+              - query
+              - target_tier
+              - status
+            additionalProperties: false
+      required:
+        - task_id
+        - project_id
+        - created_at
+        - subqueries
+      additionalProperties: false
+    research_output:
+      type: object
+      description: 'Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников.'
+      properties:
+        data_origin:
+          type: string
+          enum:
+            - untrusted
+          description: >-
+            Происхождение данных. Всегда 'untrusted': research_output считается данными, а не инструкциями для модели.
+            Правило 'данные, не инструкции' применяется во всех воркерских скиллах.
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        key_takeaways:
+          type: array
+          description: Ключевые тезисы исследования. Каждый элемент — данные, а не инструкции для модели.
+          items:
+            type: string
+            description: >-
+              Тезис исследования. Макс. 5000 символов; содержимое считается данными, не инструкциями (data_origin:
+              untrusted).
+            maxLength: 5000
+          maxItems: 100
+        quantifiable_metrics:
+          type: array
+          items:
+            type: object
+            properties:
+              metric_name:
+                type: string
+              value:
+                type: number
+              unit:
+                type: string
+                description: Единица измерения. Для ставок используйте «% годовых», для денежных сумм — «руб.»
+              source_id:
+                $ref: '#/components/schemas/SourceId'
+            required:
+              - metric_name
+              - value
+              - unit
+              - source_id
+            additionalProperties: false
+        conflicts_and_limitations:
+          type: array
+          items:
+            type: object
+            properties:
+              issue:
+                type: string
+              source_a_claim:
+                type: string
+              source_b_claim:
+                type: string
+            required:
+              - issue
+              - source_a_claim
+              - source_b_claim
+            additionalProperties: false
+        sources:
+          type: array
+          description: >-
+            Каталог источников. source_id уникальны; quantifiable_metrics[].source_id обязан ссылаться на один из них;
+            минимум один источник — первичный (illustrative: false).
+          items:
+            type: object
+            properties:
+              source_id:
+                $ref: '#/components/schemas/SourceId'
+              url:
+                type: string
+                description: >-
+                  Конкретная страница источника (HTTPS). Для источника с illustrative: false URL должен указывать на
+                  конкретную страницу, а не на корень раздела: pathname != "/", в пути есть хотя бы один непустой
+                  сегмент; pathname, заканчивающийся на "/", допустим только при непустом query (например,
+                  /event/?id=...). Корневой URL допустим только при illustrative: true. Запрещены localhost, link-local,
+                  private IP, userinfo и IP-литералы. Allow-list доменов — schemas/common/source-allowlist.json
+                  (проверяется scripts/validate-json.mjs).
+                format: uri
+                pattern: ^https://
+              tier_level:
+                $ref: '#/components/schemas/SourceTier'
+              reliability_score:
+                type: number
+                minimum: 0
+                maximum: 1
+              illustrative:
+                type: boolean
+                description: >-
+                  true — источник используется как учебная иллюстрация, цифры не считаются подтверждёнными этим URL.
+                  Минимум один источник в sources[] обязан иметь illustrative: false (первичный источник); его source_id
+                  должны использовать метрики.
+            required:
+              - source_id
+              - url
+              - tier_level
+              - reliability_score
+              - illustrative
+            additionalProperties: false
+      required:
+        - task_id
+        - project_id
+        - key_takeaways
+        - quantifiable_metrics
+        - conflicts_and_limitations
+        - sources
+        - data_origin
+      additionalProperties: false
+    product_brief:
+      type: object
+      description: 'Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование.'
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        product_type:
+          type: string
+          enum:
+            - DEPOSIT
+            - SAVINGS_ACC
+            - CONSUMER_LOAN
+            - CREDIT_CARD
+            - MORTGAGE
+        bank_context:
+          type: object
+          properties:
+            license_type:
+              type: string
+            business_model:
+              type: string
+              enum:
+                - AGGRESSIVE_GROWTH
+                - NIM_MAXIMIZATION
+            liquidity_position:
+              type: string
+              enum:
+                - SURPLUS
+                - DEFICIT
+          required:
+            - license_type
+            - business_model
+            - liquidity_position
+          additionalProperties: false
+        market_data:
+          $ref: '#/components/schemas/ArtifactRef'
+      required:
+        - task_id
+        - project_id
+        - product_type
+        - bank_context
+        - market_data
+      additionalProperties: false
+    product_strategy:
+      type: object
+      description: Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        product_concept:
+          type: object
+          description: Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах.
+          properties:
+            value_proposition:
+              type: string
+            target_segments:
+              type: array
+              items:
+                type: string
+            tariff_structure:
+              type: object
+              description: Тарифные ставки в процентных пунктах годовых (не в долях).
+              properties:
+                base_rate_percent:
+                  type: number
+                  description: Базовая ставка, % годовых.
+                  minimum: 0
+                  maximum: 100
+                welcome_rate_percent:
+                  type: number
+                  description: Приветственная ставка, % годовых.
+                  minimum: 0
+                  maximum: 100
+                mgs_percent:
+                  type: number
+                  description: Минимальная гарантированная ставка (МГС), % годовых.
+                  minimum: 0
+                  maximum: 100
+              required:
+                - base_rate_percent
+                - welcome_rate_percent
+                - mgs_percent
+              additionalProperties: false
+          required:
+            - value_proposition
+            - target_segments
+            - tariff_structure
+          additionalProperties: false
+        financial_model:
+          type: object
+          description: >-
+            Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в
+            рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады,
+            счета) поле allocation_assumption обязательно для обоснования NII/NIM.
+          properties:
+            funding_volume_rub:
+              type: number
+              description: Объём привлечения/портфеля, руб. База для расчёта NII.
+              exclusiveMinimum: 0
+            welcome_rate_share_percent:
+              type: number
+              description: Доля портфеля с приветственной ставкой, % (0–100). Используется для смешанного CoF.
+              minimum: 0
+              maximum: 100
+            placement_rate_percent:
+              type: number
+              description: Доходность размещения привлечённых средств, % годовых.
+              minimum: 0
+              maximum: 100
+            opex_percent:
+              type: number
+              description: Операционные расходы в процентных пунктах годовых, п.п.
+              minimum: 0
+              maximum: 100
+            projected_nii:
+              type: number
+              description: 'Прогнозный чистый процентный доход, руб. Формула: funding_volume_rub × NIM / 100.'
+            projected_nim_percent:
+              type: number
+              description: >-
+                Прогнозная чистая процентная маржа, % годовых. Формула: placement_rate_percent − blended CoF −
+                opex_percent.
+              minimum: 0
+              maximum: 100
+            cof_cost_of_funds_percent:
+              type: number
+              description: >-
+                Смешанная стоимость фондирования (blended CoF), % годовых: base_rate_percent × (1 −
+                welcome_rate_share_percent / 100) + welcome_rate_percent × (welcome_rate_share_percent / 100). МГС —
+                регуляторный минимум раскрытия, в расчёт CoF не входит.
+              minimum: 0
+              maximum: 100
+            ltv_cac_ratio:
+              type: number
+              description: Отношение LTV к CAC (безразмерное).
+              minimum: 0
+            allocation_assumption:
+              type: string
+              description: >-
+                Допущение о размещении привлечённых средств (для некредитных продуктов): куда и под какую доходность
+                инвестируются средства клиентов, с указанием opex в п.п. Обязательно для продуктов-пассивов (вклады,
+                счета), чтобы объяснить положительный NII/NIM при CoF выше клиентской ставки.
+            illustrative:
+              type: boolean
+              description: >-
+                Признак иллюстративности финансовой модели. true означает ознакомительный характер цифр, но не отменяет
+                проверку арифметики CoF/NIM/NII.
+          required:
+            - funding_volume_rub
+            - welcome_rate_share_percent
+            - placement_rate_percent
+            - opex_percent
+            - projected_nii
+            - projected_nim_percent
+            - cof_cost_of_funds_percent
+            - ltv_cac_ratio
+          additionalProperties: false
+        regulatory_guardrails:
+          allOf:
+            - if:
+                anyOf:
+                  - properties:
+                      psk_limit_check:
+                        const: NOT_APPLICABLE
+                    required:
+                      - psk_limit_check
+                  - properties:
+                      mpl_limit_check:
+                        const: NOT_APPLICABLE
+                    required:
+                      - mpl_limit_check
+                  - properties:
+                      cbr_mgs_compliance:
+                        const: NOT_APPLICABLE
+                    required:
+                      - cbr_mgs_compliance
+              then:
+                required:
+                  - not_applicable_reason
+                properties:
+                  not_applicable_reason:
+                    type: string
+                    minLength: 10
+          description: >-
+            Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в
+            not_applicable_reason.
+        prioritization_rice:
+          type: object
+          description: Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно.
+          properties:
+            reach:
+              type: number
+              description: 'Охват: сколько пользователей/событий затронуто за период.'
+              minimum: 0
+            impact:
+              type: number
+              description: Влияние на целевую метрику (безразмерная шкала RICE).
+              minimum: 0
+            confidence_percent:
+              type: number
+              description: Уверенность в оценке, % (0–100).
+              minimum: 0
+              maximum: 100
+            effort:
+              type: number
+              description: Затраты (человеко-месяцы или story points), строго больше нуля.
+              exclusiveMinimum: 0
+            score:
+              type: number
+              description: 'RICE score: reach × impact × (confidence_percent / 100) / effort. Проверяется с допуском ±0.05.'
+              minimum: 0
+          required:
+            - reach
+            - impact
+            - confidence_percent
+            - effort
+            - score
+          additionalProperties: false
+      required:
+        - task_id
+        - project_id
+        - product_concept
+        - financial_model
+        - regulatory_guardrails
+        - prioritization_rice
+      additionalProperties: false
+    ba_input_contract:
+      type: object
+      description: 'Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода.'
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        product_strategy:
+          $ref: '#/components/schemas/ArtifactRef'
+        regulatory_checklist:
+          $ref: '#/components/schemas/ArtifactRef'
+        it_landscape:
+          $ref: '#/components/schemas/ArtifactRef'
+        output_format:
+          type: string
+          enum:
+            - CLASSIC_BRD
+            - AGILE_USER_STORIES
+            - HYBRID
+      required:
+        - task_id
+        - project_id
+        - product_strategy
+        - regulatory_checklist
+        - it_landscape
+        - output_format
+      additionalProperties: false
+    business_requirements:
+      type: object
+      description: BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт.
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        system_impact_matrix:
+          type: array
+          items:
+            type: object
+            properties:
+              system_name:
+                type: string
+              impact_type:
+                $ref: '#/components/schemas/ImpactType'
+              description:
+                type: string
+            required:
+              - system_name
+              - impact_type
+              - description
+            additionalProperties: false
+        classic_brd:
+          type: object
+          properties:
+            business_process_tobe:
+              type: string
+            functional_requirements:
+              type: array
+              items:
+                type: string
+          required:
+            - business_process_tobe
+            - functional_requirements
+          additionalProperties: false
+        agile_backlog:
+          type: array
+          items:
+            type: object
+            properties:
+              user_story:
+                type: string
+              acceptance_criteria_gherkin:
+                type: string
+            required:
+              - user_story
+              - acceptance_criteria_gherkin
+            additionalProperties: false
+        regulatory_nfr:
+          allOf:
+            - if:
+                properties:
+                  data_masking_152_fz:
+                    const: false
+                required:
+                  - data_masking_152_fz
+              then:
+                required:
+                  - masking_exception
+                properties:
+                  masking_exception:
+                    $ref: '#/properties/regulatory_nfr/properties/masking_exception'
+      required:
+        - task_id
+        - project_id
+        - system_impact_matrix
+        - classic_brd
+        - agile_backlog
+        - regulatory_nfr
+      additionalProperties: false
+    regulatory_checklist:
+      type: object
+      description: Регуляторный чек-лист требований РФ и способов проверки.
+      properties:
+        checklist_items:
+          type: array
+          items:
+            type: object
+            properties:
+              applicable:
+                type: boolean
+              description:
+                type: string
+              notes:
+                type: string
+              regulation:
+                $ref: '#/components/schemas/RegulationRef'
+              verification_method:
+                type: string
+            required:
+              - regulation
+              - description
+              - applicable
+              - verification_method
+            additionalProperties: false
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+      required:
+        - project_id
+        - checklist_items
+      additionalProperties: false
+    legal_review_request:
+      type: object
+      description: Запрос на правовую проверку концепции или BRD.
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        product_concept:
+          $ref: '#/components/schemas/ArtifactRef'
+        business_requirements:
+          anyOf:
+            - $ref: '#/components/schemas/ArtifactRef'
+            - type: 'null'
+        target_audience:
+          type: string
+        jurisdiction:
+          type: string
+      required:
+        - project_id
+        - product_concept
+        - target_audience
+        - jurisdiction
+      additionalProperties: false
+    legal_compliance_report:
+      type: object
+      description: 'Юридическое заключение: статус, риски, прецеденты и меры смягчения.'
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        legal_status:
+          $ref: '#/components/schemas/LegalStatus'
+        overall_risk_score:
+          $ref: '#/components/schemas/RiskLevel'
+        compliance_audit:
+          type: array
+          items:
+            allOf:
+              - if:
+                  properties:
+                    risk_level:
+                      enum:
+                        - HIGH
+                        - CRITICAL
+                  required:
+                    - risk_level
+                then:
+                  required:
+                    - mitigation_status
+                  properties:
+                    mitigation_status:
+                      $ref: '#/properties/compliance_audit/items/properties/mitigation_status'
+          minItems: 1
+        contract_disclaimers_required:
+          type: array
+          items:
+            type: string
+      required:
+        - project_id
+        - legal_status
+        - overall_risk_score
+        - compliance_audit
+        - contract_disclaimers_required
+      additionalProperties: false
+    brief_schema:
+      type: object
+      description: 'Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг.'
+      properties:
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        document_type:
+          type: string
+          enum:
+            - pitch_deck
+            - executive_summary
+            - analytical_memo
+            - market_research_whitepaper
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+        target_audience:
+          type: string
+          enum:
+            - executive
+            - investor
+            - technical
+            - general_business
+        custom_branding:
+          type: object
+          properties:
+            primary_color:
+              type: string
+              pattern: ^#[0-9A-Fa-f]{6}$
+            accent_color:
+              type: string
+              pattern: ^#[0-9A-Fa-f]{6}$
+            font_family:
+              type: string
+          required:
+            - primary_color
+            - accent_color
+            - font_family
+          additionalProperties: false
+        research_data:
+          $ref: '#/components/schemas/ArtifactRef'
+      required:
+        - task_id
+        - project_id
+        - document_type
+        - output_format
+        - target_audience
+        - custom_branding
+        - research_data
+      additionalProperties: false
+    synthesist_output:
+      type: object
+      description: 'Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.'
+      properties:
+        citations_index:
+          type: array
+          items:
+            type: string
+        deliverable_content:
+          type: string
+        generated_diagrams:
+          type: array
+          items:
+            type: string
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        task_id:
+          $ref: '#/components/schemas/TaskId'
+        visualization_specs:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Тип визуализации (bar, line, table и т. п.)
+              title:
+                type: string
+              source:
+                type: string
+                description: Ссылка на артефакт-источник данных
+            required:
+              - type
+              - title
+              - source
+            additionalProperties: false
+      required:
+        - task_id
+        - project_id
+        - output_format
+        - deliverable_content
+      additionalProperties: false
+    eval_request:
+      type: object
+      description: 'Запрос на аудит качества: артефакт, контекст и целевой порог.'
+      properties:
+        eval_id:
+          $ref: '#/components/schemas/EvalId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        target_worker:
+          $ref: '#/components/schemas/TargetWorker'
+        artifact_type:
+          type: string
+          enum:
+            - research_json
+            - brief_json
+            - brd_document
+            - product_strategy_json
+            - legal_compliance_report
+            - synthesist_output
+            - presentation
+            - executive_summary
+            - analytical_memo
+            - market_research_whitepaper
+          description: >-
+            Тип проверяемого артефакта. JSON-типы валидируются вложенной схемой; не-JSON типы (presentation,
+            executive_summary, analytical_memo, market_research_whitepaper) требуют минимальный контракт
+            artifact_data.project_id.
+        artifact_data:
+          type: object
+          description: >-
+            Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id
+            (UPPER_SNAKE_CASE), совпадающий с project_id запроса.
+        context_artifacts:
+          type: array
+          description: >-
+            Непустой массив ссылок на связанные артефакты (минимум один). Для аудита BRD передавайте product_strategy,
+            research_output, legal_compliance_report и regulatory_checklist, чтобы ось Cross-Artifact Consistency
+            получала полный контекст.
+          items:
+            $ref: '#/components/schemas/ArtifactRef'
+          minItems: 1
+          uniqueItems: true
+        quality_threshold:
+          $ref: '#/components/schemas/QualityThreshold'
+      required:
+        - eval_id
+        - project_id
+        - target_worker
+        - artifact_type
+        - artifact_data
+        - context_artifacts
+        - quality_threshold
+      additionalProperties: false
+    evaluation_report:
+      type: object
+      description: Отчет аудита по пяти осям качества с находками и actionable_fixes.
+      properties:
+        eval_id:
+          $ref: '#/components/schemas/EvalId'
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        target_worker:
+          $ref: '#/components/schemas/TargetWorker'
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        quality_threshold:
+          $ref: '#/components/schemas/QualityThreshold'
+        passed:
+          type: boolean
+          description: >-
+            Единственный вердикт качества. true только если overall_score >= quality_threshold и среди critical_findings
+            нет находок уровня CRITICAL; любой CRITICAL даёт false даже при балле выше порога.
+        score_breakdown:
+          type: object
+          properties:
+            accuracy_and_grounding:
+              type: integer
+              minimum: 0
+              maximum: 100
+            security:
+              type: integer
+              minimum: 0
+              maximum: 100
+            cross_artifact_consistency:
+              type: integer
+              minimum: 0
+              maximum: 100
+            structural_completeness:
+              type: integer
+              minimum: 0
+              maximum: 100
+            practical_executability:
+              type: integer
+              minimum: 0
+              maximum: 100
+          required:
+            - accuracy_and_grounding
+            - security
+            - cross_artifact_consistency
+            - structural_completeness
+            - practical_executability
+          additionalProperties: false
+        critical_findings:
+          type: array
+          description: Только находки уровня HIGH или CRITICAL. MEDIUM/LOW-замечания переносятся в actionable_fixes.
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              severity:
+                type: string
+                enum:
+                  - HIGH
+                  - CRITICAL
+                description: 'Уровень находки. CRITICAL — стоп-кран: passed обязан быть false.'
+              field:
+                type: string
+              description:
+                type: string
+              remediation_instruction:
+                type: string
+            required:
+              - code
+              - severity
+              - field
+              - description
+              - remediation_instruction
+            additionalProperties: false
+        actionable_fixes:
+          type: array
+          items:
+            type: string
+      required:
+        - eval_id
+        - project_id
+        - target_worker
+        - overall_score
+        - quality_threshold
+        - passed
+        - score_breakdown
+        - critical_findings
+        - actionable_fixes
+      additionalProperties: false
+    agent_tuning_log:
+      type: object
+      description: Журнал оперативных корректировок агентов и предложенных патчей скиллов.
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        entries:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                $ref: '#/components/schemas/TimestampISO'
+              agent_id:
+                $ref: '#/components/schemas/AgentId'
+              source:
+                type: string
+                enum:
+                  - HUMAN
+                  - QUALITY_EVALUATOR
+                  - LEGAL_COUNSEL
+              observation:
+                type: string
+              proposed_patch:
+                type: string
+              applied:
+                type: boolean
+            required:
+              - timestamp
+              - agent_id
+              - source
+              - observation
+              - proposed_patch
+            additionalProperties: false
+      required:
+        - project_id
+        - entries
+      additionalProperties: false
+    flight_log:
+      type: object
+      description: 'Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.'
+      properties:
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        agent_id:
+          $ref: '#/components/schemas/AgentId'
+        sanitized_user_prompt:
+          type: string
+          description: >-
+            Очищенный от потенциальных инъекций запрос Заказчика. Макс. 5000 символов. Заполняется оркестратором перед
+            стартом.
+          minLength: 1
+          maxLength: 5000
+        entries:
+          type: array
+          items:
+            allOf:
+              - if:
+                  properties:
+                    event_type:
+                      const: SELF_HEALING
+                  required:
+                    - event_type
+                then:
+                  required:
+                    - self_healing_attempt
+                  properties:
+                    self_healing_attempt:
+                      $ref: '#/properties/entries/items/properties/self_healing_attempt'
+              - if:
+                  properties:
+                    event_type:
+                      const: LEGAL_CHECKIN
+                  required:
+                    - event_type
+                then:
+                  required:
+                    - legal_iteration
+                  properties:
+                    legal_iteration:
+                      $ref: '#/properties/entries/items/properties/legal_iteration'
+      required:
+        - project_id
+        - agent_id
+        - entries
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Request validation failed
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-11-26T10:00:00Z'
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+        requestId:
+          type: string
+          example: req_abc123
+    WebhookPayload:
+      type: object
+      required:
+        - event
+        - project_id
+        - timestamp
+        - payload
+      properties:
+        event:
+          type: string
+          enum:
+            - project.started
+            - project.completed
+            - project.failed
+            - project.escalated
+            - stage.started
+            - stage.completed
+            - stage.failed
+            - stage_gate.pending
+            - stage_gate.approved
+            - stage_gate.rejected
+            - self_healing.started
+            - self_healing.completed
+            - self_healing.failed
+            - legal_checkin.started
+            - legal_checkin.completed
+            - quality_audit.started
+            - quality_audit.completed
+            - artifact.created
+            - artifact.updated
+        project_id:
+          $ref: '#/components/schemas/ProjectId'
+        stage_code:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        payload:
+          type: object
+    WebhookRegistration:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url: &ref_0
+          type: string
+          format: uri
+          description: HTTPS callback URL
+        events: &ref_1
+          type: array
+          items:
+            type: string
+          minItems: 1
+          uniqueItems: true
+        secret: &ref_2
+          type: string
+          description: HMAC secret for signature verification
+        active: &ref_3
+          type: boolean
+          default: true
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      headers:
+        Retry-After:
+          description: Seconds until next request allowed
+          schema:
+            type: integer
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      description: Unique project identifier (UPPER_SNAKE_CASE)
+      schema:
+        $ref: '#/components/schemas/ProjectId'
+    TaskId:
+      name: task_id
+      in: path
+      required: true
+      description: Unique task identifier
+      schema:
+        $ref: '#/components/schemas/TaskId'
+    EvalId:
+      name: eval_id
+      in: path
+      required: true
+      description: Quality evaluation identifier
+      schema:
+        $ref: '#/components/schemas/EvalId'
+  requestBodies:
+    ExecutionRequest:
+      description: Customer request to start a new project
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/execution_request'
+    ResearchTask:
+      description: Research task for multi-source researcher
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/research_task'
+    ProductBrief:
+      description: Product brief for product manager
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/product_brief'
+    LegalReviewRequest:
+      description: Legal review request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/legal_review_request'
+    BAInputContract:
+      description: Business analyst input contract
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ba_input_contract'
+    BriefSchema:
+      description: Synthesis brief for research synthesist
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/brief_schema'
+    EvalRequest:
+      description: Quality evaluation request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/eval_request'
+  callbacks:
+    StageGateCallback:
+      '{ $request.body.url }':
+        post:
+          summary: Stage gate notification
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WebhookPayload'
+          responses:
+            '200':
+              description: Callback received
+    SelfHealingCallback:
+      '{ $request.body.url }':
+        post:
+          summary: Self-healing notification
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WebhookPayload'
+          responses:
+            '200':
+              description: Callback received
+    QualityAuditCallback:
+      '{ $request.body.url }':
+        post:
+          summary: Quality audit completed notification
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WebhookPayload'
+          responses:
+            '200':
+              description: Callback received
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+tags:
+  - name: Projects
+    description: Project lifecycle management
+  - name: Execution
+    description: Pipeline execution and orchestration
+  - name: Research
+    description: Multi-source research operations
+  - name: Product
+    description: Product strategy and financial modeling
+  - name: Legal
+    description: Legal compliance and review
+  - name: Analysis
+    description: Business analysis and requirements
+  - name: Synthesis
+    description: Document synthesis and rendering
+  - name: Quality
+    description: Quality evaluation and audit
+  - name: Artifacts
+    description: Artifact management and retrieval
+  - name: Memory
+    description: Episodic and semantic memory
+  - name: Webhooks
+    description: Async callbacks and notifications
+paths:
+  /projects:
+    post:
+      tags:
+        - Projects
+      summary: Create a new project
+      description: Initialize a new Hermes Protocol project with execution request
+      operationId: createProject
+      requestBody:
+        $ref: '#/components/requestBodies/ExecutionRequest'
+      responses:
+        '201':
+          description: Project created, execution plan pending approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/execution_plan'
+          headers:
+            Location:
+              description: URL of the created project
+              schema:
+                type: string
+                format: uri
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags:
+        - Projects
+      summary: List projects
+      description: List all projects with optional filtering
+      operationId: listProjects
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - pending
+              - running
+              - completed
+              - failed
+              - escalated
+        - name: domain
+          in: query
+          schema:
+            type: string
+            enum:
+              - RETAIL_BANKING
+              - INVESTMENT
+              - PAYMENTS
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/execution_request'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+  /projects/{project_id}:
+    get:
+      tags:
+        - Projects
+      summary: Get project details
+      operationId: getProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/execution_request'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Projects
+      summary: Cancel/stop a project
+      operationId: cancelProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project cancelled
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Project cannot be cancelled in current state
+  /projects/{project_id}/plan:
+    get:
+      tags:
+        - Execution
+      summary: Get execution plan
+      operationId: getExecutionPlan
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Current execution plan with stage statuses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/execution_plan'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Execution
+      summary: 'Approve execution plan (Stage-Gate: PLAN_APPROVAL)'
+      description: Human approval of the execution plan
+      operationId: approveExecutionPlan
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - approved
+                - approved_by
+              properties:
+                approved:
+                  type: boolean
+                approved_by:
+                  type: string
+                comments:
+                  type: string
+      responses:
+        '200':
+          description: Plan approved, execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/execution_plan'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Plan already approved or rejected
+  /projects/{project_id}/stages/{stage_code}/approve:
+    post:
+      tags:
+        - Execution
+      summary: Approve or reject a stage gate
+      description: 'Human approval/rejection for stages with approval_required: true'
+      operationId: approveStageGate
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: stage_code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - approved
+              properties:
+                approved:
+                  type: boolean
+                approved_by:
+                  type: string
+                verdict:
+                  type: string
+                  enum:
+                    - APPROVED
+                    - REJECTED
+                    - NEEDS_REWORK
+                comments:
+                  type: string
+      responses:
+        '200':
+          description: Stage gate decision recorded
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Stage not pending approval
+  /projects/{project_id}/research:
+    post:
+      tags:
+        - Research
+      summary: Submit research task
+      operationId: submitResearchTask
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/ResearchTask'
+      responses:
+        '202':
+          description: Research task accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    $ref: '#/components/schemas/TaskId'
+                  status:
+                    type: string
+                    enum:
+                      - accepted
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Research
+      summary: Get research output
+      operationId: getResearchOutput
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Research output with sources and metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/research_output'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/product-strategy:
+    post:
+      tags:
+        - Product
+      summary: Submit product brief
+      operationId: submitProductBrief
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/ProductBrief'
+      responses:
+        '202':
+          description: Product brief accepted
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Product
+      summary: Get product strategy
+      operationId: getProductStrategy
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Product strategy with financial model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product_strategy'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/legal/review:
+    post:
+      tags:
+        - Legal
+      summary: Request legal review
+      operationId: requestLegalReview
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/LegalReviewRequest'
+      responses:
+        '202':
+          description: Legal review started
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Legal
+      summary: Get legal compliance report
+      operationId: getLegalReport
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Legal compliance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/legal_compliance_report'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/analysis:
+    post:
+      tags:
+        - Analysis
+      summary: Submit business analysis input
+      operationId: submitBAInput
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/BAInputContract'
+      responses:
+        '202':
+          description: Business analysis started
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Analysis
+      summary: Get business requirements
+      operationId: getBusinessRequirements
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Business requirements (BRD, Gherkin, NFR)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/business_requirements'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/synthesis:
+    post:
+      tags:
+        - Synthesis
+      summary: Submit synthesis brief
+      operationId: submitSynthesisBrief
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/BriefSchema'
+      responses:
+        '202':
+          description: Synthesis started
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Synthesis
+      summary: Get synthesis output
+      operationId: getSynthesisOutput
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Synthesized document (slides, report, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/synthesist_output'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/quality:
+    post:
+      tags:
+        - Quality
+      summary: Request quality evaluation
+      operationId: requestQualityEvaluation
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        $ref: '#/components/requestBodies/EvalRequest'
+      responses:
+        '202':
+          description: Quality evaluation started
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Quality
+      summary: Get evaluation report
+      operationId: getEvaluationReport
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: eval_id
+          in: query
+          schema:
+            $ref: '#/components/schemas/EvalId'
+      responses:
+        '200':
+          description: Quality evaluation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/evaluation_report'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/final-gate:
+    post:
+      tags:
+        - Execution
+      summary: 'Submit final package for approval (Stage-Gate: FINAL_GATE)'
+      operationId: submitFinalGate
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - approved
+                - approved_by
+              properties:
+                approved:
+                  type: boolean
+                approved_by:
+                  type: string
+                comments:
+                  type: string
+      responses:
+        '200':
+          description: Final approval decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orchestration_output'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Pipeline not ready for final gate
+  /projects/{project_id}/artifacts:
+    get:
+      tags:
+        - Artifacts
+      summary: List project artifacts
+      operationId: listArtifacts
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: stage
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of artifact references
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        stage:
+                          type: string
+                        ref:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        size_bytes:
+                          type: integer
+  /projects/{project_id}/artifacts/{artifact_name}:
+    get:
+      tags:
+        - Artifacts
+      summary: Download artifact
+      operationId: downloadArtifact
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: artifact_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Artifact content
+          content:
+            application/json:
+              schema:
+                type: object
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/markdown:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projects/{project_id}/flight-log:
+    get:
+      tags:
+        - Projects
+      summary: Get flight log
+      operationId: getFlightLog
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: agent_id
+          in: query
+          schema:
+            type: string
+        - name: phase
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Flight log entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flight_log'
+  /projects/{project_id}/aar:
+    get:
+      tags:
+        - Projects
+      summary: Get AAR (After Action Review)
+      operationId: getAAR
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Post-project reflection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project_aar'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /webhooks:
+    post:
+      tags:
+        - Webhooks
+      summary: Register webhook
+      operationId: registerWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistration'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url: *ref_0
+                  events: *ref_1
+                  secret: *ref_2
+                  active: *ref_3
+        '400':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags:
+        - Webhooks
+      summary: List webhooks
+      operationId: listWebhooks
+      responses:
+        '200':
+          description: List of registered webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    url: *ref_0
+                    events: *ref_1
+                    secret: *ref_2
+                    active: *ref_3
+  /webhooks/{webhook_id}:
+    delete:
+      tags:
+        - Webhooks
+      summary: Delete webhook
+      operationId: deleteWebhook
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /health:
+    get:
+      tags:
+        - Projects
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - healthy
+                      - degraded
+                      - unhealthy
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        enum:
+                          - ok
+                          - fail
+                      memory:
+                        type: string
+                        enum:
+                          - ok
+                          - fail
+                      agents:
+                        type: string
+                        enum:
+                          - ok
+                          - fail
