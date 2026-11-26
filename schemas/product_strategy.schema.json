@@ -68,7 +68,11 @@
         }
       },
       "additionalProperties": false,
-      "description": "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах."
+      "description": "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах.",
+      "x-i18n": {
+        "title_ru": "Концепция продукта",
+        "description_ru": "Описание продуктовой концепции"
+      }
     },
     "financial_model": {
       "type": "object",
@@ -142,7 +146,11 @@
         }
       },
       "additionalProperties": false,
-      "description": "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM."
+      "description": "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM.",
+      "x-i18n": {
+        "title_ru": "Финансовая модель",
+        "description_ru": "Финансовые параметры и расчёты продукта"
+      }
     },
     "regulatory_guardrails": {
       "type": "object",
@@ -238,7 +246,11 @@
         }
       ],
       "additionalProperties": false,
-      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason."
+      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason.",
+      "x-i18n": {
+        "title_ru": "Регуляторные ограничения",
+        "description_ru": "Регуляторные требования и ограничения"
+      }
     },
     "prioritization_rice": {
       "type": "object",
@@ -278,8 +290,16 @@
         }
       },
       "additionalProperties": false,
-      "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно."
+      "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно.",
+      "x-i18n": {
+        "title_ru": "Приоритизация RICE",
+        "description_ru": "Оценка приоритета по модели RICE (Reach, Impact, Confidence, Effort)"
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "product_strategy.json",
+    "description_ru": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения."
+  }
 }

@@ -28,7 +28,11 @@
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "agent_id": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId",
+            "x-i18n": {
+              "title_ru": "Идентификатор агента",
+              "description_ru": "Системный идентификатор агента"
+            }
           },
           "source": {
             "type": "string",
@@ -49,8 +53,16 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Записи",
+        "description_ru": "Записи бортового журнала"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "agent_tuning_log.json",
+    "description_ru": "Журнал оперативных корректировок агентов и предложенных патчей скиллов."
+  }
 }

@@ -13,7 +13,11 @@
       "type": "array"
     },
     "deliverable_content": {
-      "type": "string"
+      "type": "string",
+      "x-i18n": {
+        "title_ru": "Содержимое entregable",
+        "description_ru": "Разметка или код готового документа"
+      }
     },
     "generated_diagrams": {
       "items": {
@@ -61,5 +65,9 @@
     "project_id",
     "output_format",
     "deliverable_content"
-  ]
+  ],
+  "x-i18n": {
+    "title_ru": "synthesist_output.json",
+    "description_ru": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски."
+  }
 }

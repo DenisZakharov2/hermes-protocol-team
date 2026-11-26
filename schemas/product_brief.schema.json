@@ -26,7 +26,11 @@
         "CONSUMER_LOAN",
         "CREDIT_CARD",
         "MORTGAGE"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Тип продукта",
+        "description_ru": "Тип банковского продукта"
+      }
     },
     "bank_context": {
       "type": "object",
@@ -54,11 +58,19 @@
           ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Контекст банка",
+        "description_ru": "Контекст банка и рыночные условия"
+      }
     },
     "market_data": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "product_brief.json",
+    "description_ru": "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование."
+  }
 }

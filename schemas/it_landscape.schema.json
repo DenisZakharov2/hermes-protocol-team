@@ -40,11 +40,19 @@
         ],
         "type": "object"
       },
-      "type": "array"
+      "type": "array",
+      "x-i18n": {
+        "title_ru": "Системы",
+        "description_ru": "Описание затронутых IT-систем"
+      }
     }
   },
   "required": [
     "project_id",
     "systems"
-  ]
+  ],
+  "x-i18n": {
+    "title_ru": "it_landscape.json",
+    "description_ru": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО)."
+  }
 }

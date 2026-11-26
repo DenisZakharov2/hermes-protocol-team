@@ -25,14 +25,31 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Бизнес-требования",
+        "description_ru": "Ссылка на артефакт бизнес-требований"
+      }
     },
     "target_audience": {
-      "type": "string"
+      "type": "string",
+      "x-i18n": {
+        "title_ru": "Целевая аудитория",
+        "description_ru": "Целевая аудитория (executive, technical, general)",
+        "enum_labels_ru": [
+          "Руководство",
+          "Технические специалисты",
+          "Общая"
+        ]
+      }
     },
     "jurisdiction": {
       "type": "string"
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "legal_review_request.json",
+    "description_ru": "Запрос на правовую проверку концепции или BRD."
+  }
 }

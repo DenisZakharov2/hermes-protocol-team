@@ -102,19 +102,43 @@
 
 Для исключения нелогичного порядка работы и преждевременного запуска этапов `hermes-orchestrator` исполняет ориентированный граф задач (DAG). Стабильные коды этапов используются в `execution_plan.json`, возвратах Self-Healing и диаграммах:
 
-| `stage_code` | Этап | Владелец |
-|---|---|---|
-| `PLAN_APPROVAL` | Утверждение `execution_plan.json` (Stage-Gate 1) | `hermes-orchestrator` + Человек |
-| `RESEARCH` | Исследование рынка и первичных данных | `multi-source-researcher` |
-| `PRODUCT_STRATEGY` | Продуктовая стратегия и финансовая модель | `product-manager` |
-| `LEGAL_CONCEPT` | Legal Check-in концепции | `legal-compliance-counsel` |
-| `BUSINESS_REQUIREMENTS` | BRD, Gherkin, NFR | `business-analyst` |
-| `LEGAL_BRD` | Legal Check-in BRD | `legal-compliance-counsel` |
-| `SYNTHESIS` | Синтез и верстка | `research-synthesist` |
-| `LEGAL_SYNTHESIS` | Legal Check-in синтеза | `legal-compliance-counsel` |
-| `QUALITY_AUDIT` | Аудит качества по 5 осям | `quality-evaluator` |
-| `FINAL_GATE` | Финальное утверждение и передача пакета | `hermes-orchestrator` + Человек |
-| `AAR` | Постпроектная рефлексия | `hermes-orchestrator` |
+### Pipeline Stages (RU)
+
+<!-- BEGIN GENERATED: pipeline-stages-detailed -->
+| `stage_code` | Этап | Владелец | Approval Required | Minimal Depends On |
+|---|---|---|---|---|
+| `PLAN_APPROVAL` | Утверждение плана (Stage-Gate 1) | `hermes-orchestrator` | Да | — |
+| `RESEARCH` | Исследование рынка и первичных данных | `multi-source-researcher` | Нет | PLAN_APPROVAL |
+| `PRODUCT_STRATEGY` | Продуктовая стратегия и финансовая модель | `product-manager` | Нет | RESEARCH |
+| `LEGAL_CONCEPT` | Legal Check-in концепции | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
+| `BUSINESS_REQUIREMENTS` | BRD, Gherkin, NFR | `business-analyst` | Нет | LEGAL_CONCEPT |
+| `LEGAL_BRD` | Legal Check-in BRD | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
+| `SYNTHESIS` | Синтез и верстка | `research-synthesist` | Нет | LEGAL_BRD |
+| `LEGAL_SYNTHESIS` | Legal Check-in синтеза | `legal-compliance-counsel` | Нет | SYNTHESIS |
+| `QUALITY_AUDIT` | Аудит качества по 5 осям | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
+| `FINAL_GATE` | Финальное утверждение и передача пакета | `hermes-orchestrator` | Да | QUALITY_AUDIT |
+| `AAR` | Постпроектная рефлексия (AAR) | `hermes-orchestrator` | Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-detailed -->
+
+### Pipeline Stages (Bilingual EN/RU)
+
+<!-- BEGIN GENERATED: pipeline-stages-detailed-bilingual -->
+| `stage_code` | Stage / Этап | Owner / Владелец | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |
+|---|---|---|---|---|
+| `PLAN_APPROVAL` | Plan Approval / Утверждение плана (Stage-Gate 1) | `hermes-orchestrator` | Yes / Да | — |
+| `RESEARCH` | Research / Исследование рынка и первичных данных | `multi-source-researcher` | No / Нет | PLAN_APPROVAL |
+| `PRODUCT_STRATEGY` | Product Strategy / Продуктовая стратегия и финансовая модель | `product-manager` | No / Нет | RESEARCH |
+| `LEGAL_CONCEPT` | Legal Concept / Legal Check-in концепции | `legal-compliance-counsel` | No / Нет | PRODUCT_STRATEGY |
+| `BUSINESS_REQUIREMENTS` | Business Requirements / BRD, Gherkin, NFR | `business-analyst` | No / Нет | LEGAL_CONCEPT |
+| `LEGAL_BRD` | Legal Brd / Legal Check-in BRD | `legal-compliance-counsel` | No / Нет | BUSINESS_REQUIREMENTS |
+| `SYNTHESIS` | Synthesis / Синтез и верстка | `research-synthesist` | No / Нет | LEGAL_BRD |
+| `LEGAL_SYNTHESIS` | Legal Synthesis / Legal Check-in синтеза | `legal-compliance-counsel` | No / Нет | SYNTHESIS |
+| `QUALITY_AUDIT` | Quality Audit / Аудит качества по 5 осям | `quality-evaluator` | No / Нет | LEGAL_SYNTHESIS |
+| `FINAL_GATE` | Final Gate / Финальное утверждение и передача пакета | `hermes-orchestrator` | Yes / Да | QUALITY_AUDIT |
+| `AAR` | Aar / Постпроектная рефлексия (AAR) | `hermes-orchestrator` | No / Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-detailed-bilingual -->
+
+`stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
 
 `stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
 

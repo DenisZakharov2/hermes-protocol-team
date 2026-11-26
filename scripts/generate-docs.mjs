@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Генерация справочника JSON-схем.
+ * Генерация справочника JSON-схем с поддержкой i18n (EN/RU).
  *
  * Скрипт перезаписывает ТОЛЬКО содержимое между маркерами
  * `<!-- BEGIN GENERATED: <name> -->` и `<!-- END GENERATED: <name> -->`.
@@ -53,6 +53,38 @@ const AGENT_BY_SCHEMA = {
   flight_log: 'все агенты'
 };
 
+// Mapping of stage_code to responsible agent (for pipeline stages table)
+const STAGE_CODE_TO_AGENT = {
+  PLAN_APPROVAL: 'hermes-orchestrator',
+  RESEARCH: 'multi-source-researcher',
+  PRODUCT_STRATEGY: 'product-manager',
+  LEGAL_CONCEPT: 'legal-compliance-counsel',
+  BUSINESS_REQUIREMENTS: 'business-analyst',
+  LEGAL_BRD: 'legal-compliance-counsel',
+  SYNTHESIS: 'research-synthesist',
+  LEGAL_SYNTHESIS: 'legal-compliance-counsel',
+  QUALITY_AUDIT: 'quality-evaluator',
+  FINAL_GATE: 'hermes-orchestrator',
+  AAR: 'hermes-orchestrator'
+};
+
+/**
+ * Russian names for pipeline stages (used in Constitution detailed table)
+ */
+const STAGE_CODE_TO_RUSSIAN = {
+  PLAN_APPROVAL: 'Утверждение плана (Stage-Gate 1)',
+  RESEARCH: 'Исследование рынка и первичных данных',
+  PRODUCT_STRATEGY: 'Продуктовая стратегия и финансовая модель',
+  LEGAL_CONCEPT: 'Legal Check-in концепции',
+  BUSINESS_REQUIREMENTS: 'BRD, Gherkin, NFR',
+  LEGAL_BRD: 'Legal Check-in BRD',
+  SYNTHESIS: 'Синтез и верстка',
+  LEGAL_SYNTHESIS: 'Legal Check-in синтеза',
+  QUALITY_AUDIT: 'Аудит качества по 5 осям',
+  FINAL_GATE: 'Финальное утверждение и передача пакета',
+  AAR: 'Постпроектная рефлексия (AAR)'
+};
+
 /**
  * Многоточие ставится только при реальном обрезании текста.
  * Угловые скобки экранируются: иначе markdownlint считает их inline-HTML.
@@ -62,9 +94,9 @@ const AGENT_BY_SCHEMA = {
  */
 function truncate(text, max) {
   const escaped = (text ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replace(/&/g, '&')
+    .replace(/</g, "<")
+    .replace(/>/g, "&")
     .replace(/\s+/g, ' ')
     .trim();
   if (escaped.length <= max) return escaped;
@@ -85,6 +117,22 @@ function listSchemaFiles(dir, base = '') {
   return result;
 }
 
+function getI18nString(schema, key, lang = 'ru') {
+  const i18n = schema['x-i18n'];
+  if (i18n && i18n[`${key}_${lang}`]) {
+    return i18n[`${key}_${lang}`];
+  }
+  return schema[key] ?? '';
+}
+
+function getI18nPropertyString(propSchema, key, lang = 'ru') {
+  const i18n = propSchema?.['x-i18n'];
+  if (i18n && i18n[`${key}_${lang}`]) {
+    return i18n[`${key}_${lang}`];
+  }
+  return propSchema?.[key] ?? '';
+}
+
 function readSchema(relativePath) {
   const content = fs.readFileSync(path.join(schemasDir, relativePath), 'utf8');
   const schema = JSON.parse(content);
@@ -100,58 +148,129 @@ function readSchema(relativePath) {
       process.exit(1);
     }
   }
+  // Extract version from $id
+  let schemaVersion = '—';
+  if (schema.$id && typeof schema.$id === 'string') {
+    const match = schema.$id.match(/#v(\d+\.\d+\.\d+)$/);
+    if (match) schemaVersion = match[1];
+  }
   return {
     relativePath,
     basename,
     isCommon,
     title: schema.title ?? basename,
+    title_ru: getI18nString(schema, 'title'),
     description: schema.description ?? '',
+    description_ru: getI18nString(schema, 'description'),
     required: Array.isArray(schema.required) ? schema.required : [],
     properties: Object.keys(schema.properties ?? {}),
-    agent
+    schema,
+    agent,
+    schemaVersion
   };
 }
 
-function renderSchemaTable(schemas) {
+function renderSchemaTable(schemas, lang = 'ru') {
   const lines = [];
 
-  lines.push('| Файл | Агент | Назначение | Обязательные поля |');
-  lines.push('|---|---|---|---|');
+  if (lang === 'ru') {
+    lines.push('| Файл | Версия | Агент | Назначение (RU) | Обязательные поля |');
+  } else {
+    lines.push('| File | Version | Agent | Purpose (EN) | Required Fields |');
+  }
+  lines.push('|---|---|---|---|---|');
+
   for (const schema of schemas.filter((item) => !item.isCommon)) {
     const required = schema.required.length > 0 ? schema.required.join(', ') : '—';
-    lines.push(`| \`${schema.relativePath}\` | \`${schema.agent}\` | ${truncate(schema.description, 120)} | ${required} |`);
+    const desc = lang === 'ru' ? (schema.description_ru || schema.description) : schema.description;
+    lines.push(`| \`${schema.relativePath}\` | \`${schema.schemaVersion}\` | \`${schema.agent}\` | ${truncate(desc, 120)} | ${required} |`);
   }
   lines.push('');
 
   return lines.join('\n');
 }
 
-function renderCommonTable(schemas) {
+function renderBilingualSchemaTable(schemas) {
+  const lines = [];
+
+  lines.push('| File / Файл | Version / Версия | Agent / Агент | Purpose (EN) / Назначение (RU) | Required Fields / Обязательные поля |');
+  lines.push('|---|---|---|---|---|');
+
+  for (const schema of schemas.filter((item) => !item.isCommon)) {
+    const required = schema.required.length > 0 ? schema.required.join(', ') : '—';
+    const descEn = schema.description;
+    const descRu = schema.description_ru || schema.description;
+    lines.push(`| \`${schema.relativePath}\` | \`${schema.schemaVersion}\` | \`${schema.agent}\` | ${truncate(descEn, 80)} / ${truncate(descRu, 80)} | ${required} |`);
+  }
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+function renderCommonTable(schemas, lang = 'ru') {
   const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
   const count = Object.keys(JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {}).length;
   const lines = [];
 
-  lines.push('| Файл | Назначение | Определений |');
+  if (lang === 'ru') {
+    lines.push('| Файл | Назначение | Определений |');
+  } else {
+    lines.push('| File | Purpose | Definitions |');
+  }
   lines.push('|---|---|---|');
+
   for (const schema of schemas.filter((item) => item.isCommon)) {
-    lines.push(`| \`${schema.relativePath}\` | ${truncate(schema.description, 160)} | ${count} |`);
+    const desc = lang === 'ru' ? (schema.description_ru || schema.description) : schema.description;
+    lines.push(`| \`${schema.relativePath}\` | ${truncate(desc, 160)} | ${count} |`);
   }
   lines.push('');
 
   return lines.join('\n');
 }
 
-function renderDefinitionsTable() {
+function renderDefinitionsTable(lang = 'ru') {
   const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
-  const definitions = JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {};
+  const definitionsContent = JSON.parse(fs.readFileSync(definitionsPath, 'utf8'));
+  const definitions = definitionsContent.definitions ?? {};
+  const definitionsI18n = definitionsContent['x-i18n']?.definitions ?? {};
   const lines = [];
 
-  lines.push('| Определение | Тип | Описание |');
+  if (lang === 'ru') {
+    lines.push('| Определение | Тип | Описание (RU) |');
+  } else {
+    lines.push('| Definition | Type | Description (EN) |');
+  }
   lines.push('|---|---|---|');
+
   for (const [name, definition] of Object.entries(definitions)) {
     const type = definition.type ?? (definition.enum ? 'enum' : (definition.$ref ? '$ref' : '—'));
     const enumHint = Array.isArray(definition.enum) ? ` (${definition.enum.join(', ')})` : '';
-    lines.push(`| \`${name}\` | \`${type}\`${enumHint} | ${truncate(definition.description ?? '', 140)} |`);
+    const desc = lang === 'ru'
+      ? ((definitionsI18n[name]?.description_ru) || (definition.description ?? ''))
+      : (definition.description ?? '');
+    lines.push(`| \`${name}\` | \`${type}\`${enumHint} | ${truncate(desc, 140)} |`);
+  }
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+function renderBilingualDefinitionsTable() {
+  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
+  const definitionsContent = JSON.parse(fs.readFileSync(definitionsPath, 'utf8'));
+  const definitions = definitionsContent.definitions ?? {};
+  const definitionsI18n = definitionsContent['x-i18n']?.definitions ?? {};
+  const lines = [];
+
+  lines.push('| Definition / Определение | Type / Тип | Description (EN) / Описание (RU) |');
+  lines.push('|---|---|---|');
+
+  for (const [name, definition] of Object.entries(definitions)) {
+    const type = definition.type ?? (definition.enum ? 'enum' : (definition.$ref ? '$ref' : '—'));
+    const enumHint = Array.isArray(definition.enum) ? ` (${definition.enum.join(', ')})` : '';
+    const descEn = definition.description ?? '';
+    const descRu = (definitionsI18n[name]?.description_ru) || (definition.description ?? '');
+    lines.push(`| \`${name}\` | \`${type}\`${enumHint} | ${truncate(descEn, 80)} / ${truncate(descRu, 80)} |`);
   }
   lines.push('');
 
@@ -207,14 +326,14 @@ function loadQualityWeights() {
   return weights;
 }
 
-function renderQualityWeightsTable() {
+function renderQualityWeightsTable(lang = 'ru') {
   const weights = loadQualityWeights();
   const axisLabels = {
-    accuracy_and_grounding: 'Accuracy & Fact Grounding',
-    security: 'Security & Data Protection',
-    cross_artifact_consistency: 'Cross-Artifact Consistency',
-    structural_completeness: 'Structural Completeness & Depth',
-    practical_executability: 'Practical Executability & Feasibility'
+    accuracy_and_grounding: { en: 'Accuracy & Fact Grounding', ru: 'Accuracy & Fact Grounding' },
+    security: { en: 'Security & Data Protection', ru: 'Security & Data Protection' },
+    cross_artifact_consistency: { en: 'Cross-Artifact Consistency', ru: 'Cross-Artifact Consistency' },
+    structural_completeness: { en: 'Structural Completeness & Depth', ru: 'Structural Completeness & Depth' },
+    practical_executability: { en: 'Practical Executability & Feasibility', ru: 'Practical Executability & Feasibility' }
   };
 
   const missingLabels = QUALITY_WEIGHT_KEYS.filter((key) => !axisLabels[key]);
@@ -247,13 +366,185 @@ function renderQualityWeightsTable() {
   }
 
   const lines = [];
-  lines.push('| № | Ось качества | Вес |');
+  if (lang === 'ru') {
+    lines.push('| № | Ось качества | Вес |');
+  } else {
+    lines.push('| # | Quality Axis | Weight |');
+  }
   lines.push('|---|---|---|');
+
   QUALITY_WEIGHT_KEYS.forEach((key, index) => {
-    lines.push(`| ${index + 1} | **${axisLabels[key]}** | ${percentages[index]} % |`);
+    const label = lang === 'ru' ? axisLabels[key].ru : axisLabels[key].en;
+    lines.push(`| ${index + 1} | **${label}** | ${percentages[index]} % |`);
   });
   lines.push('');
 
+  return lines.join('\n');
+}
+
+function renderBilingualQualityWeightsTable() {
+  const weights = loadQualityWeights();
+  const axisLabels = {
+    accuracy_and_grounding: { en: 'Accuracy & Fact Grounding', ru: 'Accuracy & Fact Grounding' },
+    security: { en: 'Security & Data Protection', ru: 'Security & Data Protection' },
+    cross_artifact_consistency: { en: 'Cross-Artifact Consistency', ru: 'Cross-Artifact Consistency' },
+    structural_completeness: { en: 'Structural Completeness & Depth', ru: 'Structural Completeness & Depth' },
+    practical_executability: { en: 'Practical Executability & Feasibility', ru: 'Practical Executability & Feasibility' }
+  };
+
+  const percentages = QUALITY_WEIGHT_KEYS.map((key) => {
+    const weight = weights[key];
+    return Math.round(weight * 100);
+  });
+
+  const lines = [];
+  lines.push('| # | Quality Axis / Ось качества | Weight / Вес |');
+  lines.push('|---|---|---|');
+  QUALITY_WEIGHT_KEYS.forEach((key, index) => {
+    lines.push(`| ${index + 1} | **${axisLabels[key].en}** / **${axisLabels[key].ru}** | ${percentages[index]} % |`);
+  });
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+/**
+ * Load MandatoryPipeline from execution_plan.schema.json
+ */
+function loadMandatoryPipeline() {
+  const executionPlanPath = path.join(schemasDir, 'execution_plan.schema.json');
+  const content = fs.readFileSync(executionPlanPath, 'utf8');
+  const schema = JSON.parse(content);
+  const pipeline = schema.definitions?.MandatoryPipeline?.const;
+  if (!pipeline || !Array.isArray(pipeline)) {
+    console.error(`❌ MandatoryPipeline not found in ${executionPlanPath}`);
+    process.exit(1);
+  }
+  return pipeline;
+}
+
+/**
+ * Render pipeline stages table for team guide (simplified)
+ */
+function renderPipelineStagesTable(pipeline, lang = 'ru') {
+  const lines = [];
+
+  if (lang === 'ru') {
+    lines.push('| № | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  } else {
+    lines.push('| # | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  }
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = lang === 'ru' ? (stage.approval_required ? 'Да' : 'Нет') : (stage.approval_required ? 'Yes' : 'No');
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+function renderBilingualPipelineStagesTable(pipeline) {
+  const lines = [];
+
+  lines.push('| # / № | Stage Code | Agent | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |');
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approvalEn = stage.approval_required ? 'Yes' : 'No';
+    const approvalRu = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approvalEn} / ${approvalRu} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Render detailed pipeline stages table for Constitution (with Russian names)
+ */
+function renderPipelineStagesDetailedTable(pipeline, lang = 'ru') {
+  const lines = [];
+
+  if (lang === 'ru') {
+    lines.push('| `stage_code` | Этап | Владелец | Approval Required | Minimal Depends On |');
+  } else {
+    lines.push('| `stage_code` | Stage | Owner | Approval Required | Minimal Depends On |');
+  }
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = lang === 'ru' ? (stage.approval_required ? 'Да' : 'Нет') : (stage.approval_required ? 'Yes' : 'No');
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    const russian = STAGE_CODE_TO_RUSSIAN[stage.stage_code] ?? stage.stage_code;
+    const english = stage.stage_code.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    const stageName = lang === 'ru' ? russian : english;
+    lines.push(`| \`${stage.stage_code}\` | ${stageName} | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+function renderBilingualPipelineStagesDetailedTable(pipeline) {
+  const lines = [];
+
+  lines.push('| `stage_code` | Stage / Этап | Owner / Владелец | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |');
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approvalEn = stage.approval_required ? 'Yes' : 'No';
+    const approvalRu = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    const russian = STAGE_CODE_TO_RUSSIAN[stage.stage_code] ?? stage.stage_code;
+    const english = stage.stage_code.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    lines.push(`| \`${stage.stage_code}\` | ${english} / ${russian} | \`${agent}\` | ${approvalEn} / ${approvalRu} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Render pipeline stages table for skill (with additional columns)
+ */
+function renderPipelineStagesSkillTable(pipeline, lang = 'ru') {
+  const lines = [];
+
+  if (lang === 'ru') {
+    lines.push('| № | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  } else {
+    lines.push('| # | Stage Code | Agent | Approval Required | Minimal Depends On |');
+  }
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approval = lang === 'ru' ? (stage.approval_required ? 'Да' : 'Нет') : (stage.approval_required ? 'Yes' : 'No');
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approval} | ${deps} |`);
+  });
+  lines.push('');
+  return lines.join('\n');
+}
+
+function renderBilingualPipelineStagesSkillTable(pipeline) {
+  const lines = [];
+
+  lines.push('| # / № | Stage Code | Agent | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |');
+  lines.push('|---|---|---|---|---|');
+
+  pipeline.forEach((stage, index) => {
+    const agent = STAGE_CODE_TO_AGENT[stage.stage_code] ?? '—';
+    const approvalEn = stage.approval_required ? 'Yes' : 'No';
+    const approvalRu = stage.approval_required ? 'Да' : 'Нет';
+    const deps = stage.minimal_depends_on?.length > 0 ? stage.minimal_depends_on.join(', ') : '—';
+    lines.push(`| ${index + 1} | \`${stage.stage_code}\` | \`${agent}\` | ${approvalEn} / ${approvalRu} | ${deps} |`);
+  });
+  lines.push('');
   return lines.join('\n');
 }
 
@@ -302,9 +593,15 @@ try {
 const schemaFiles = listSchemaFiles(schemasDir);
 const schemas = schemaFiles.map(readSchema);
 
-content = replaceBlock(content, 'schemas', renderSchemaTable(schemas));
-content = replaceBlock(content, 'common', renderCommonTable(schemas));
-content = replaceBlock(content, 'definitions', renderDefinitionsTable());
+// Generate Russian version (default)
+content = replaceBlock(content, 'schemas', renderSchemaTable(schemas, 'ru'));
+content = replaceBlock(content, 'common', renderCommonTable(schemas, 'ru'));
+content = replaceBlock(content, 'definitions', renderDefinitionsTable('ru'));
+
+// Generate bilingual version (new markers)
+content = replaceBlock(content, 'schemas-bilingual', renderBilingualSchemaTable(schemas));
+content = replaceBlock(content, 'common-bilingual', renderBilingualCommonTable(schemas));
+content = replaceBlock(content, 'definitions-bilingual', renderBilingualDefinitionsTable());
 
 fs.writeFileSync(referencePath, content, 'utf8');
 console.log(`✅ Обновлено: ${referencePath}`);
@@ -319,9 +616,84 @@ try {
   if (error.code !== 'ENOENT') throw error;
 }
 if (qualityContent !== undefined) {
-  qualityContent = replaceBlock(qualityContent, 'quality-weights', renderQualityWeightsTable());
+  qualityContent = replaceBlock(qualityContent, 'quality-weights', renderQualityWeightsTable('ru'));
+  qualityContent = replaceBlock(qualityContent, 'quality-weights-bilingual', renderBilingualQualityWeightsTable());
   fs.writeFileSync(qualityPath, qualityContent, 'utf8');
   console.log(`✅ Обновлено: ${qualityPath} (таблица весов качества)`);
 } else {
   console.warn(`⚠️  Не найден ${qualityPath}, таблица весов не обновлена`);
+}
+
+// Генерация таблиц этапов пайплайна
+console.log('\n📝 Генерация таблиц этапов пайплайна...');
+
+const pipeline = loadMandatoryPipeline();
+
+// 1. docs/02-team-guide.md — simplified table
+const teamGuidePath = path.join('docs', '02-team-guide.md');
+try {
+  let teamGuideContent = fs.readFileSync(teamGuidePath, 'utf8');
+  teamGuideContent = replaceBlock(teamGuideContent, 'pipeline-stages', renderPipelineStagesTable(pipeline, 'ru'));
+  teamGuideContent = replaceBlock(teamGuideContent, 'pipeline-stages-bilingual', renderBilingualPipelineStagesTable(pipeline));
+  fs.writeFileSync(teamGuidePath, teamGuideContent, 'utf8');
+  console.log(`✅ Обновлено: ${teamGuidePath} (таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${teamGuidePath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+// 2. Hermes_Protocol_Constitution.md — detailed table
+const constitutionPath = 'Hermes_Protocol_Constitution.md';
+try {
+  let constitutionContent = fs.readFileSync(constitutionPath, 'utf8');
+  constitutionContent = replaceBlock(constitutionContent, 'pipeline-stages-detailed', renderPipelineStagesDetailedTable(pipeline, 'ru'));
+  constitutionContent = replaceBlock(constitutionContent, 'pipeline-stages-detailed-bilingual', renderBilingualPipelineStagesDetailedTable(pipeline));
+  fs.writeFileSync(constitutionPath, constitutionContent, 'utf8');
+  console.log(`✅ Обновлено: ${constitutionPath} (детальная таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${constitutionPath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+// 3. skills/hermes-orchestrator/SKILL.md — skill table
+const skillPath = path.join('skills', 'hermes-orchestrator', 'SKILL.md');
+try {
+  let skillContent = fs.readFileSync(skillPath, 'utf8');
+  skillContent = replaceBlock(skillContent, 'pipeline-stages-skill', renderPipelineStagesSkillTable(pipeline, 'ru'));
+  skillContent = replaceBlock(skillContent, 'pipeline-stages-skill-bilingual', renderBilingualPipelineStagesSkillTable(pipeline));
+  fs.writeFileSync(skillPath, skillContent, 'utf8');
+  console.log(`✅ Обновлено: ${skillPath} (таблица этапов пайплайна)`);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.warn(`⚠️  Не найден ${skillPath}, таблица этапов не обновлена`);
+  } else {
+    throw error;
+  }
+}
+
+console.log('\n✅ Генерация таблиц этапов пайплайна завершена');
+
+// Helper function for bilingual common table
+function renderBilingualCommonTable(schemas) {
+  const definitionsPath = path.join(schemasDir, 'common', 'definitions.schema.json');
+  const count = Object.keys(JSON.parse(fs.readFileSync(definitionsPath, 'utf8')).definitions ?? {}).length;
+  const lines = [];
+
+  lines.push('| File / Файл | Purpose (EN) / Назначение (RU) | Definitions / Определений |');
+  lines.push('|---|---|---|');
+
+  for (const schema of schemas.filter((item) => item.isCommon)) {
+    const descEn = schema.description;
+    const descRu = schema.description_ru || schema.description;
+    lines.push(`| \`${schema.relativePath}\` | ${truncate(descEn, 100)} / ${truncate(descRu, 100)} | ${count} |`);
+  }
+  lines.push('');
+
+  return lines.join('\n');
 }

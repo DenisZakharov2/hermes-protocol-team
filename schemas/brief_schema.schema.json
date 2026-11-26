@@ -27,7 +27,11 @@
         "executive_summary",
         "analytical_memo",
         "market_research_whitepaper"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Тип документа",
+        "description_ru": "Тип генерируемого документа"
+      }
     },
     "output_format": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/OutputFormat"
@@ -39,7 +43,16 @@
         "investor",
         "technical",
         "general_business"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Целевая аудитория",
+        "description_ru": "Целевая аудитория (executive, technical, general)",
+        "enum_labels_ru": [
+          "Руководство",
+          "Технические специалисты",
+          "Общая"
+        ]
+      }
     },
     "custom_branding": {
       "type": "object",
@@ -61,11 +74,19 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Кастомный брендинг",
+        "description_ru": "Настройки брендинга для документа"
+      }
     },
     "research_data": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "brief_schema.json",
+    "description_ru": "Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг."
+  }
 }

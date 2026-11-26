@@ -34,8 +34,16 @@
         "CLASSIC_BRD",
         "AGILE_USER_STORIES",
         "HYBRID"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Формат вывода",
+        "description_ru": "Формат выходного документа"
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "ba_input_contract.json",
+    "description_ru": "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода."
+  }
 }

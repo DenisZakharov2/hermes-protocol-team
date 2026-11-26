@@ -22,10 +22,18 @@
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ProjectId"
     },
     "query": {
-      "type": "string"
+      "type": "string",
+      "x-i18n": {
+        "title_ru": "Поисковый запрос",
+        "description_ru": "Текст поискового запроса"
+      }
     },
     "research_objective": {
-      "type": "string"
+      "type": "string",
+      "x-i18n": {
+        "title_ru": "Цель исследования",
+        "description_ru": "Цель и ожидаемый результат исследования"
+      }
     },
     "target_audience": {
       "type": "string",
@@ -33,7 +41,16 @@
         "executive",
         "technical",
         "general"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Целевая аудитория",
+        "description_ru": "Целевая аудитория исследования",
+        "enum_labels_ru": [
+          "Руководство",
+          "Технические специалисты",
+          "Общая"
+        ]
+      }
     },
     "depth_level": {
       "type": "string",
@@ -41,20 +58,41 @@
         "fast_scan",
         "standard_deep",
         "exhaustive"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Уровень глубины",
+        "description_ru": "Глубина исследования",
+        "enum_labels_ru": [
+          "Быстрый скан",
+          "Стандартная глубина",
+          "Исчерпывающее"
+        ]
+      }
     },
     "required_entities": {
       "type": "array",
       "items": {
         "type": "string"
+      },
+      "x-i18n": {
+        "title_ru": "Требуемые сущности",
+        "description_ru": "Список сущностей, которые должны быть найдены"
       }
     },
     "out_of_scope": {
       "type": "array",
       "items": {
         "type": "string"
+      },
+      "x-i18n": {
+        "title_ru": "Вне области",
+        "description_ru": "Темы, исключённые из исследования"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "research_task.json",
+    "description_ru": "Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности."
+  }
 }

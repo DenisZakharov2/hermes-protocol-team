@@ -33,27 +33,97 @@
           "minimal_depends_on"
         ],
         "properties": {
-          "stage_code": { "$ref": "#/definitions/StageCode" },
-          "approval_required": { "type": "boolean" },
+          "stage_code": {
+            "$ref": "#/definitions/StageCode"
+          },
+          "approval_required": {
+            "type": "boolean"
+          },
           "minimal_depends_on": {
             "type": "array",
-            "items": { "$ref": "#/definitions/StageCode" },
+            "items": {
+              "$ref": "#/definitions/StageCode"
+            },
             "uniqueItems": true
           }
         }
       },
       "const": [
-        { "stage_code": "PLAN_APPROVAL", "approval_required": true, "minimal_depends_on": [] },
-        { "stage_code": "RESEARCH", "approval_required": false, "minimal_depends_on": ["PLAN_APPROVAL"] },
-        { "stage_code": "PRODUCT_STRATEGY", "approval_required": false, "minimal_depends_on": ["RESEARCH"] },
-        { "stage_code": "LEGAL_CONCEPT", "approval_required": false, "minimal_depends_on": ["PRODUCT_STRATEGY"] },
-        { "stage_code": "BUSINESS_REQUIREMENTS", "approval_required": false, "minimal_depends_on": ["LEGAL_CONCEPT"] },
-        { "stage_code": "LEGAL_BRD", "approval_required": false, "minimal_depends_on": ["BUSINESS_REQUIREMENTS"] },
-        { "stage_code": "SYNTHESIS", "approval_required": false, "minimal_depends_on": ["LEGAL_BRD"] },
-        { "stage_code": "LEGAL_SYNTHESIS", "approval_required": false, "minimal_depends_on": ["SYNTHESIS"] },
-        { "stage_code": "QUALITY_AUDIT", "approval_required": false, "minimal_depends_on": ["LEGAL_SYNTHESIS"] },
-        { "stage_code": "FINAL_GATE", "approval_required": true, "minimal_depends_on": ["QUALITY_AUDIT"] },
-        { "stage_code": "AAR", "approval_required": false, "minimal_depends_on": ["FINAL_GATE"] }
+        {
+          "stage_code": "PLAN_APPROVAL",
+          "approval_required": true,
+          "minimal_depends_on": []
+        },
+        {
+          "stage_code": "RESEARCH",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "PLAN_APPROVAL"
+          ]
+        },
+        {
+          "stage_code": "PRODUCT_STRATEGY",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "RESEARCH"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_CONCEPT",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "PRODUCT_STRATEGY"
+          ]
+        },
+        {
+          "stage_code": "BUSINESS_REQUIREMENTS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_CONCEPT"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_BRD",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "BUSINESS_REQUIREMENTS"
+          ]
+        },
+        {
+          "stage_code": "SYNTHESIS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_BRD"
+          ]
+        },
+        {
+          "stage_code": "LEGAL_SYNTHESIS",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "SYNTHESIS"
+          ]
+        },
+        {
+          "stage_code": "QUALITY_AUDIT",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "LEGAL_SYNTHESIS"
+          ]
+        },
+        {
+          "stage_code": "FINAL_GATE",
+          "approval_required": true,
+          "minimal_depends_on": [
+            "QUALITY_AUDIT"
+          ]
+        },
+        {
+          "stage_code": "AAR",
+          "approval_required": false,
+          "minimal_depends_on": [
+            "FINAL_GATE"
+          ]
+        }
       ]
     }
   },
@@ -97,7 +167,24 @@
             "description": "Порядковый номер этапа внутри конкретного плана. Должен начинаться с 1 и идти последовательно без пропусков (stage_id === index + 1)."
           },
           "stage_code": {
-            "$ref": "#/definitions/StageCode"
+            "$ref": "#/definitions/StageCode",
+            "x-i18n": {
+              "title_ru": "Код этапа",
+              "description_ru": "Стабильный код этапа пайплайна",
+              "enum_labels_ru": [
+                "Утверждение плана",
+                "Исследование",
+                "Продуктовая стратегия",
+                "Legal Check-in концепции",
+                "Бизнес-требования",
+                "Legal Check-in BRD",
+                "Синтез",
+                "Legal Check-in синтеза",
+                "Аудит качества",
+                "Финальный гейт",
+                "AAR"
+              ]
+            }
           },
           "name": {
             "type": "string"
@@ -126,7 +213,11 @@
             "description": "Коды этапов, которые должны завершиться до старта этого этапа."
           },
           "approval_required": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-i18n": {
+              "title_ru": "Требуется утверждение",
+              "description_ru": "Флаг обязательного утверждения на Stage-Gate"
+            }
           },
           "status": {
             "type": "string",
@@ -140,6 +231,10 @@
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "Этапы плана",
+        "description_ru": "Список всех 11 этапов MandatoryPipeline с ответственными и зависимостями"
       }
     },
     "approval": {
@@ -167,8 +262,16 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "x-i18n": {
+        "title_ru": "Утверждение",
+        "description_ru": "Статус и детали утверждения плана"
+      }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "execution_plan.json",
+    "description_ru": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate."
+  }
 }

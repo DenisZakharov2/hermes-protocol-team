@@ -37,11 +37,19 @@
         "executive_summary",
         "analytical_memo",
         "market_research_whitepaper"
-      ]
+      ],
+      "x-i18n": {
+        "title_ru": "Тип артефакта",
+        "description_ru": "Тип проверяемого артефакта"
+      }
     },
     "artifact_data": {
       "type": "object",
-      "description": "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса."
+      "description": "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса.",
+      "x-i18n": {
+        "title_ru": "Данные артефакта",
+        "description_ru": "Содержимое проверяемого артефакта"
+      }
     },
     "context_artifacts": {
       "type": "array",
@@ -50,11 +58,19 @@
       "description": "Непустой массив ссылок на связанные артефакты (минимум один). Для аудита BRD передавайте product_strategy, research_output, legal_compliance_report и regulatory_checklist, чтобы ось Cross-Artifact Consistency получала полный контекст.",
       "items": {
         "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+      },
+      "x-i18n": {
+        "title_ru": "Контекстные артефакты",
+        "description_ru": "Список артефактов для контекста"
       }
     },
     "quality_threshold": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "x-i18n": {
+    "title_ru": "eval_request.json",
+    "description_ru": "Запрос на аудит качества: артефакт, контекст и целевой порог."
+  }
 }

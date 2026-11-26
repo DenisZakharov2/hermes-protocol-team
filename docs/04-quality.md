@@ -17,6 +17,18 @@
 | 5 | **Practical Executability & Feasibility** | 15 % |
 <!-- END GENERATED: quality-weights -->
 
+## Quality Weights (Bilingual EN/RU)
+
+<!-- BEGIN GENERATED: quality-weights-bilingual -->
+| # | Quality Axis / Ось качества | Weight / Вес |
+|---|---|---|
+| 1 | **Accuracy & Fact Grounding** / **Accuracy & Fact Grounding** | 25 % |
+| 2 | **Security & Data Protection** / **Security & Data Protection** | 25 % |
+| 3 | **Cross-Artifact Consistency** / **Cross-Artifact Consistency** | 20 % |
+| 4 | **Structural Completeness & Depth** / **Structural Completeness & Depth** | 15 % |
+| 5 | **Practical Executability & Feasibility** / **Practical Executability & Feasibility** | 15 % |
+<!-- END GENERATED: quality-weights-bilingual -->
+
 ### Критерии проверки по осям
 
 | Ось | Критерии |

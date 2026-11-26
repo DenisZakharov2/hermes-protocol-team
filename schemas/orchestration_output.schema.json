@@ -17,7 +17,11 @@
     "artifact_root": {
       "type": "string",
       "pattern": "^cases/[A-Z0-9_]+/artifacts/$",
-      "description": "Относительный путь к каталогу артефактов проекта: cases/{project_id}/artifacts/. ProjectId — UPPER_SNAKE_CASE."
+      "description": "Относительный путь к каталогу артефактов проекта: cases/{project_id}/artifacts/. ProjectId — UPPER_SNAKE_CASE.",
+      "x-i18n": {
+        "title_ru": "Корень артефактов",
+        "description_ru": "Корневая директория артефактов проекта"
+      }
     },
     "execution_status": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ExecutionStatus"
@@ -41,19 +45,48 @@
           },
           "stage_code": {
             "$ref": "urn:hermes-protocol:schemas:execution_plan.schema.json#/definitions/StageCode",
-            "description": "Стабильный код этапа (PLAN_APPROVAL, FINAL_GATE и т.д.) для инвариантной проверки."
+            "description": "Стабильный код этапа (PLAN_APPROVAL, FINAL_GATE и т.д.) для инвариантной проверки.",
+            "x-i18n": {
+              "title_ru": "Код этапа",
+              "description_ru": "Стабильный код этапа пайплайна",
+              "enum_labels_ru": [
+                "Утверждение плана",
+                "Исследование",
+                "Продуктовая стратегия",
+                "Legal Check-in концепции",
+                "Бизнес-требования",
+                "Legal Check-in BRD",
+                "Синтез",
+                "Legal Check-in синтеза",
+                "Аудит качества",
+                "Финальный гейт",
+                "AAR"
+              ]
+            }
           },
           "approved_by_human": {
             "type": "boolean"
           },
           "human_verdict": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/StageGateVerdict"
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/StageGateVerdict",
+            "x-i18n": {
+              "title_ru": "Вердикт человека",
+              "description_ru": "Решение человека на Stage-Gate",
+              "enum_labels_ru": [
+                "Утверждено",
+                "Отклонено"
+              ]
+            }
           },
           "timestamp": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           }
         },
         "additionalProperties": false
+      },
+      "x-i18n": {
+        "title_ru": "История Stage-Gate",
+        "description_ru": "История прохождения Stage-Gate"
       }
     },
     "final_package": {
@@ -67,19 +100,35 @@
       ],
       "properties": {
         "product_strategy": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef",
+          "x-i18n": {
+            "title_ru": "Продуктовая стратегия",
+            "description_ru": "Ссылка на артефакт продуктовой стратегии"
+          }
         },
         "business_requirements": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef",
+          "x-i18n": {
+            "title_ru": "Бизнес-требования",
+            "description_ru": "Ссылка на артефакт бизнес-требований"
+          }
         },
         "legal_compliance_report": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef",
+          "x-i18n": {
+            "title_ru": "Юридическое заключение",
+            "description_ru": "Ссылка на юридическое заключение"
+          }
         },
         "quality_evaluation": {
           "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
         },
         "synthesist_output": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef",
+          "x-i18n": {
+            "title_ru": "Результат синтеза",
+            "description_ru": "Ссылка на результат синтеза"
+          }
         }
       },
       "additionalProperties": false
@@ -166,5 +215,9 @@
         }
       }
     }
-  ]
+  ],
+  "x-i18n": {
+    "title_ru": "orchestration_output.json",
+    "description_ru": "Итоговый отчёт оркестратора: Stage-Gate, пакет доставки и ссылка на AAR."
+  }
 }
