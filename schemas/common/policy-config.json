@@ -1,0 +1,26 @@
+{
+  "tolerance": {
+    "quality_score": 0.05,
+    "financial_pp": 0.05,
+    "nii_relative": 0.001,
+    "nii_absolute_min": 1000
+  },
+  "limits": {
+    "user_prompt_max_chars": 5000,
+    "self_healing_max_attempts": 3,
+    "legal_checkin_max_iterations": 3
+  },
+  "pipeline": {
+    "mandatory_stages": 11
+  },
+  "quality": {
+    "axes": [
+      "accuracy_and_grounding",
+      "security",
+      "cross_artifact_consistency",
+      "structural_completeness",
+      "practical_executability"
+    ],
+    "weights_file": "quality-weights.json"
+  }
+}

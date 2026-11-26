@@ -77,6 +77,31 @@ const QUALITY_WEIGHT_KEYS = [
   'practical_executability',
 ];
 
+// Policy config: tolerance, limits, pipeline settings
+const POLICY_CONFIG_PATH = path.join(schemasDir, 'common', 'policy-config.json');
+let POLICY_CONFIG;
+
+function loadPolicyConfig() {
+  if (!fs.existsSync(POLICY_CONFIG_PATH)) {
+    console.error(`❌ Не найден файл policy config: ${POLICY_CONFIG_PATH}`);
+    process.exit(1);
+  }
+  try {
+    POLICY_CONFIG = JSON.parse(fs.readFileSync(POLICY_CONFIG_PATH, 'utf8'));
+  } catch (error) {
+    console.error(`❌ Некорректный JSON в ${POLICY_CONFIG_PATH}: ${error.message}`);
+    process.exit(1);
+  }
+  // Validate required structure
+  if (!POLICY_CONFIG.tolerance || !POLICY_CONFIG.limits || !POLICY_CONFIG.pipeline) {
+    console.error(`❌ ${POLICY_CONFIG_PATH}: отсутствуют обязательные разделы (tolerance, limits, pipeline)`);
+    process.exit(1);
+  }
+  console.log(`📋 Policy config loaded: tolerance.quality_score=${POLICY_CONFIG.tolerance.quality_score}, limits.user_prompt_max_chars=${POLICY_CONFIG.limits.user_prompt_max_chars}, pipeline.mandatory_stages=${POLICY_CONFIG.pipeline.mandatory_stages}`);
+}
+
+loadPolicyConfig();
+
 function loadQualityWeights() {
   if (!fs.existsSync(QUALITY_WEIGHTS_PATH)) {
     console.error(`❌ Не найден файл весов качества: ${QUALITY_WEIGHTS_PATH}`);
@@ -483,10 +508,10 @@ function evaluationReportInvariantErrors(data) {
     );
   } else if (
     Number.isFinite(expected) &&
-    Math.abs(data.overall_score - expected) > 0.05
+    Math.abs(data.overall_score - expected) > POLICY_CONFIG.tolerance.quality_score
   ) {
     errors.push(
-      `overall_score ${data.overall_score} != weighted ${expected.toFixed(2)} (tolerance 0.05)`
+      `overall_score ${data.overall_score} != weighted ${expected.toFixed(2)} (tolerance ${POLICY_CONFIG.tolerance.quality_score})`
     );
   }
 
@@ -581,31 +606,31 @@ function productStrategyInvariantErrors(data) {
 
     if (
       !Number.isFinite(financial.cof_cost_of_funds_percent) ||
-      Math.abs(financial.cof_cost_of_funds_percent - blendedCof) > 0.05
+      Math.abs(financial.cof_cost_of_funds_percent - blendedCof) > POLICY_CONFIG.tolerance.financial_pp
     ) {
       errors.push(
-        `cof_cost_of_funds_percent ${financial.cof_cost_of_funds_percent} != blended CoF ${blendedCof.toFixed(2)} (tolerance 0.05 pp)`
+        `cof_cost_of_funds_percent ${financial.cof_cost_of_funds_percent} != blended CoF ${blendedCof.toFixed(2)} (tolerance ${POLICY_CONFIG.tolerance.financial_pp} pp)`
       );
     }
 
     const nim = placementRate - blendedCof - opex;
     if (
       !Number.isFinite(financial.projected_nim_percent) ||
-      Math.abs(financial.projected_nim_percent - nim) > 0.05
+      Math.abs(financial.projected_nim_percent - nim) > POLICY_CONFIG.tolerance.financial_pp
     ) {
       errors.push(
-        `projected_nim_percent ${financial.projected_nim_percent} != placement_rate_percent - blended CoF - opex_percent = ${nim.toFixed(2)} (tolerance 0.05 pp)`
+        `projected_nim_percent ${financial.projected_nim_percent} != placement_rate_percent - blended CoF - opex_percent = ${nim.toFixed(2)} (tolerance ${POLICY_CONFIG.tolerance.financial_pp} pp)`
       );
     }
 
     const nii = (financial.funding_volume_rub * nim) / 100;
-    const niiTolerance = Math.max(1000, Math.abs(nii) * 0.001);
+    const niiTolerance = Math.max(POLICY_CONFIG.tolerance.nii_absolute_min, Math.abs(nii) * POLICY_CONFIG.tolerance.nii_relative);
     if (
       !Number.isFinite(financial.projected_nii) ||
       Math.abs(financial.projected_nii - nii) > niiTolerance
     ) {
       errors.push(
-        `projected_nii ${financial.projected_nii} != funding_volume_rub * NIM / 100 = ${nii.toFixed(2)} (tolerance max(1000 rub, 0.1%))`
+        `projected_nii ${financial.projected_nii} != funding_volume_rub * NIM / 100 = ${nii.toFixed(2)} (tolerance max(${POLICY_CONFIG.tolerance.nii_absolute_min} rub, ${POLICY_CONFIG.tolerance.nii_relative * 100}%))`
       );
     }
   }
@@ -619,9 +644,9 @@ function productStrategyInvariantErrors(data) {
   ) {
     const expectedScore =
       (rice.reach * rice.impact * (rice.confidence_percent / 100)) / rice.effort;
-    if (!Number.isFinite(expectedScore) || Math.abs(rice.score - expectedScore) > 0.05) {
+    if (!Number.isFinite(expectedScore) || Math.abs(rice.score - expectedScore) > POLICY_CONFIG.tolerance.financial_pp) {
       errors.push(
-        `prioritization_rice.score ${rice.score} != reach * impact * confidence_percent / 100 / effort = ${expectedScore.toFixed(2)} (tolerance 0.05)`
+        `prioritization_rice.score ${rice.score} != reach * impact * confidence_percent / 100 / effort = ${expectedScore.toFixed(2)} (tolerance ${POLICY_CONFIG.tolerance.financial_pp})`
       );
     }
   }
@@ -939,14 +964,17 @@ function flightLogInvariantErrors(data, validators, orchestrationOutput) {
 
     // Третья неудачная попытка/итерация требует эскалации: последующего ERROR/BLOCKED
     // в той же phase или execution_status = ESCALATED у orchestration_output.
-    if (counter === 3 && (entry.status === 'ERROR' || entry.status === 'BLOCKED')) {
+    // Max attempts from policy config (3 by default)
+    const maxAttempts = POLICY_CONFIG.limits.self_healing_max_attempts;
+    if (counter === maxAttempts && (entry.status === 'ERROR' || entry.status === 'BLOCKED')) {
       pendingEscalations.push({ counterField, phase });
     }
   }
 
+  const maxAttempts = POLICY_CONFIG.limits.self_healing_max_attempts;
   if (orchestrationOutput?.execution_status !== 'ESCALATED') {
     for (const { counterField } of pendingEscalations) {
-      errors.push(`${counterField} 3 failed without escalation`);
+      errors.push(`${counterField} ${maxAttempts} failed without escalation`);
     }
   }
 
