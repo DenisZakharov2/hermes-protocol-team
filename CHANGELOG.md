@@ -6,14 +6,18 @@
 
 ### Added
 
-- Фикстуры `score-missing-axis.json`, `duplicate-stage-code.json`, `plan-approval-flag-mismatch.json` (PR #24).
-- Граничные фикстуры tolerance `0.05`: `evaluation-tolerance-0-04.json` (расхождение 0.04 проходит) и `score-tolerance-0-06.json` (расхождение 0.06 отклоняется).
-- Snapshot-тесты cwd-независимости: запуск `validate-json`, `check-mermaid`, `generate-docs`, `init-memory`, `sync-version` из внешнего каталога.
+- **P0.1** — Вынесены pure-функции инвариантов в `scripts/lib/invariants.mjs` (blended CoF, NIM, NII, RICE, execution_plan, evaluation_report, legal_compliance, flight_log, research_output, product_strategy, orchestration_output, non-JSON artifacts, eval_request, project_aar) и покрыты unit-тестами в `tests/unit/invariants.test.mjs` (114 тестов).
+- **P0.2** — Reference sanitizer `scripts/sanitize-prompt.mjs` (CLI + модуль `scripts/lib/sanitize-prompt.mjs`) с self-test в `tests/unit/sanitize-prompt.test.mjs` (23 теста). Интеграция в `flight_log.schema.json`: добавлены поля `sanitization_applied` (boolean) и `original_prompt_hash` (string, pattern `^[a-f0-9]{16}$`). Обновлён `skills/hermes-orchestrator/SKILL.md` с документацией и примером использования.
+- **P0.3** — Политика allow-list источников `docs/SOURCE_ALLOWLIST_POLICY.md`: критерии включения, процесс добавления, технические заметки (subdomain matching, punycode для IDN).
+- Unit-тесты для financial формул (blended CoF, NIM, NII, RICE), execution plan (DAG, mandatory pipeline 11 stages, HITL), evaluation report (weighted score, CRITICAL blocks), legal compliance (risk hierarchy, OPEN mitigation), flight log (self-healing counter sequence, escalation), research output (source_id uniqueness, URL validation, allow-list), product strategy, orchestration output, project AAR.
 
 ### Changed
 
 - `docs/MAINTAINERS.md`: релиз v4.0.0, CodeQL Action v4, актуальные технические долги.
 - `AUDIT_HANDOFF.md`: финальный статус v4.0.0, merge-коммиты, CodeQL 10 → 0, verification log.
+- `scripts/validate-json.mjs`: рефакторинг — импорт pure-функций из `scripts/lib/invariants.mjs`, поведение не изменено.
+- `schemas/flight_log.schema.json`: добавлены опциональные поля `sanitization_applied` и `original_prompt_hash`.
+- `skills/hermes-orchestrator/SKILL.md`: раздел «Защита от Prompt Injection» расширен ссылкой на reference sanitizer, описанием новых полей flight_log и примером использования.
 
 ### Fixed
 

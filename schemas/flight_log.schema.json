@@ -22,6 +22,15 @@
       "maxLength": 5000,
       "description": "Очищенный от потенциальных инъекций запрос Заказчика. Макс. 5000 символов. Заполняется оркестратором перед стартом."
     },
+    "sanitization_applied": {
+      "type": "boolean",
+      "description": "Был ли применен санитайзер к user_prompt (true если были изменения)."
+    },
+    "original_prompt_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{16}$",
+      "description": "SHA256 хеш оригинального user_prompt (первые 16 символов) для аудита в flight_log."
+    },
     "entries": {
       "type": "array",
       "items": {

@@ -158,6 +158,34 @@ version: 4.0.0
   - Удаление/экранирование явных инъекций инструкций: `ignore previous instructions`, `system prompt`, `you are now`, `act as`, `forget`, `override`, `disregard`, `bypass`, `jailbreak`.
   - Нормализация пробелов и контроль длины (макс. 5000 символов для `user_prompt` в `execution_request.json`).
   - Логирование санитизированной версии в `hermes_flight_log.json` (поле `sanitized_user_prompt`).
+  - Фиксация факта применения санитизации и хеша оригинального промпта: поля `sanitization_applied` (boolean) и `original_prompt_hash` (hex, 16 chars) в `flight_log.json`.
+
+- **Reference implementation:** `scripts/sanitize-prompt.mjs` (CLI) и `scripts/lib/sanitize-prompt.mjs` (module).
+  Функция `sanitizePrompt({ user_prompt, max_length?: 5000 })` возвращает:
+
+  ```json
+  {
+    "sanitized": "string",
+    "applied": true,
+    "removed": ["control_chars:2", "pattern:ignore\\s+previous\\s+instructio"],
+    "original_hash": "a1b2c3d4e5f67890",
+    "truncated": false
+  }
+  ```
+
+- **Пример использования оркестратором:**
+
+  ```js
+  import { sanitizePrompt } from '../scripts/lib/sanitize-prompt.mjs';
+  const { sanitized, applied, removed, original_hash, truncated } = sanitizePrompt({
+    user_prompt: executionRequest.user_prompt,
+    max_length: 5000,
+  });
+  // Записать в flight_log:
+  flightLog.sanitized_user_prompt = sanitized;
+  flightLog.sanitization_applied = applied;
+  flightLog.original_prompt_hash = original_hash;
+  ```
 
 ### 2. Защита Research Query (вход `multi-source-researcher`)
 
