@@ -13,6 +13,8 @@
 - README: раздел "CLI валидатор (hermes-validate)" с примерами использования
 - `scripts/simulate-pipeline.mjs` — локальный симулятор оркестратора (MVP): прогон 11 этапов MandatoryPipeline, mock-воркеры, валидация на каждом шаге, flight_log, метрики
 - README: раздел "Локальный симулятор оркестратора (simulate-pipeline)" с документацией
+- `scripts/check-schema-skill-sync.mjs` — проверка синхронизации Schema ↔ Skill: верификация required полей схем против контрактов скиллов
+- README: раздел "Проверка синхронизации Schema ↔ Skill (check-schema-skill-sync)" с документацией
 
 ## [4.1.0] - 2026-11-25
 

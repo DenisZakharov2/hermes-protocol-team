@@ -1,6 +1,6 @@
 {
   "name": "hermes-protocol-team",
-  "version": "4.1.3",
+  "version": "4.1.4",
   "private": true,
   "type": "module",
   "description": "Validation tooling for Hermes Protocol documentation, schemas and Mermaid diagrams",
