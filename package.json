@@ -42,6 +42,8 @@
     "sync:version": "node scripts/sync-version.mjs",
     "generate:docs": "node scripts/generate-docs.mjs",
     "generate:types": "node scripts/generate-types.mjs",
+    "generate:openapi": "node scripts/generate-openapi.mjs",
+    "generate:graphql": "node scripts/generate-graphql.mjs",
     "test": "vitest run",
     "test:snapshot": "vitest run tests/snapshot",
     "release": "release-it",
