@@ -1,157 +1,135 @@
-# Session Prompt — Hermes Protocol Team (2026-11-26)
+# Промт новой сессии: Hermes Protocol Team — после P2.5 (v4.1.4)
 
-## 📊 Current Status: P1 COMPLETE, v4.1.4 RELEASED
-
-**Repository:** https://github.com/DenisZakharov2/hermes-protocol-team
-**Branch:** `main` (latest commit: `42167e4`)
-**Tag:** `v4.1.4`
+Скопируйте текст ниже в новую сессию. Он самодостаточен: состояние репозитория, решения, подводные камни и критерии готовности уже включены.
 
 ---
 
-## ✅ What's Been Completed
+## Контекст
 
-### P0 (Security & Testability) — DONE
-| Task | Status | Version |
+**Репозиторий:** `https://github.com/DenisZakharov2/hermes-protocol-team`  
+**Локальный каталог:** `/home/anony/Documents/Личное/Проект Hermes Protocol/Команда агентов/hermes-protocol-team`  
+**Ветка:** `main` — commit `4981cda` (v4.1.4, тег `v4.1.4` на `7daa485`, GitHub Release опубликован)  
+**Открытых PR/Issues:** 0. CodeQL-алертов: **0**.
+
+**Baseline зелёный:**
+- `npm test` — **141/141** (4 test files)
+- `npm run validate` — exit 0: 21 пример, 9 skill-контракта, self-test **64/64**, 5 Mermaid, 0 markdownlint
+- `npm audit --audit-level=high` — 0
+- `npm run generate:docs` — идемпотентен (обновляет 3 таблицы этапов пайплайна + schemas-reference + quality-weights)
+- `npm run generate:types` — 21 `.d.ts` файл в `types/`
+
+---
+
+## Что уже сделано (закрыто полностью)
+
+| Фаза | Задачи | Коммиты |
 |------|--------|---------|
-| P0.1 Unit-тесты ключевых инвариантов | ✅ 141 tests passing | 4.1.0 |
-| P0.2 Reference sanitizer `sanitize-prompt.mjs` | ✅ 46 unit tests | 4.1.0 |
-| P0.3 Allow-list policy документация | ✅ `docs/SOURCE_ALLOWLIST_POLICY.md` | 4.1.0 |
+| **Blocks 0–4** | Базовый протокол: sync-version, HITL, memory paths, legal/quality invariants, CI hardening | #20, #21, #22, #23, #24, #25 |
+| **F5** | cwd-independent scripts (`repo-root.mjs`) | #26 (`fix/f5-cwd-independent-scripts`) |
+| **P0** | Unit-тесты инвариантов, Reference sanitizer, Allow-list policy | `feat/p0-invariants-sanitizer-policy` |
+| **P1** | CLI `hermes-validate`, Pipeline simulator, `.nvmrc`, Schema↔Skill sync | `feat/p1.1-cli`, `feat/p1.2-simulator`, `chore/p1.3-nvmrc`, `feat/p1.4-sync` |
+| **P2.1** | TypeScript типы из JSON Schema (`generate:types`) | `94f1016` |
+| **P2.2** | Schema versioning (`$id` + `schema_version`) | `915179d` |
+| **P2.3** | Единый конфиг tolerance/limits (`policy-config.json`) | `4a29c4b` |
+| **P2.4** | Стандартизация `flight_log` (duration_ms, tokens_used, model + optional) | `9ad06de` |
+| **P2.5** | Автогенерация таблиц пайплайна из `MandatoryPipeline` | `9b758b6` |
 
-### P1 (Tooling & DX) — ALL DONE
-| Task | Status | Version | Files |
-|------|--------|---------|-------|
-| P1.3 `.nvmrc` + README Local Setup | ✅ | 4.1.1 | `.nvmrc`, `.node-version`, `README.md` |
-| P1.1 CLI `hermes-validate` | ✅ | 4.1.2 | `bin/hermes-validate.mjs`, `package.json` |
-| P1.2 Локальный симулятор оркестратора | ✅ | 4.1.3 | `scripts/simulate-pipeline.mjs` |
-| P1.4 Schema↔Skill sync checker | ✅ | 4.1.4 | `scripts/check-schema-skill-sync.mjs` |
+**Всего изменено:** ~50 файлов, ~5000 строк кода/документации.  
+**CI:** validate ✅ (47s), CodeQL ✅ (1m). **CodeQL alerts:** 0.
 
 ---
 
-## 🎯 CLI Tools Available (v4.1.4)
+## Подводные камни (уже учтены)
+
+1. **URN refs в схемах** — `urn:hermes-protocol:schemas:...` должны резолвиться локально. `validate-json.mjs` регистрирует схемы под обоими ID (новый HTTPS + legacy URN). `generate-types.mjs` переписывает их в относительные пути через temp-директорию.
+2. **`$id` с фрагментом** — `#v4.1.4` мешает Ajv/json-schema-to-typescript. В `generate-docs.mjs` и `generate-types.mjs` фрагмент снимается перед компиляцией/валидацией.
+3. **`MandatoryPipeline` в `definitions`** — живет в `execution_plan.schema.json`, а не в `common/definitions.schema.json`. `generate-docs.mjs` читает его оттуда.
+4. **Self-test order** — при `--self-test` сначала прогоняются фикстуры, потом печатаются success-сообщения. Не менять порядок.
+5. **Markdownlint MD031** — во всех SKILL.md код-блоки должны быть окружены пустыми строками.
+
+---
+
+## Что осталось сделать (следующие приоритеты)
+
+### P3 — Новые возможности (feature work)
+| ID | Задача | Описание | Сложность |
+|----|--------|----------|-----------|
+| **P3.1** | **i18n** | Мультиязычность схем/документов (EN/RU). Добавить `x-i18n` extensions в JSON Schema, генерация `.po`/`.json` для UI. | Средняя |
+| **P3.2** | **OpenAPI/Swagger** | Генерация `openapi.yaml` из JSON Schema для REST интеграций. | Низкая |
+| **P3.3** | **GraphQL Schema** | Генерация GraphQL SDL из JSON Schema. | Низкая |
+| **P3.4** | **Python типы** | `dataclasses`/`pydantic` модели из JSON Schema (`datamodel-code-generator`). | Низкая |
+
+### P4 — Операционное совершенствование
+| ID | Задача | Описание | Сложность |
+|----|--------|----------|-----------|
+| **P4.1** | **Release automation** | `release-it` + conventional commits + auto-changelog + GitHub Release. | Средняя |
+| **P4.2** | **Dependabot security** | Auto-merge для patch, review для minor/major. Группировка PR. | Низкая |
+| **P4.3** | **Performance benchmarks** | CI bench для `validate-json` на больших артефактах (hyperfine). | Низкая |
+| **P4.4** | **Documentation site** | Docusaurus/VitePress из `docs/` + `schemas-reference.md`. | Средняя |
+
+### P5 — Расширение протокола (long-term)
+| ID | Задача | Описание |
+|----|--------|----------|
+| **P5.1** | **Event Sourcing** | `flight_log` как event store, проекции для дашбордов. |
+| **P5.2** | **Multi-tenant** | Изоляция проектов, RBAC для агентов. |
+| **P5.3** | **Plugin system** | Динамическая загрузка скиллов/валидаторов. |
+
+---
+
+## Старт новой сессии
 
 ```bash
-# Validation
-npx hermes-validate <file.json> [--schema <type>] [--json] [--self-test]
-
-# Pipeline simulation
-npx simulate-pipeline <execution_request.json> [--output-dir <dir>] [--json]
-
-# Schema/Skill sync check
-npx check-schema-skill-sync [--json]
+cd "/home/anony/Documents/Личное/Проект Hermes Protocol/Команда агентов/hermes-protocol-team"
+git checkout main
+git pull --ff-only origin main
+npm ci
+npm test
+npm run validate
+npm audit --audit-level=high
 ```
 
----
-
-## ✅ All Validations Green
-
-```bash
-npm test           # 141 tests passing
-npm run validate   # All schemas, Mermaid, Markdown, self-test (64/64)
-npm audit --audit-level=high  # 0 vulnerabilities
-```
-
-**CI/CD:** validate (41s), docs (12s), CodeQL (58s) — all passing, 0 alerts
+Baseline должен быть зелёным (141/141, validate exit 0, self-test 64/64, audit 0).
 
 ---
 
-## 📋 Remaining Tasks (P2 — Low Priority / Long-term)
+## Выбор задачи для новой сессии
 
-| # | Task | Description | Files to Create/Modify |
-|---|------|-------------|------------------------|
-| **P2.1** | **TypeScript types из JSON Schema** | Generate TS types via `json-schema-to-typescript` | `scripts/generate-types.mjs`, `package.json`, `types/` |
-| **P2.2** | **Schema versioning (`$id` + `schema_version`)** | Add `$id` URI and `schema_version` field to all schemas | All `*.schema.json`, `scripts/validate-json.mjs` |
-| **P2.3** | **Tolerance & magic numbers config** | Centralize tolerance (0.05), limits, pipeline config | `schemas/common/policy-config.json`, validators |
-| **P2.4** | **Flight_log стандартизация** | Add required fields: `duration_ms`, `tokens_used`, `model`, `sanitization_applied` | `schemas/flight_log.schema.json`, all SKILL.md |
-| **P2.5** | **Pipeline docs generation** | Auto-generate stage tables from `MandatoryPipeline` | `scripts/generate-docs.mjs`, docs, skills |
+Рекомендую начать с **P3.1 (i18n)** или **P4.1 (release automation)** — дают максимальную отдачу при минимальных рисках.
 
----
+Если выбираете **P3.1**:
+- Добавить `x-i18n` в JSON Schema (опциональные поля `title_ru`, `description_ru`, `enum_labels_ru`)
+- Обновить `generate-docs.mjs` для bilingual таблиц
+- Добавить `i18n` скрипт для извлечения строк в `.po`/`json`
 
-## 🔧 Technical Context
-
-### Key Architectural Decisions (DO NOT CHANGE)
-- **Version locked at 4.x** — no version bump until minor feature release
-- **Tolerance 0.05** — hardcoded in validators, tests depend on it
-- **11 mandatory pipeline stages** — defined in `execution_plan.schema.json` `MandatoryPipeline.const`
-- **Relative memory paths** — `cases/{project_id}/artifacts/`, no absolute `/memory/`
-- **SSRF protection** — HTTPS only, allow-list, IP blocking (localhost, RFC1918, CGNAT, ULA, link-local)
-
-### Self-Test Fixtures (64 total)
-- **58 negative fixtures** in `tests/fixtures/invalid/` — each must fail with specific error pattern
-- **6 positive fixtures** in `tests/fixtures/valid/` — each must pass
-- Manifest: `tests/fixtures/invalid/manifest.json`
-
-### Quality Gates (Triple-Gate)
-1. **Syntax** — JSON Schema (Ajv strict mode)
-2. **Legal** — `legalComplianceInvariantErrors` (CRITICAL/HIGH + OPEN = REJECTED only)
-3. **Semantic** — `evaluationReportInvariantErrors` (CRITICAL finding = `passed: false`)
+Если выбираете **P4.1**:
+- Добавить `release-it` в `devDependencies`
+- Настроить `.release-it.json` (conventional commits, GitHub Release, npm publish)
+- Добавить `release` скрипт в `package.json`
+- Обновить `CHANGELOG.md` формат под auto-generation
 
 ---
 
-## 🚀 Next Session: Start with P2.1
+## Полезные ссылки
 
-### Recommended First Step
-```bash
-# 1. Install json-schema-to-typescript
-npm install --save-dev json-schema-to-typescript
-
-# 2. Create scripts/generate-types.mjs
-# 3. Add to package.json scripts
-# 4. Run and commit types/
-```
-
-### Useful Commands
-```bash
-# Quick validation
-npm run validate:self-test
-
-# Check schema/skill sync
-npx check-schema-skill-sync
-
-# Simulate pipeline
-npx simulate-pipeline examples/execution_request.example.json --json
-
-# Validate artifact
-npx hermes-validate examples/execution_plan.example.json --json
-```
+- Repo: https://github.com/DenisZakharov2/hermes-protocol-team
+- PR #28 (P2.1–P2.5): https://github.com/DenisZakharov2/hermes-protocol-team/pull/28
+- Code Review 2026-11-23: `docs/code-review-2026-11-23.md`
+- Audit Handoff: `AUDIT_HANDOFF.md`
+- Development Handoff: `DEVELOPMENT_HANDOFF.md`
+- Maintainers: `docs/MAINTAINERS.md`
 
 ---
 
-## 📂 Key Files Reference
+## Критерии готовности новой сессии
 
-| Category | Files |
-|----------|-------|
-| **Constitution** | `Hermes_Protocol_Constitution.md` |
-| **Schemas** | `schemas/*.schema.json` (21 files) |
-| **Examples** | `examples/*.example.json` (21 files) |
-| **Skills** | `skills/*/SKILL.md` (7 agents) |
-| **Validators** | `scripts/validate-json.mjs`, `bin/hermes-validate.mjs` |
-| **Simulator** | `scripts/simulate-pipeline.mjs` |
-| **Sync Checker** | `scripts/check-schema-skill-sync.mjs` |
-| **Tests** | `tests/unit/*.test.mjs`, `tests/fixtures/` |
-| **Docs** | `docs/*.md`, `docs/diagrams/*.mmd` |
+- [ ] Выбрана задача (P3.1 / P4.1 / другая)
+- [ ] Создана ветка `feat/<task-id>-<short-name>` от актуального `main`
+- [ ] Реализовано, все тесты зелёные
+- [ ] PR создан, CI зелёный
+- [ ] PR влит (admin merge), ветка удалена
+- [ ] CodeQL alerts = 0 на `main`
+- [ ] Сессионный промт обновлён/создан для следующей итерации
 
 ---
 
-## ⚠️ Known Warnings (Non-blocking)
-
-`check-schema-skill-sync` reports 15 warnings for schemas without producing skills:
-- `agent_tuning_log`, `ba_input_contract`, `brief_schema`, `eval_request`
-- `execution_plan`, `execution_request`, `flight_log`, `it_landscape`
-- `legal_review_request`, `product_brief`, `project_aar`, `regulatory_checklist`
-- `research_plan`, `research_task`, `synthesist_output`
-
-*These are internal/supporting schemas not directly produced by a single worker agent.*
-
----
-
-## 📝 Notes for Next Session
-
-1. **Don't modify** v4.1.4 contracts, schemas, examples, fixtures, or test expectations
-2. **P2 tasks are independent** — can be done in any order
-3. **TypeScript types (P2.1)** will enable better IDE support for agent development
-4. **Schema versioning (P2.2)** needed for forward compatibility in production
-5. **Policy config (P2.3)** will eliminate magic numbers from validators
-
----
-
-*Generated: 2026-11-26 | Session: P1 Complete → P2 Start*
+*Создано: 2026-11-26. Версия репозитория: 4.1.4. Автор: AI-ассистент на основе текущего состояния main.*
