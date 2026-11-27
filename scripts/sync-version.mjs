@@ -275,8 +275,8 @@ const textUpdates = [
   },
   {
     file: 'schemas/common/definitions.schema.json',
-    pattern: /"examples": \["\d+\.\d+\.\d+"\]/,
-    replacement: `"examples": ["${newVersion}"]`
+    pattern: /("examples":\s*\[\s*)"[\d.]+"/,
+    replacement: `$1"${newVersion}"`
   }
 ];
 

@@ -120,7 +120,7 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
       "examples": [
-        "4.0.0"
+        "4.2.0"
       ]
     },
     "Percentage": {
