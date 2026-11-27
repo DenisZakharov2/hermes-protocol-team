@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:it_landscape.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/it_landscape.schema.json#v4.2.0",
   "title": "it_landscape.json",
   "description": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).",
   "type": "object",
@@ -40,19 +40,14 @@
         ],
         "type": "object"
       },
-      "type": "array",
-      "x-i18n": {
-        "title_ru": "Системы",
-        "description_ru": "Описание затронутых IT-систем"
-      }
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "required": [
     "project_id",
     "systems"
-  ],
-  "x-i18n": {
-    "title_ru": "it_landscape.json",
-    "description_ru": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО)."
-  }
+  ]
 }

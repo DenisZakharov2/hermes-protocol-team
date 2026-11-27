@@ -114,6 +114,30 @@ version: 4.2.0
 1. Агент `quality-evaluator` обязан непрерывно вести бортовой журнал `evaluator_flight_log.json`.
 2. В журнале фиксируются все проверенные артефакты, детализация баллов по 5 осям, циклы Self-Healing и динамика First-Time Right Rate (FTR).
 
+### 6.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `evaluator_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T11:30:00Z",
+  "phase": "QUALITY_AUDIT",
+  "event_type": "QUALITY_AUDIT",
+  "status": "OK",
+  "details": "Evaluation completed, passed=true, score=88.5",
+  "duration_ms": 3200,
+  "tokens_used": { "input": 4500, "output": 1200, "total": 5700 },
+  "model": "gpt-4o",
+  "retry_reason": "INVARIANT_ERROR",
+  "sanitization_applied": false,
+  "original_prompt_hash": "f1e2d3c4b5a69870"
+}
+```
+
 ## 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `quality-evaluator` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.

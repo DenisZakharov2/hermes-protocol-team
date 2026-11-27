@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:business_requirements.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/business_requirements.schema.json#v4.2.0",
   "title": "business_requirements.json",
   "description": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт.",
   "type": "object",
@@ -40,10 +40,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Матрица влияния на системы",
-        "description_ru": "Матрица влияния продукта на IT-системы"
       }
     },
     "classic_brd": {
@@ -63,11 +59,7 @@
           }
         }
       },
-      "additionalProperties": false,
-      "x-i18n": {
-        "title_ru": "Классический BRD",
-        "description_ru": "Классический документ бизнес-требований"
-      }
+      "additionalProperties": false
     },
     "agile_backlog": {
       "type": "array",
@@ -86,10 +78,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Agile бэклог",
-        "description_ru": "Бэклог пользовательских историй в формате Gherkin"
       }
     },
     "regulatory_nfr": {
@@ -152,16 +140,11 @@
           }
         }
       ],
-      "additionalProperties": false,
-      "x-i18n": {
-        "title_ru": "Регуляторные NFR",
-        "description_ru": "Нефункциональные требования регуляторного характера"
-      }
+      "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "business_requirements.json",
-    "description_ru": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт."
-  }
+  "additionalProperties": false
 }

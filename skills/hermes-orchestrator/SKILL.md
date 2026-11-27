@@ -166,6 +166,8 @@ version: 4.2.0
 7. **`FINAL_GATE`**: Передать результаты Человеку на утверждение. Только после явного одобрения статус `execution_status` = `COMPLETED_APPROVED`.
 8. **`AAR`**: После `FINAL_GATE` запустить фазу AAR и записать уроки в память. При `ESCALATED` или `STOPPED`, а также при незакрытом `REG_*` AAR не запускается.
 
+Источник истины: `schemas/execution_plan.schema.json` → `definitions.MandatoryPipeline.const`.
+
 ## 7. Ведение бортового журнала и фиксация действий
 
 1. Агент `hermes-orchestrator` обязан непрерывно и автономно вести собственный бортовой журнал `hermes_flight_log.json` по каждому проекту.
@@ -175,6 +177,44 @@ version: 4.2.0
    - Все решения Человека на этапе Stage-Gate (одобрено / отклонено / отправлено на доработку).
    - Итерации цикла Self-Healing и правовых согласований (контроль лимита в 3 попытки). Для событий `SELF_HEALING` обязателен `self_healing_attempt`, для `LEGAL_CHECKIN` — `legal_iteration`; в рамках одной `phase` счётчики идут строго 1 → 2 → 3.
    - Логи ошибок/сбоев исполнения. После неудачной попытки 3 записывается `ERROR` со статусом `BLOCKED` в той же `phase` либо выставляется `execution_status: ESCALATED` у `orchestration_output`.
+
+### 7.1. Стандартизированные поля `entries[]` (P2.4)
+
+Каждая запись в `entries[]` **обязательно** должна содержать следующие поля:
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `duration_ms` | integer (≥0) | Длительность операции в миллисекундах. |
+| `tokens_used` | object | Токены LLM: `{ input: int, output: int, total: int }`. Все поля ≥0. |
+| `model` | string | Идентификатор модели (например, `gpt-4o`, `claude-3.5-sonnet`). |
+
+**Рекомендуемые поля** (заполнять по возможности):
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `retry_reason` | enum | Причина ретрая: `VALIDATION_ERROR`, `INVARIANT_ERROR`, `TIMEOUT`, `RATE_LIMIT`, `OTHER`. |
+| `sanitization_applied` | boolean | Был ли применен санитайзер к `user_prompt` (true если были изменения). |
+| `original_prompt_hash` | string (hex16) | SHA256 хеш оригинального `user_prompt` (первые 16 символов) для аудита. |
+
+Поля `sanitization_applied` и `original_prompt_hash` уже определены в `flight_log.schema.json` (добавлены в P0.2). Остальные поля — новые в P2.4.
+
+Пример записи:
+
+```json
+{
+  "timestamp": "2026-11-26T10:15:30Z",
+  "phase": "RESEARCH",
+  "event_type": "PHASE_START",
+  "status": "OK",
+  "details": "Started research phase",
+  "duration_ms": 1250,
+  "tokens_used": { "input": 2100, "output": 850, "total": 2950 },
+  "model": "gpt-4o",
+  "retry_reason": "VALIDATION_ERROR",
+  "sanitization_applied": false,
+  "original_prompt_hash": "a1b2c3d4e5f67890"
+}
+```
 
 ## 8. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:execution_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/execution_request.schema.json#v4.2.0",
   "title": "execution_request.json",
   "description": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.",
   "type": "object",
@@ -18,11 +18,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 5000,
-      "description": "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме.",
-      "x-i18n": {
-        "title_ru": "Запрос пользователя",
-        "description_ru": "Текстовый запрос Заказчика"
-      }
+      "description": "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме."
     },
     "domain_context": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/DomainContext"
@@ -49,23 +45,14 @@
           }
         },
         "quality_threshold": {
-          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold",
-          "x-i18n": {
-            "title_ru": "Порог качества",
-            "description_ru": "Целевой порог качества (0-100)"
-          }
+          "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
         }
       },
-      "additionalProperties": false,
-      "x-i18n": {
-        "title_ru": "Требования к выводу",
-        "description_ru": "Требуемые артефакты и порог качества"
-      }
+      "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "execution_request.json",
-    "description_ru": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества."
-  }
+  "additionalProperties": false
 }

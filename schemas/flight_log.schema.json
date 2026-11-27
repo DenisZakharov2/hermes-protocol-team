@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:flight_log.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/flight_log.schema.json#v4.2.0",
   "title": "flight_log.json",
   "description": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.",
   "type": "object",
@@ -31,27 +31,17 @@
           "phase",
           "event_type",
           "status",
-          "details"
+          "details",
+          "duration_ms",
+          "tokens_used",
+          "model"
         ],
         "properties": {
           "timestamp": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "phase": {
-            "type": "string",
-            "x-i18n": {
-              "title_ru": "Фаза",
-              "description_ru": "Тип фазы бортового журнала",
-              "enum_labels_ru": [
-                "Начало фазы",
-                "Конец фазы",
-                "Stage-Gate",
-                "Ошибка",
-                "Self-Healing",
-                "HITL",
-                "Эскалация"
-              ]
-            }
+            "type": "string"
           },
           "event_type": {
             "type": "string",
@@ -85,25 +75,70 @@
               "type": "string"
             }
           },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Длительность операции в миллисекундах."
+          },
+          "tokens_used": {
+            "type": "object",
+            "required": ["input", "output", "total"],
+            "additionalProperties": false,
+            "properties": {
+              "input": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Количество входных токенов."
+              },
+              "output": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Количество выходных токенов."
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Общее количество токенов (input + output)."
+              }
+            },
+            "description": "Токены, использованные при вызове LLM."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Идентификатор модели (например, gpt-4o, claude-3.5-sonnet)."
+          },
+          "retry_reason": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_ERROR",
+              "INVARIANT_ERROR",
+              "TIMEOUT",
+              "RATE_LIMIT",
+              "OTHER"
+            ],
+            "description": "Причина ретрая, если операция была повторена."
+          },
+          "sanitization_applied": {
+            "type": "boolean",
+            "description": "Был ли применен санитайзер к user_prompt (true если были изменения)."
+          },
+          "original_prompt_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{16}$",
+            "description": "SHA256 хеш оригинального user_prompt (первые 16 символов) для аудита в flight_log."
+          },
           "self_healing_attempt": {
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.",
-            "x-i18n": {
-              "title_ru": "Попытка Self-Healing",
-              "description_ru": "Номер попытки автоматического восстановления"
-            }
+            "description": "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
           },
           "legal_iteration": {
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "description": "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.",
-            "x-i18n": {
-              "title_ru": "Итерация Legal",
-              "description_ru": "Номер итерации правового согласования"
-            }
+            "description": "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase."
           }
         },
         "allOf": [
@@ -153,16 +188,11 @@
           }
         ],
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Записи журнала",
-        "description_ru": "Хронологические записи бортового журнала агента"
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "flight_log.json",
-    "description_ru": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки."
-  }
+  "additionalProperties": false
 }

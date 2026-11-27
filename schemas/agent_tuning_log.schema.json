@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:agent_tuning_log.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/agent_tuning_log.schema.json#v4.2.0",
   "title": "agent_tuning_log.json",
   "description": "Журнал оперативных корректировок агентов и предложенных патчей скиллов.",
   "type": "object",
@@ -28,11 +28,7 @@
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/TimestampISO"
           },
           "agent_id": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId",
-            "x-i18n": {
-              "title_ru": "Идентификатор агента",
-              "description_ru": "Системный идентификатор агента"
-            }
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "source": {
             "type": "string",
@@ -53,16 +49,11 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Записи",
-        "description_ru": "Записи бортового журнала"
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "agent_tuning_log.json",
-    "description_ru": "Журнал оперативных корректировок агентов и предложенных патчей скиллов."
-  }
+  "additionalProperties": false
 }

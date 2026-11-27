@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:execution_plan.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/execution_plan.schema.json#v4.2.0",
   "title": "execution_plan.json",
   "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
   "type": "object",
@@ -167,24 +167,7 @@
             "description": "Порядковый номер этапа внутри конкретного плана. Должен начинаться с 1 и идти последовательно без пропусков (stage_id === index + 1)."
           },
           "stage_code": {
-            "$ref": "#/definitions/StageCode",
-            "x-i18n": {
-              "title_ru": "Код этапа",
-              "description_ru": "Стабильный код этапа пайплайна",
-              "enum_labels_ru": [
-                "Утверждение плана",
-                "Исследование",
-                "Продуктовая стратегия",
-                "Legal Check-in концепции",
-                "Бизнес-требования",
-                "Legal Check-in BRD",
-                "Синтез",
-                "Legal Check-in синтеза",
-                "Аудит качества",
-                "Финальный гейт",
-                "AAR"
-              ]
-            }
+            "$ref": "#/definitions/StageCode"
           },
           "name": {
             "type": "string"
@@ -213,11 +196,7 @@
             "description": "Коды этапов, которые должны завершиться до старта этого этапа."
           },
           "approval_required": {
-            "type": "boolean",
-            "x-i18n": {
-              "title_ru": "Требуется утверждение",
-              "description_ru": "Флаг обязательного утверждения на Stage-Gate"
-            }
+            "type": "boolean"
           },
           "status": {
             "type": "string",
@@ -231,10 +210,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Этапы плана",
-        "description_ru": "Список всех 11 этапов MandatoryPipeline с ответственными и зависимостями"
       }
     },
     "approval": {
@@ -262,16 +237,11 @@
           "type": "string"
         }
       },
-      "additionalProperties": false,
-      "x-i18n": {
-        "title_ru": "Утверждение",
-        "description_ru": "Статус и детали утверждения плана"
-      }
+      "additionalProperties": false
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "execution_plan.json",
-    "description_ru": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate."
-  }
+  "additionalProperties": false
 }

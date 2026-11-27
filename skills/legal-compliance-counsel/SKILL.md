@@ -114,6 +114,30 @@ version: 4.2.0
 1. Агент `legal-compliance-counsel` обязан непрерывно вести собственный бортовой журнал `legal_flight_log.json`.
 2. В журнале фиксируются все проанализированные законы, судебные дела, выявленные риски, сформированные дисклеймеры и итерации правовых проверок.
 
+### 6.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `legal_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T12:00:00Z",
+  "phase": "LEGAL_BRD",
+  "event_type": "LEGAL_CHECKIN",
+  "status": "OK",
+  "details": "Legal review completed, 3 risks found (1 HIGH, 2 MEDIUM)",
+  "duration_ms": 7200,
+  "tokens_used": { "input": 15000, "output": 3500, "total": 18500 },
+  "model": "gpt-4o",
+  "retry_reason": "INVARIANT_ERROR",
+  "sanitization_applied": true,
+  "original_prompt_hash": "f6a7890123456789"
+}
+```
+
 ## 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `legal-compliance-counsel` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.

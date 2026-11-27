@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:eval_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/eval_request.schema.json#v4.2.0",
   "title": "eval_request.json",
   "description": "Запрос на аудит качества: артефакт, контекст и целевой порог.",
   "type": "object",
@@ -37,19 +37,11 @@
         "executive_summary",
         "analytical_memo",
         "market_research_whitepaper"
-      ],
-      "x-i18n": {
-        "title_ru": "Тип артефакта",
-        "description_ru": "Тип проверяемого артефакта"
-      }
+      ]
     },
     "artifact_data": {
       "type": "object",
-      "description": "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса.",
-      "x-i18n": {
-        "title_ru": "Данные артефакта",
-        "description_ru": "Содержимое проверяемого артефакта"
-      }
+      "description": "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса."
     },
     "context_artifacts": {
       "type": "array",
@@ -58,19 +50,14 @@
       "description": "Непустой массив ссылок на связанные артефакты (минимум один). Для аудита BRD передавайте product_strategy, research_output, legal_compliance_report и regulatory_checklist, чтобы ось Cross-Artifact Consistency получала полный контекст.",
       "items": {
         "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/ArtifactRef"
-      },
-      "x-i18n": {
-        "title_ru": "Контекстные артефакты",
-        "description_ru": "Список артефактов для контекста"
       }
     },
     "quality_threshold": {
       "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/QualityThreshold"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "eval_request.json",
-    "description_ru": "Запрос на аудит качества: артефакт, контекст и целевой порог."
-  }
+  "additionalProperties": false
 }

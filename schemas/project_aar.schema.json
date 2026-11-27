@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:project_aar.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/project_aar.schema.json#v4.2.0",
   "title": "project_aar.json",
   "description": "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.",
   "type": "object",
@@ -20,37 +20,21 @@
     "human_rating": {
       "type": "integer",
       "minimum": 1,
-      "maximum": 5,
-      "x-i18n": {
-        "title_ru": "Оценка человека",
-        "description_ru": "Оценка Заказчика по итогам проекта"
-      }
+      "maximum": 5
     },
     "human_feedback": {
-      "type": "string",
-      "x-i18n": {
-        "title_ru": "Обратная связь человека",
-        "description_ru": "Текстовая обратная связь Заказчика"
-      }
+      "type": "string"
     },
     "successful_patterns": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "x-i18n": {
-        "title_ru": "Успешные паттерны",
-        "description_ru": "Паттерны, проявившие себя хорошо"
       }
     },
     "problems_found": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "x-i18n": {
-        "title_ru": "Найденные проблемы",
-        "description_ru": "Проблемы, выявленные в ходе проекта"
       }
     },
     "skill_patches": {
@@ -64,11 +48,7 @@
         ],
         "properties": {
           "agent_id": {
-            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId",
-            "x-i18n": {
-              "title_ru": "Идентификатор агента",
-              "description_ru": "Системный идентификатор агента"
-            }
+            "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/AgentId"
           },
           "section": {
             "const": "Learned Guardrails",
@@ -79,25 +59,16 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Патчи скиллов",
-        "description_ru": "Предлагаемые изменения к скиллам агентов"
       }
     },
     "lessons_indexed_to": {
       "type": "string",
       "pattern": "^cases/[A-Z0-9_]+/$",
-      "description": "Относительный путь к эпизодической памяти проекта: cases/{project_id}/. ProjectId — UPPER_SNAKE_CASE.",
-      "x-i18n": {
-        "title_ru": "Уроки индексированы в",
-        "description_ru": "Путь к каталогу уроков проекта"
-      }
+      "description": "Относительный путь к эпизодической памяти проекта: cases/{project_id}/. ProjectId — UPPER_SNAKE_CASE."
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "project_aar.json",
-    "description_ru": "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов."
-  }
+  "additionalProperties": false
 }

@@ -138,10 +138,6 @@
 | `AAR` | Aar / Постпроектная рефлексия (AAR) | `hermes-orchestrator` | No / Нет | FINAL_GATE |
 <!-- END GENERATED: pipeline-stages-detailed-bilingual -->
 
-`stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
-
-`stage_id` — только порядковый номер внутри конкретного плана; `stage_code` не меняется между проектами и версиями плана.
-
 ```text
 [USER_REQUEST: execution_request.json]
               |

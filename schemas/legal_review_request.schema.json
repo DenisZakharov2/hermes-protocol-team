@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:legal_review_request.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/legal_review_request.schema.json#v4.2.0",
   "title": "legal_review_request.json",
   "description": "Запрос на правовую проверку концепции или BRD.",
   "type": "object",
@@ -25,31 +25,17 @@
         {
           "type": "null"
         }
-      ],
-      "x-i18n": {
-        "title_ru": "Бизнес-требования",
-        "description_ru": "Ссылка на артефакт бизнес-требований"
-      }
+      ]
     },
     "target_audience": {
-      "type": "string",
-      "x-i18n": {
-        "title_ru": "Целевая аудитория",
-        "description_ru": "Целевая аудитория (executive, technical, general)",
-        "enum_labels_ru": [
-          "Руководство",
-          "Технические специалисты",
-          "Общая"
-        ]
-      }
+      "type": "string"
     },
     "jurisdiction": {
       "type": "string"
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "legal_review_request.json",
-    "description_ru": "Запрос на правовую проверку концепции или BRD."
-  }
+  "additionalProperties": false
 }

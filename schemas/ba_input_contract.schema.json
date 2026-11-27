@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:ba_input_contract.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/ba_input_contract.schema.json#v4.2.0",
   "title": "ba_input_contract.json",
   "description": "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода.",
   "type": "object",
@@ -34,16 +34,11 @@
         "CLASSIC_BRD",
         "AGILE_USER_STORIES",
         "HYBRID"
-      ],
-      "x-i18n": {
-        "title_ru": "Формат вывода",
-        "description_ru": "Формат выходного документа"
-      }
+      ]
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "ba_input_contract.json",
-    "description_ru": "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода."
-  }
+  "additionalProperties": false
 }

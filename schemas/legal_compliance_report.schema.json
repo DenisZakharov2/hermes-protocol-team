@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:legal_compliance_report.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/legal_compliance_report.schema.json#v4.2.0",
   "title": "legal_compliance_report.json",
   "description": "Юридическое заключение: статус, риски, прецеденты и меры смягчения.",
   "type": "object",
@@ -110,26 +110,17 @@
             }
           }
         ]
-      },
-      "x-i18n": {
-        "title_ru": "Аудит соответствия",
-        "description_ru": "Детальный аудит соответствия нормативным актам"
       }
     },
     "contract_disclaimers_required": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "x-i18n": {
-        "title_ru": "Требуемые отказные заявления",
-        "description_ru": "Список обязательных отказных заявлений в договорах"
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "legal_compliance_report.json",
-    "description_ru": "Юридическое заключение: статус, риски, прецеденты и меры смягчения."
-  }
+  "additionalProperties": false
 }

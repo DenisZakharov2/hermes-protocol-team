@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:research_plan.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/research_plan.schema.json#v4.2.0",
   "title": "research_plan.json",
   "description": "Внутренний план исследования: подзапросы, целевые Tier и статусы.",
   "type": "object",
@@ -31,11 +31,7 @@
         ],
         "properties": {
           "query": {
-            "type": "string",
-            "x-i18n": {
-              "title_ru": "Поисковый запрос",
-              "description_ru": "Текст поискового запроса"
-            }
+            "type": "string"
           },
           "target_tier": {
             "$ref": "urn:hermes-protocol:schemas:common:definitions.schema.json#/definitions/SourceTier"
@@ -54,16 +50,11 @@
           }
         },
         "additionalProperties": false
-      },
-      "x-i18n": {
-        "title_ru": "Подзапросы",
-        "description_ru": "Список подзапросов для исследования"
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "research_plan.json",
-    "description_ru": "Внутренний план исследования: подзапросы, целевые Tier и статусы."
-  }
+  "additionalProperties": false
 }

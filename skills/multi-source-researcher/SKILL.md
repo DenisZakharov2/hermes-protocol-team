@@ -124,6 +124,30 @@ version: 4.2.0
 1. Агент `multi-source-researcher` обязан непрерывно и автономно вести собственный бортовой журнал `researcher_flight_log.json` по каждому проекту.
 2. В бортовом журнале фиксируются сгенерированные поисковые запросы, обработанные URL, выявленные конфликты в данных и логи ошибок.
 
+### 6.1. Стандартизированные поля `entries[]` (P2.4)
+
+См. раздел 7.1 в `skills/hermes-orchestrator/SKILL.md` — поля `entries[]` едины для всех агентов.
+Обязательные: `duration_ms`, `tokens_used`, `model`.
+Рекомендуемые: `retry_reason`, `sanitization_applied`, `original_prompt_hash`.
+
+Пример записи для `researcher_flight_log.json`:
+
+```json
+{
+  "timestamp": "2026-11-26T10:20:00Z",
+  "phase": "RESEARCH",
+  "event_type": "PHASE_END",
+  "status": "OK",
+  "details": "Completed research, 15 sources processed",
+  "duration_ms": 45000,
+  "tokens_used": { "input": 8500, "output": 3200, "total": 11700 },
+  "model": "gpt-4o",
+  "retry_reason": "RATE_LIMIT",
+  "sanitization_applied": false,
+  "original_prompt_hash": "b2c3d4e5f6a78901"
+}
+```
+
 ## 7. Механизм самообучения и накопления опыта (Hermes Constitution Integration)
 
 `multi-source-researcher` полностью интегрирован в **Глобальную Конституцию Непрерывного Развития Hermes Protocol**.

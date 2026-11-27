@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:synthesist_output.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/synthesist_output.schema.json#v4.2.0",
   "title": "synthesist_output.json",
   "description": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.",
   "type": "object",
@@ -13,11 +13,7 @@
       "type": "array"
     },
     "deliverable_content": {
-      "type": "string",
-      "x-i18n": {
-        "title_ru": "Содержимое entregable",
-        "description_ru": "Разметка или код готового документа"
-      }
+      "type": "string"
     },
     "generated_diagrams": {
       "items": {
@@ -58,6 +54,9 @@
         },
         "additionalProperties": false
       }
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
   "required": [
@@ -65,9 +64,5 @@
     "project_id",
     "output_format",
     "deliverable_content"
-  ],
-  "x-i18n": {
-    "title_ru": "synthesist_output.json",
-    "description_ru": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски."
-  }
+  ]
 }

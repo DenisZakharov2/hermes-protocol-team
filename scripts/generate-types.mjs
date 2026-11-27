@@ -44,9 +44,10 @@ const ALL_SCHEMA_FILES = [
 const TARGET_SCHEMA_FILES = ALL_SCHEMA_FILES.filter(f => !f.startsWith('common/'));
 
 const URN_PREFIX = 'urn:hermes-protocol:schemas:';
+const HTTPS_PREFIX = 'https://hermes-protocol.example/schemas/';
 
 /**
- * Recursively replace URN refs with relative file paths.
+ * Recursively replace URN and HTTPS refs with relative file paths.
  */
 function resolveUrns(obj, baseDir) {
   if (Array.isArray(obj)) {
@@ -55,14 +56,26 @@ function resolveUrns(obj, baseDir) {
   if (obj && typeof obj === 'object') {
     const result = {};
     for (const [key, value] of Object.entries(obj)) {
-      if (key === '$ref' && typeof value === 'string' && value.startsWith(URN_PREFIX)) {
-        const urnPath = value.slice(URN_PREFIX.length);
-        const [filePart, ...hashParts] = urnPath.split('#');
-        const hash = hashParts.length > 0 ? '#' + hashParts.join('#') : '';
-        const filePath = filePart.replace(/:/g, '/');
-        const absolutePath = path.join(SCHEMAS_DIR, filePath);
-        const relativePath = path.relative(baseDir, absolutePath);
-        result[key] = relativePath + hash;
+      if (key === '$ref' && typeof value === 'string') {
+        let resolved = null;
+        if (value.startsWith(URN_PREFIX)) {
+          const urnPath = value.slice(URN_PREFIX.length);
+          const [filePart, ...hashParts] = urnPath.split('#');
+          const hash = hashParts.length > 0 ? '#' + hashParts.join('#') : '';
+          const filePath = filePart.replace(/:/g, '/');
+          const absolutePath = path.join(SCHEMAS_DIR, filePath);
+          const relativePath = path.relative(baseDir, absolutePath);
+          resolved = relativePath + hash;
+        } else if (value.startsWith(HTTPS_PREFIX)) {
+          const httpsPath = value.slice(HTTPS_PREFIX.length);
+          const [filePart, ...hashParts] = httpsPath.split('#');
+          const hash = hashParts.length > 0 ? '#' + hashParts.join('#') : '';
+          const filePath = filePart.replace(/:/g, '/');
+          const absolutePath = path.join(SCHEMAS_DIR, filePath);
+          const relativePath = path.relative(baseDir, absolutePath);
+          resolved = relativePath + hash;
+        }
+        result[key] = resolved ?? resolveUrns(value, baseDir);
       } else {
         result[key] = resolveUrns(value, baseDir);
       }
@@ -105,6 +118,12 @@ async function generateTypes() {
       }
       const schemaContent = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
       const resolved = resolveUrns(schemaContent, path.dirname(schemaPath));
+      
+      // Strip fragment from $id for proper Ajv/json-schema-to-typescript resolution
+      if (resolved.$id && typeof resolved.$id === 'string' && resolved.$id.includes('#')) {
+        resolved.$id = resolved.$id.split('#')[0];
+      }
+      
       resolvedSchemas.set(schemaFile, resolved);
 
       // Write to temp dir preserving directory structure

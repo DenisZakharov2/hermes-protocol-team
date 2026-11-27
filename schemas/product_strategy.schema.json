@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:hermes-protocol:schemas:product_strategy.schema.json",
+  "$id": "https://hermes-protocol.example/schemas/product_strategy.schema.json#v4.2.0",
   "title": "product_strategy.json",
   "description": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.",
   "type": "object",
@@ -68,11 +68,7 @@
         }
       },
       "additionalProperties": false,
-      "description": "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах.",
-      "x-i18n": {
-        "title_ru": "Концепция продукта",
-        "description_ru": "Описание продуктовой концепции"
-      }
+      "description": "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах."
     },
     "financial_model": {
       "type": "object",
@@ -146,11 +142,7 @@
         }
       },
       "additionalProperties": false,
-      "description": "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM.",
-      "x-i18n": {
-        "title_ru": "Финансовая модель",
-        "description_ru": "Финансовые параметры и расчёты продукта"
-      }
+      "description": "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM."
     },
     "regulatory_guardrails": {
       "type": "object",
@@ -246,11 +238,7 @@
         }
       ],
       "additionalProperties": false,
-      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason.",
-      "x-i18n": {
-        "title_ru": "Регуляторные ограничения",
-        "description_ru": "Регуляторные требования и ограничения"
-      }
+      "description": "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason."
     },
     "prioritization_rice": {
       "type": "object",
@@ -290,16 +278,11 @@
         }
       },
       "additionalProperties": false,
-      "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно.",
-      "x-i18n": {
-        "title_ru": "Приоритизация RICE",
-        "description_ru": "Оценка приоритета по модели RICE (Reach, Impact, Confidence, Effort)"
-      }
+      "description": "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно."
+    },
+    "schema_version": {
+      "$ref": "https://hermes-protocol.example/schemas/common/definitions.schema.json#/definitions/SchemaVersion"
     }
   },
-  "additionalProperties": false,
-  "x-i18n": {
-    "title_ru": "product_strategy.json",
-    "description_ru": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения."
-  }
+  "additionalProperties": false
 }
