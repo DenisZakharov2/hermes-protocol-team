@@ -166,24 +166,6 @@ version: 4.2.0
 7. **`FINAL_GATE`**: Передать результаты Человеку на утверждение. Только после явного одобрения статус `execution_status` = `COMPLETED_APPROVED`.
 8. **`AAR`**: После `FINAL_GATE` запустить фазу AAR и записать уроки в память. При `ESCALATED` или `STOPPED`, а также при незакрытом `REG_*` AAR не запускается.
 
-### Обязательный пайплайн (MandatoryPipeline) — автогенерируемая таблица
-
-<!-- BEGIN GENERATED: pipeline-stages-skill -->
-| № | Stage Code | Agent | Approval Required | Minimal Depends On |
-|---|---|---|---|---|
-| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Да | — |
-| 2 | `RESEARCH` | `multi-source-researcher` | Нет | PLAN_APPROVAL |
-| 3 | `PRODUCT_STRATEGY` | `product-manager` | Нет | RESEARCH |
-| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
-| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | Нет | LEGAL_CONCEPT |
-| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
-| 7 | `SYNTHESIS` | `research-synthesist` | Нет | LEGAL_BRD |
-| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | Нет | SYNTHESIS |
-| 9 | `QUALITY_AUDIT` | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
-| 10 | `FINAL_GATE` | `hermes-orchestrator` | Да | QUALITY_AUDIT |
-| 11 | `AAR` | `hermes-orchestrator` | Нет | FINAL_GATE |
-<!-- END GENERATED: pipeline-stages-skill -->
-
 Источник истины: `schemas/execution_plan.schema.json` → `definitions.MandatoryPipeline.const`.
 
 ## 7. Ведение бортового журнала и фиксация действий

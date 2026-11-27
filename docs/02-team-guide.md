@@ -197,28 +197,6 @@
 
 ---
 
-## 9. Mandatory Pipeline Stages (Обязательные этапы пайплайна)
-
-Полный нормативный список 11 этапов пайплайна, их владельцы и зависимости — из `definitions.MandatoryPipeline` схемы `execution_plan.schema.json`.
-
-### Pipeline Stages (RU)
-
-<!-- BEGIN GENERATED: pipeline-stages -->
-| № | Stage Code | Agent | Approval Required | Minimal Depends On |
-|---|---|---|---|---|
-| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Да | — |
-| 2 | `RESEARCH` | `multi-source-researcher` | Нет | PLAN_APPROVAL |
-| 3 | `PRODUCT_STRATEGY` | `product-manager` | Нет | RESEARCH |
-| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
-| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | Нет | LEGAL_CONCEPT |
-| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
-| 7 | `SYNTHESIS` | `research-synthesist` | Нет | LEGAL_BRD |
-| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | Нет | SYNTHESIS |
-| 9 | `QUALITY_AUDIT` | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
-| 10 | `FINAL_GATE` | `hermes-orchestrator` | Да | QUALITY_AUDIT |
-| 11 | `AAR` | `hermes-orchestrator` | Нет | FINAL_GATE |
-<!-- END GENERATED: pipeline-stages -->
-
 ### Pipeline Stages (Bilingual EN/RU)
 
 <!-- BEGIN GENERATED: pipeline-stages-bilingual -->
