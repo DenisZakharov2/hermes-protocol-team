@@ -1,7 +1,7 @@
 # Справочник по агентам Hermes Protocol — роли, контракты, границы
 
 > Источник: папка `skills/` (файлы `SKILL.md` каждого агента) и `Hermes_Protocol_Constitution.md`.  
-> Версия: 4.0.0.
+> Версия: 4.2.0.
 
 ## 1. hermes-orchestrator — агент-оркестратор (руководитель DAG)
 
@@ -194,3 +194,45 @@
 Каждый агент ведет собственный журнал `*_flight_log.json` с фиксацией: времени фаз, статусов передач контекста, решений Заказчика на Stage-Gate, итераций доработок, логов ошибок. Оркестратор ведет общий `hermes_flight_log.json`. Журналы — первичный источник при расследовании инцидентов и аудите.
 
 Для событий `SELF_HEALING` обязателен `self_healing_attempt`, для `LEGAL_CHECKIN` — `legal_iteration`. В рамках одной `phase` счётчики возрастают строго на 1 (1 → 2 → 3); третья неудачная попытка требует последующей записи `ERROR`/`BLOCKED` в той же фазе либо `execution_status: ESCALATED` в `orchestration_output`.
+
+---
+
+## 9. Mandatory Pipeline Stages (Обязательные этапы пайплайна)
+
+Полный нормативный список 11 этапов пайплайна, их владельцы и зависимости — из `definitions.MandatoryPipeline` схемы `execution_plan.schema.json`.
+
+### Pipeline Stages (RU)
+
+<!-- BEGIN GENERATED: pipeline-stages -->
+| № | Stage Code | Agent | Approval Required | Minimal Depends On |
+|---|---|---|---|---|
+| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Да | — |
+| 2 | `RESEARCH` | `multi-source-researcher` | Нет | PLAN_APPROVAL |
+| 3 | `PRODUCT_STRATEGY` | `product-manager` | Нет | RESEARCH |
+| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
+| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | Нет | LEGAL_CONCEPT |
+| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
+| 7 | `SYNTHESIS` | `research-synthesist` | Нет | LEGAL_BRD |
+| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | Нет | SYNTHESIS |
+| 9 | `QUALITY_AUDIT` | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
+| 10 | `FINAL_GATE` | `hermes-orchestrator` | Да | QUALITY_AUDIT |
+| 11 | `AAR` | `hermes-orchestrator` | Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages -->
+
+### Pipeline Stages (Bilingual EN/RU)
+
+<!-- BEGIN GENERATED: pipeline-stages-bilingual -->
+| # / № | Stage Code | Agent | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |
+|---|---|---|---|---|
+| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Yes / Да | — |
+| 2 | `RESEARCH` | `multi-source-researcher` | No / Нет | PLAN_APPROVAL |
+| 3 | `PRODUCT_STRATEGY` | `product-manager` | No / Нет | RESEARCH |
+| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | No / Нет | PRODUCT_STRATEGY |
+| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | No / Нет | LEGAL_CONCEPT |
+| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | No / Нет | BUSINESS_REQUIREMENTS |
+| 7 | `SYNTHESIS` | `research-synthesist` | No / Нет | LEGAL_BRD |
+| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | No / Нет | SYNTHESIS |
+| 9 | `QUALITY_AUDIT` | `quality-evaluator` | No / Нет | LEGAL_SYNTHESIS |
+| 10 | `FINAL_GATE` | `hermes-orchestrator` | Yes / Да | QUALITY_AUDIT |
+| 11 | `AAR` | `hermes-orchestrator` | No / Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-bilingual -->

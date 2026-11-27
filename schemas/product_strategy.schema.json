@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/product_strategy.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/product_strategy.schema.json#v4.2.0",
   "title": "product_strategy.json",
   "description": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.",
   "type": "object",

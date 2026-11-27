@@ -1,0 +1,872 @@
+{
+  "schema:agent_tuning_log:title": {
+    "agent_tuning_log.json": "agent_tuning_log.json"
+  },
+  "schema:agent_tuning_log:description": {
+    "Журнал оперативных корректировок агентов и предложенных патчей скиллов.": "Журнал оперативных корректировок агентов и предложенных патчей скиллов."
+  },
+  "schema:agent_tuning_log:property:entries:title": {
+    "entries": "Записи"
+  },
+  "schema:agent_tuning_log:property:entries:description": {
+    "": "Записи бортового журнала"
+  },
+  "schema:agent_tuning_log:property:entries:items:agent_id:title": {
+    "agent_id": "Идентификатор агента"
+  },
+  "schema:agent_tuning_log:property:entries:items:agent_id:description": {
+    "": "Системный идентификатор агента"
+  },
+  "schema:ba_input_contract:title": {
+    "ba_input_contract.json": "ba_input_contract.json"
+  },
+  "schema:ba_input_contract:description": {
+    "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода.": "Входной контракт бизнес-аналитика: стратегия, чек-лист, IT-ландшафт и формат вывода."
+  },
+  "schema:ba_input_contract:property:output_format:title": {
+    "output_format": "Формат вывода"
+  },
+  "schema:ba_input_contract:property:output_format:description": {
+    "": "Формат выходного документа"
+  },
+  "schema:brief_schema:title": {
+    "brief_schema.json": "brief_schema.json"
+  },
+  "schema:brief_schema:description": {
+    "Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг.": "Бриф на синтез и верстку: тип документа, формат, аудитория и брендинг."
+  },
+  "schema:brief_schema:property:document_type:title": {
+    "document_type": "Тип документа"
+  },
+  "schema:brief_schema:property:document_type:description": {
+    "": "Тип генерируемого документа"
+  },
+  "schema:brief_schema:property:target_audience:title": {
+    "target_audience": "Целевая аудитория"
+  },
+  "schema:brief_schema:property:target_audience:description": {
+    "": "Целевая аудитория (executive, technical, general)"
+  },
+  "schema:brief_schema:property:target_audience:enum:executive": {
+    "executive": "Руководство"
+  },
+  "schema:brief_schema:property:target_audience:enum:investor": {
+    "investor": "Технические специалисты"
+  },
+  "schema:brief_schema:property:target_audience:enum:technical": {
+    "technical": "Общая"
+  },
+  "schema:brief_schema:property:custom_branding:title": {
+    "custom_branding": "Кастомный брендинг"
+  },
+  "schema:brief_schema:property:custom_branding:description": {
+    "": "Настройки брендинга для документа"
+  },
+  "schema:business_requirements:title": {
+    "business_requirements.json": "business_requirements.json"
+  },
+  "schema:business_requirements:description": {
+    "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт.": "BRD, Gherkin-истории, NFR и матрица влияния на IT-ландшафт."
+  },
+  "schema:business_requirements:property:system_impact_matrix:title": {
+    "system_impact_matrix": "Матрица влияния на системы"
+  },
+  "schema:business_requirements:property:system_impact_matrix:description": {
+    "": "Матрица влияния продукта на IT-системы"
+  },
+  "schema:business_requirements:property:classic_brd:title": {
+    "classic_brd": "Классический BRD"
+  },
+  "schema:business_requirements:property:classic_brd:description": {
+    "": "Классический документ бизнес-требований"
+  },
+  "schema:business_requirements:property:agile_backlog:title": {
+    "agile_backlog": "Agile бэклог"
+  },
+  "schema:business_requirements:property:agile_backlog:description": {
+    "": "Бэклог пользовательских историй в формате Gherkin"
+  },
+  "schema:business_requirements:property:regulatory_nfr:title": {
+    "regulatory_nfr": "Регуляторные NFR"
+  },
+  "schema:business_requirements:property:regulatory_nfr:description": {
+    "": "Нефункциональные требования регуляторного характера"
+  },
+  "definitions:ProjectId:title": {
+    "ProjectId": "Идентификатор проекта"
+  },
+  "definitions:ProjectId:description": {
+    "Уникальный идентификатор проекта (UPPER_SNAKE_CASE)": "Уникальный идентификатор проекта (UPPER_SNAKE_CASE)"
+  },
+  "definitions:TaskId:title": {
+    "TaskId": "Идентификатор задачи"
+  },
+  "definitions:TaskId:description": {
+    "Уникальный идентификатор задачи (UPPER_SNAKE_CASE)": "Уникальный идентификатор задачи (UPPER_SNAKE_CASE)"
+  },
+  "definitions:EvalId:title": {
+    "EvalId": "Идентификатор оценки"
+  },
+  "definitions:EvalId:description": {
+    "Идентификатор оценки качества": "Идентификатор оценки качества"
+  },
+  "definitions:AgentId:title": {
+    "AgentId": "Идентификатор агента"
+  },
+  "definitions:AgentId:description": {
+    "Системный идентификатор агента": "Системный идентификатор агента"
+  },
+  "definitions:AgentId:enum:hermes-orchestrator": {
+    "hermes-orchestrator": "Оркестратор"
+  },
+  "definitions:AgentId:enum:multi-source-researcher": {
+    "multi-source-researcher": "Мульти-источник исследователь"
+  },
+  "definitions:AgentId:enum:product-manager": {
+    "product-manager": "Продуктовый менеджер"
+  },
+  "definitions:AgentId:enum:business-analyst": {
+    "business-analyst": "Бизнес-аналитик"
+  },
+  "definitions:AgentId:enum:legal-compliance-counsel": {
+    "legal-compliance-counsel": "Юридический консультант"
+  },
+  "definitions:AgentId:enum:research-synthesist": {
+    "research-synthesist": "Синтетик-исследователь"
+  },
+  "definitions:AgentId:enum:quality-evaluator": {
+    "quality-evaluator": "Оценщик качества"
+  },
+  "definitions:DomainContext:title": {
+    "DomainContext": "Доменный контекст"
+  },
+  "definitions:DomainContext:description": {
+    "Доменный контекст проекта (банковская сфера РФ)": "Доменный контекст проекта (банковская сфера РФ)"
+  },
+  "definitions:DomainContext:enum:RETAIL_BANKING": {
+    "RETAIL_BANKING": "Розничное банкирование"
+  },
+  "definitions:DomainContext:enum:INVESTMENT": {
+    "INVESTMENT": "Инвестиции"
+  },
+  "definitions:DomainContext:enum:PAYMENTS": {
+    "PAYMENTS": "Платежи"
+  },
+  "definitions:QualityThreshold:title": {
+    "QualityThreshold": "Порог качества"
+  },
+  "definitions:QualityThreshold:description": {
+    "Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог.": "Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог."
+  },
+  "definitions:QualityWeights:title": {
+    "QualityWeights": "Веса качества"
+  },
+  "definitions:QualityWeights:description": {
+    "Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1.": "Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1."
+  },
+  "definitions:TimestampISO:title": {
+    "TimestampISO": "Временная метка ISO"
+  },
+  "definitions:TimestampISO:description": {
+    "Временная метка в ISO 8601 (UTC)": "Временная метка в ISO 8601 (UTC)"
+  },
+  "definitions:VersionString:title": {
+    "VersionString": "Строка версии"
+  },
+  "definitions:VersionString:description": {
+    "Семантическая версия (MAJOR.MINOR.PATCH)": "Семантическая версия (MAJOR.MINOR.PATCH)"
+  },
+  "definitions:Percentage:title": {
+    "Percentage": "Процент"
+  },
+  "definitions:Percentage:description": {
+    "Процентное значение (0-100)": "Процентное значение (0-100)"
+  },
+  "definitions:BasisPoints:title": {
+    "BasisPoints": "Базисные пункты"
+  },
+  "definitions:BasisPoints:description": {
+    "Значение в базисных пунктах (1 bp = 0.01%)": "Значение в базисных пунктах (1 bp = 0.01%)"
+  },
+  "definitions:CurrencyAmount:title": {
+    "CurrencyAmount": "Денежная сумма"
+  },
+  "definitions:CurrencyAmount:description": {
+    "Денежная сумма в рублях": "Денежная сумма в рублях"
+  },
+  "definitions:SourceId:title": {
+    "SourceId": "Идентификатор источника"
+  },
+  "definitions:SourceId:description": {
+    "Идентификатор первичного источника": "Идентификатор первичного источника"
+  },
+  "definitions:RegulationRef:title": {
+    "RegulationRef": "Ссылка на нормативный акт"
+  },
+  "definitions:RegulationRef:description": {
+    "Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)": "Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)"
+  },
+  "definitions:CourtRef:title": {
+    "CourtRef": "Судебная практика"
+  },
+  "definitions:CourtRef:description": {
+    "Ссылка на судебную практику": "Ссылка на судебную практику"
+  },
+  "definitions:ImpactType:title": {
+    "ImpactType": "Тип влияния"
+  },
+  "definitions:ImpactType:description": {
+    "Тип влияния на IT-систему": "Тип влияния на IT-систему"
+  },
+  "definitions:ImpactType:enum:CREATE": {
+    "CREATE": "Создание"
+  },
+  "definitions:ImpactType:enum:MODIFY": {
+    "MODIFY": "Модификация"
+  },
+  "definitions:ImpactType:enum:DELETE": {
+    "DELETE": "Удаление"
+  },
+  "definitions:ImpactType:enum:NO_CHANGE": {
+    "NO_CHANGE": "Без изменений"
+  },
+  "definitions:SystemType:title": {
+    "SystemType": "Тип системы"
+  },
+  "definitions:SystemType:description": {
+    "Тип IT-системы": "Тип IT-системы"
+  },
+  "definitions:SystemType:enum:CORE": {
+    "CORE": "Ядро"
+  },
+  "definitions:SystemType:enum:CHANNEL": {
+    "CHANNEL": "Канал"
+  },
+  "definitions:SystemType:enum:INTEGRATION": {
+    "INTEGRATION": "Интеграция"
+  },
+  "definitions:SystemType:enum:REPORTING": {
+    "REPORTING": "Отчётность"
+  },
+  "definitions:SystemType:enum:SECURITY": {
+    "SECURITY": "Безопасность"
+  },
+  "definitions:RiskLevel:title": {
+    "RiskLevel": "Уровень риска"
+  },
+  "definitions:RiskLevel:description": {
+    "Уровень юридического/регуляторного риска": "Уровень юридического/регуляторного риска"
+  },
+  "definitions:RiskLevel:enum:CRITICAL": {
+    "CRITICAL": "Критический"
+  },
+  "definitions:RiskLevel:enum:HIGH": {
+    "HIGH": "Высокий"
+  },
+  "definitions:RiskLevel:enum:MEDIUM": {
+    "MEDIUM": "Средний"
+  },
+  "definitions:RiskLevel:enum:LOW": {
+    "LOW": "Низкий"
+  },
+  "definitions:TargetWorker:title": {
+    "TargetWorker": "Целевой воркер"
+  },
+  "definitions:TargetWorker:description": {
+    "Агент, чей артефакт проверяет критик": "Агент, чей артефакт проверяет критик"
+  },
+  "definitions:TargetWorker:enum:multi-source-researcher": {
+    "multi-source-researcher": "Мульти-источник исследователь"
+  },
+  "definitions:TargetWorker:enum:research-synthesist": {
+    "research-synthesist": "Синтетик-исследователь"
+  },
+  "definitions:TargetWorker:enum:business-analyst": {
+    "business-analyst": "Бизнес-аналитик"
+  },
+  "definitions:TargetWorker:enum:product-manager": {
+    "product-manager": "Продуктовый менеджер"
+  },
+  "definitions:TargetWorker:enum:legal-compliance-counsel": {
+    "legal-compliance-counsel": "Юридический консультант"
+  },
+  "definitions:SourceTier:title": {
+    "SourceTier": "Уровень источника"
+  },
+  "definitions:SourceTier:description": {
+    "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный": "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный"
+  },
+  "definitions:SourceTier:enum:TIER_1": {
+    "TIER_1": "Первичный (TIER_1)"
+  },
+  "definitions:SourceTier:enum:TIER_2": {
+    "TIER_2": "Отраслевой (TIER_2)"
+  },
+  "definitions:SourceTier:enum:TIER_3": {
+    "TIER_3": "Вторичный (TIER_3)"
+  },
+  "definitions:LegalStatus:title": {
+    "LegalStatus": "Юридический статус"
+  },
+  "definitions:LegalStatus:description": {
+    "Статус правового заключения": "Статус правового заключения"
+  },
+  "definitions:LegalStatus:enum:APPROVED": {
+    "APPROVED": "Утверждено"
+  },
+  "definitions:LegalStatus:enum:APPROVED_WITH_RESERVATIONS": {
+    "APPROVED_WITH_RESERVATIONS": "Утверждено с замечаниями"
+  },
+  "definitions:LegalStatus:enum:REJECTED": {
+    "REJECTED": "Отклонено"
+  },
+  "definitions:ExecutionStatus:title": {
+    "ExecutionStatus": "Статус исполнения"
+  },
+  "definitions:ExecutionStatus:description": {
+    "Статус исполнения проекта": "Статус исполнения проекта"
+  },
+  "definitions:ExecutionStatus:enum:COMPLETED_APPROVED": {
+    "COMPLETED_APPROVED": "Завершено и утверждено"
+  },
+  "definitions:ExecutionStatus:enum:REJECTED": {
+    "REJECTED": "Отклонено"
+  },
+  "definitions:ExecutionStatus:enum:ESCALATED": {
+    "ESCALATED": "Эскалировано"
+  },
+  "definitions:ExecutionStatus:enum:STOPPED": {
+    "STOPPED": "Остановлено"
+  },
+  "definitions:ExecutionStatus:enum:PENDING_HUMAN": {
+    "PENDING_HUMAN": "Ожидает человека"
+  },
+  "definitions:StageGateVerdict:title": {
+    "StageGateVerdict": "Вердикт Stage-Gate"
+  },
+  "definitions:StageGateVerdict:description": {
+    "Вердикт на Stage-Gate": "Вердикт на Stage-Gate"
+  },
+  "definitions:StageGateVerdict:enum:APPROVED": {
+    "APPROVED": "Утверждено"
+  },
+  "definitions:StageGateVerdict:enum:REJECTED": {
+    "REJECTED": "Отклонено"
+  },
+  "definitions:StageGateVerdict:enum:NEEDS_REWORK": {
+    "NEEDS_REWORK": "Требуется доработка"
+  },
+  "definitions:OutputFormat:title": {
+    "OutputFormat": "Формат вывода"
+  },
+  "definitions:OutputFormat:description": {
+    "Формат выходного документа синтеза": "Формат выходного документа синтеза"
+  },
+  "definitions:OutputFormat:enum:markdown_marp": {
+    "markdown_marp": "Markdown (Marp)"
+  },
+  "definitions:OutputFormat:enum:python_pptx_script": {
+    "python_pptx_script": "Python PPTX скрипт"
+  },
+  "definitions:OutputFormat:enum:html_tailwind_deck": {
+    "html_tailwind_deck": "HTML Tailwind Deck"
+  },
+  "definitions:OutputFormat:enum:structured_slides_json": {
+    "structured_slides_json": "Structured Slides JSON"
+  },
+  "definitions:OutputFormat:enum:markdown_report": {
+    "markdown_report": "Markdown Report"
+  },
+  "definitions:OutputFormat:enum:python_docx_script": {
+    "python_docx_script": "Python DOCX скрипт"
+  },
+  "definitions:OutputFormat:enum:typst_pdf_markup": {
+    "typst_pdf_markup": "Typst PDF разметка"
+  },
+  "definitions:ArtifactRef:title": {
+    "ArtifactRef": "Ссылка на артефакт"
+  },
+  "definitions:ArtifactRef:description": {
+    "Ссылка на связанный артефакт": "Ссылка на связанный артефакт"
+  },
+  "schema:eval_request:title": {
+    "eval_request.json": "eval_request.json"
+  },
+  "schema:eval_request:description": {
+    "Запрос на аудит качества: артефакт, контекст и целевой порог.": "Запрос на аудит качества: артефакт, контекст и целевой порог."
+  },
+  "schema:eval_request:property:artifact_type:title": {
+    "artifact_type": "Тип артефакта"
+  },
+  "schema:eval_request:property:artifact_type:description": {
+    "Тип проверяемого артефакта. JSON-типы валидируются вложенной схемой; не-JSON типы (presentation, executive_summary, analytical_memo, market_research_whitepaper) требуют минимальный контракт artifact_data.project_id.": "Тип проверяемого артефакта"
+  },
+  "schema:eval_request:property:artifact_data:title": {
+    "artifact_data": "Данные артефакта"
+  },
+  "schema:eval_request:property:artifact_data:description": {
+    "Данные артефакта. Для JSON-типов — полный артефакт по своей схеме; для не-JSON типов обязателен project_id (UPPER_SNAKE_CASE), совпадающий с project_id запроса.": "Содержимое проверяемого артефакта"
+  },
+  "schema:eval_request:property:context_artifacts:title": {
+    "context_artifacts": "Контекстные артефакты"
+  },
+  "schema:eval_request:property:context_artifacts:description": {
+    "Непустой массив ссылок на связанные артефакты (минимум один). Для аудита BRD передавайте product_strategy, research_output, legal_compliance_report и regulatory_checklist, чтобы ось Cross-Artifact Consistency получала полный контекст.": "Список артефактов для контекста"
+  },
+  "schema:evaluation_report:title": {
+    "evaluation_report.json": "evaluation_report.json"
+  },
+  "schema:evaluation_report:description": {
+    "Отчет аудита по пяти осям качества с находками и actionable_fixes.": "Отчёт аудита по пяти осям качества с находками и actionable_fixes."
+  },
+  "schema:evaluation_report:property:overall_score:title": {
+    "overall_score": "Общий балл"
+  },
+  "schema:evaluation_report:property:overall_score:description": {
+    "": "Общий балл качества (0-100)"
+  },
+  "schema:evaluation_report:property:passed:title": {
+    "passed": "Пройдено"
+  },
+  "schema:evaluation_report:property:passed:description": {
+    "Единственный вердикт качества. true только если overall_score >= quality_threshold и среди critical_findings нет находок уровня CRITICAL; любой CRITICAL даёт false даже при балле выше порога.": "Флаг прохождения аудита качества"
+  },
+  "schema:evaluation_report:property:score_breakdown:title": {
+    "score_breakdown": "Разбор по осям"
+  },
+  "schema:evaluation_report:property:score_breakdown:description": {
+    "": "Детальные баллы по пяти осям качества"
+  },
+  "schema:evaluation_report:property:critical_findings:title": {
+    "critical_findings": "Критические находки"
+  },
+  "schema:evaluation_report:property:critical_findings:description": {
+    "Только находки уровня HIGH или CRITICAL. MEDIUM/LOW-замечания переносятся в actionable_fixes.": "Список критических находок аудита"
+  },
+  "schema:evaluation_report:property:actionable_fixes:title": {
+    "actionable_fixes": "Действенные исправления"
+  },
+  "schema:evaluation_report:property:actionable_fixes:description": {
+    "": "Список конкретных исправлений для Self-Healing"
+  },
+  "schema:execution_plan:title": {
+    "execution_plan.json": "execution_plan.json"
+  },
+  "schema:execution_plan:description": {
+    "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate."
+  },
+  "schema:execution_plan:property:stages:title": {
+    "stages": "Этапы плана"
+  },
+  "schema:execution_plan:property:stages:description": {
+    "": "Список всех 11 этапов MandatoryPipeline с ответственными и зависимостями"
+  },
+  "schema:execution_plan:property:stages:items:stage_code:title": {
+    "stage_code": "Код этапа"
+  },
+  "schema:execution_plan:property:stages:items:stage_code:description": {
+    "": "Стабильный код этапа пайплайна"
+  },
+  "schema:execution_plan:property:stages:items:approval_required:title": {
+    "approval_required": "Требуется утверждение"
+  },
+  "schema:execution_plan:property:stages:items:approval_required:description": {
+    "": "Флаг обязательного утверждения на Stage-Gate"
+  },
+  "schema:execution_plan:property:approval:title": {
+    "approval": "Утверждение"
+  },
+  "schema:execution_plan:property:approval:description": {
+    "": "Статус и детали утверждения плана"
+  },
+  "schema:execution_request:title": {
+    "execution_request.json": "execution_request.json"
+  },
+  "schema:execution_request:description": {
+    "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества.": "Входной запрос Заказчика: проект, домен, требуемые артефакты и порог качества."
+  },
+  "schema:execution_request:property:user_prompt:title": {
+    "user_prompt": "Запрос пользователя"
+  },
+  "schema:execution_request:property:user_prompt:description": {
+    "Запрос Заказчика. Макс. 5000 символов. Защита от prompt injection — схема ограничивает длину; содержание валидируется в рантайме.": "Текстовый запрос Заказчика"
+  },
+  "schema:execution_request:property:output_requirements:title": {
+    "output_requirements": "Требования к выводу"
+  },
+  "schema:execution_request:property:output_requirements:description": {
+    "": "Требуемые артефакты и порог качества"
+  },
+  "schema:execution_request:property:output_requirements:nested:quality_threshold:title": {
+    "quality_threshold": "Порог качества"
+  },
+  "schema:execution_request:property:output_requirements:nested:quality_threshold:description": {
+    "": "Целевой порог качества (0-100)"
+  },
+  "schema:flight_log:title": {
+    "flight_log.json": "flight_log.json"
+  },
+  "schema:flight_log:description": {
+    "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки.": "Универсальный бортовой журнал агента: фазы, передачи, Stage-Gate и ошибки."
+  },
+  "schema:flight_log:property:entries:title": {
+    "entries": "Записи журнала"
+  },
+  "schema:flight_log:property:entries:description": {
+    "": "Хронологические записи бортового журнала агента"
+  },
+  "schema:flight_log:property:entries:items:phase:title": {
+    "phase": "Фаза"
+  },
+  "schema:flight_log:property:entries:items:phase:description": {
+    "": "Тип фазы бортового журнала"
+  },
+  "schema:flight_log:property:entries:items:self_healing_attempt:title": {
+    "self_healing_attempt": "Попытка Self-Healing"
+  },
+  "schema:flight_log:property:entries:items:self_healing_attempt:description": {
+    "Номер попытки Self-Healing (0–3 в схеме). Для SELF_HEALING обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.": "Номер попытки автоматического восстановления"
+  },
+  "schema:flight_log:property:entries:items:legal_iteration:title": {
+    "legal_iteration": "Итерация Legal"
+  },
+  "schema:flight_log:property:entries:items:legal_iteration:description": {
+    "Номер итерации Legal Check-in (0–3 в схеме). Для LEGAL_CHECKIN обязателен; инвариант требует монотонную последовательность 1→2→3 внутри phase.": "Номер итерации правового согласования"
+  },
+  "schema:it_landscape:title": {
+    "it_landscape.json": "it_landscape.json"
+  },
+  "schema:it_landscape:description": {
+    "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО)."
+  },
+  "schema:it_landscape:property:systems:title": {
+    "systems": "Системы"
+  },
+  "schema:it_landscape:property:systems:description": {
+    "": "Описание затронутых IT-систем"
+  },
+  "schema:legal_compliance_report:title": {
+    "legal_compliance_report.json": "legal_compliance_report.json"
+  },
+  "schema:legal_compliance_report:description": {
+    "Юридическое заключение: статус, риски, прецеденты и меры смягчения.": "Юридическое заключение: статус, риски, прецеденты и меры смягчения."
+  },
+  "schema:legal_compliance_report:property:compliance_audit:title": {
+    "compliance_audit": "Аудит соответствия"
+  },
+  "schema:legal_compliance_report:property:compliance_audit:description": {
+    "": "Детальный аудит соответствия нормативным актам"
+  },
+  "schema:legal_compliance_report:property:contract_disclaimers_required:title": {
+    "contract_disclaimers_required": "Требуемые отказные заявления"
+  },
+  "schema:legal_compliance_report:property:contract_disclaimers_required:description": {
+    "": "Список обязательных отказных заявлений в договорах"
+  },
+  "schema:legal_review_request:title": {
+    "legal_review_request.json": "legal_review_request.json"
+  },
+  "schema:legal_review_request:description": {
+    "Запрос на правовую проверку концепции или BRD.": "Запрос на правовую проверку концепции или BRD."
+  },
+  "schema:legal_review_request:property:business_requirements:title": {
+    "business_requirements": "Бизнес-требования"
+  },
+  "schema:legal_review_request:property:business_requirements:description": {
+    "": "Ссылка на артефакт бизнес-требований"
+  },
+  "schema:legal_review_request:property:target_audience:title": {
+    "target_audience": "Целевая аудитория"
+  },
+  "schema:legal_review_request:property:target_audience:description": {
+    "": "Целевая аудитория (executive, technical, general)"
+  },
+  "schema:orchestration_output:title": {
+    "orchestration_output.json": "orchestration_output.json"
+  },
+  "schema:orchestration_output:description": {
+    "Итоговый отчет оркестратора: Stage-Gate, пакет доставки и ссылка на AAR.": "Итоговый отчёт оркестратора: Stage-Gate, пакет доставки и ссылка на AAR."
+  },
+  "schema:orchestration_output:property:artifact_root:title": {
+    "artifact_root": "Корень артефактов"
+  },
+  "schema:orchestration_output:property:artifact_root:description": {
+    "Относительный путь к каталогу артефактов проекта: cases/{project_id}/artifacts/. ProjectId — UPPER_SNAKE_CASE.": "Корневая директория артефактов проекта"
+  },
+  "schema:orchestration_output:property:stage_gate_history:title": {
+    "stage_gate_history": "История Stage-Gate"
+  },
+  "schema:orchestration_output:property:stage_gate_history:description": {
+    "": "История прохождения Stage-Gate"
+  },
+  "schema:orchestration_output:property:stage_gate_history:items:stage_code:title": {
+    "stage_code": "Код этапа"
+  },
+  "schema:orchestration_output:property:stage_gate_history:items:stage_code:description": {
+    "Стабильный код этапа (PLAN_APPROVAL, FINAL_GATE и т.д.) для инвариантной проверки.": "Стабильный код этапа пайплайна"
+  },
+  "schema:orchestration_output:property:stage_gate_history:items:human_verdict:title": {
+    "human_verdict": "Вердикт человека"
+  },
+  "schema:orchestration_output:property:stage_gate_history:items:human_verdict:description": {
+    "": "Решение человека на Stage-Gate"
+  },
+  "schema:orchestration_output:property:final_package:nested:product_strategy:title": {
+    "product_strategy": "Продуктовая стратегия"
+  },
+  "schema:orchestration_output:property:final_package:nested:product_strategy:description": {
+    "": "Ссылка на артефакт продуктовой стратегии"
+  },
+  "schema:orchestration_output:property:final_package:nested:business_requirements:title": {
+    "business_requirements": "Бизнес-требования"
+  },
+  "schema:orchestration_output:property:final_package:nested:business_requirements:description": {
+    "": "Ссылка на артефакт бизнес-требований"
+  },
+  "schema:orchestration_output:property:final_package:nested:legal_compliance_report:title": {
+    "legal_compliance_report": "Юридическое заключение"
+  },
+  "schema:orchestration_output:property:final_package:nested:legal_compliance_report:description": {
+    "": "Ссылка на юридическое заключение"
+  },
+  "schema:orchestration_output:property:final_package:nested:synthesist_output:title": {
+    "synthesist_output": "Результат синтеза"
+  },
+  "schema:orchestration_output:property:final_package:nested:synthesist_output:description": {
+    "": "Ссылка на результат синтеза"
+  },
+  "schema:product_brief:title": {
+    "product_brief.json": "product_brief.json"
+  },
+  "schema:product_brief:description": {
+    "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование.": "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование."
+  },
+  "schema:product_brief:property:product_type:title": {
+    "product_type": "Тип продукта"
+  },
+  "schema:product_brief:property:product_type:description": {
+    "": "Тип банковского продукта"
+  },
+  "schema:product_brief:property:bank_context:title": {
+    "bank_context": "Контекст банка"
+  },
+  "schema:product_brief:property:bank_context:description": {
+    "": "Контекст банка и рыночные условия"
+  },
+  "schema:product_strategy:title": {
+    "product_strategy.json": "product_strategy.json"
+  },
+  "schema:product_strategy:description": {
+    "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения.": "Продуктовая концепция, тарифы, финансовая модель и регуляторные ограничения."
+  },
+  "schema:product_strategy:property:product_concept:title": {
+    "product_concept": "Концепция продукта"
+  },
+  "schema:product_strategy:property:product_concept:description": {
+    "Продуктовая концепция и тарифная структура. Ставки задаются в процентных пунктах.": "Описание продуктовой концепции"
+  },
+  "schema:product_strategy:property:financial_model:title": {
+    "financial_model": "Финансовая модель"
+  },
+  "schema:product_strategy:property:financial_model:description": {
+    "Финансовая модель с явными допущениями. Ставки и NIM задаются в процентных пунктах, денежные суммы — в рублях. CoF — смешанная стоимость фондирования; МГС в расчёт CoF не входит. Для продуктов-пассивов (вклады, счета) поле allocation_assumption обязательно для обоснования NII/NIM.": "Финансовые параметры и расчёты продукта"
+  },
+  "schema:product_strategy:property:regulatory_guardrails:title": {
+    "regulatory_guardrails": "Регуляторные ограничения"
+  },
+  "schema:product_strategy:property:regulatory_guardrails:description": {
+    "Регуляторные проверки. Для неприменимой проверки используйте NOT_APPLICABLE и обязательно поясните причину в not_applicable_reason.": "Регуляторные требования и ограничения"
+  },
+  "schema:product_strategy:property:prioritization_rice:title": {
+    "prioritization_rice": "Приоритизация RICE"
+  },
+  "schema:product_strategy:property:prioritization_rice:description": {
+    "Приоритизация RICE с явными компонентами; score вычисляется из них, а не задаётся произвольно.": "Оценка приоритета по модели RICE (Reach, Impact, Confidence, Effort)"
+  },
+  "schema:project_aar:title": {
+    "project_aar.json": "project_aar.json"
+  },
+  "schema:project_aar:description": {
+    "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.": "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов."
+  },
+  "schema:project_aar:property:human_rating:title": {
+    "human_rating": "Оценка человека"
+  },
+  "schema:project_aar:property:human_rating:description": {
+    "": "Оценка Заказчика по итогам проекта"
+  },
+  "schema:project_aar:property:human_feedback:title": {
+    "human_feedback": "Обратная связь человека"
+  },
+  "schema:project_aar:property:human_feedback:description": {
+    "": "Текстовая обратная связь Заказчика"
+  },
+  "schema:project_aar:property:successful_patterns:title": {
+    "successful_patterns": "Успешные паттерны"
+  },
+  "schema:project_aar:property:successful_patterns:description": {
+    "": "Паттерны, проявившие себя хорошо"
+  },
+  "schema:project_aar:property:problems_found:title": {
+    "problems_found": "Найденные проблемы"
+  },
+  "schema:project_aar:property:problems_found:description": {
+    "": "Проблемы, выявленные в ходе проекта"
+  },
+  "schema:project_aar:property:skill_patches:title": {
+    "skill_patches": "Патчи скиллов"
+  },
+  "schema:project_aar:property:skill_patches:description": {
+    "": "Предлагаемые изменения к скиллам агентов"
+  },
+  "schema:project_aar:property:skill_patches:items:agent_id:title": {
+    "agent_id": "Идентификатор агента"
+  },
+  "schema:project_aar:property:skill_patches:items:agent_id:description": {
+    "": "Системный идентификатор агента"
+  },
+  "schema:project_aar:property:lessons_indexed_to:title": {
+    "lessons_indexed_to": "Уроки индексированы в"
+  },
+  "schema:project_aar:property:lessons_indexed_to:description": {
+    "Относительный путь к эпизодической памяти проекта: cases/{project_id}/. ProjectId — UPPER_SNAKE_CASE.": "Путь к каталогу уроков проекта"
+  },
+  "schema:regulatory_checklist:title": {
+    "regulatory_checklist.json": "regulatory_checklist.json"
+  },
+  "schema:regulatory_checklist:description": {
+    "Регуляторный чек-лист требований РФ и способов проверки.": "Регуляторный чек-лист требований РФ и способов проверки."
+  },
+  "schema:regulatory_checklist:property:checklist_items:title": {
+    "checklist_items": "Пункты чек-листа"
+  },
+  "schema:regulatory_checklist:property:checklist_items:description": {
+    "": "Элементы регуляторного чек-листа"
+  },
+  "schema:research_output:title": {
+    "research_output.json": "research_output.json"
+  },
+  "schema:research_output:description": {
+    "Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников.": "Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников."
+  },
+  "schema:research_output:property:data_origin:title": {
+    "data_origin": "Происхождение данных"
+  },
+  "schema:research_output:property:data_origin:description": {
+    "Происхождение данных. Всегда 'untrusted': research_output считается данными, а не инструкциями для модели. Правило 'данные, не инструкции' применяется во всех воркерских скиллах.": "Информация о происхождении данных"
+  },
+  "schema:research_output:property:key_takeaways:title": {
+    "key_takeaways": "Ключевые выводы"
+  },
+  "schema:research_output:property:key_takeaways:description": {
+    "Ключевые тезисы исследования. Каждый элемент — данные, а не инструкции для модели.": "Основные выводы исследования"
+  },
+  "schema:research_output:property:quantifiable_metrics:title": {
+    "quantifiable_metrics": "Измеримые метрики"
+  },
+  "schema:research_output:property:quantifiable_metrics:description": {
+    "": "Количественные метрики с привязкой к источникам"
+  },
+  "schema:research_output:property:conflicts_and_limitations:title": {
+    "conflicts_and_limitations": "Конфликты и ограничения"
+  },
+  "schema:research_output:property:conflicts_and_limitations:description": {
+    "": "Противоречия в данных и ограничения исследования"
+  },
+  "schema:research_output:property:sources:title": {
+    "sources": "Источники"
+  },
+  "schema:research_output:property:sources:description": {
+    "Каталог источников. source_id уникальны; quantifiable_metrics[].source_id обязан ссылаться на один из них; минимум один источник — первичный (illustrative: false).": "Каталог использованных источников"
+  },
+  "schema:research_plan:title": {
+    "research_plan.json": "research_plan.json"
+  },
+  "schema:research_plan:description": {
+    "Внутренний план исследования: подзапросы, целевые Tier и статусы.": "Внутренний план исследования: подзапросы, целевые Tier и статусы."
+  },
+  "schema:research_plan:property:subqueries:title": {
+    "subqueries": "Подзапросы"
+  },
+  "schema:research_plan:property:subqueries:description": {
+    "": "Список подзапросов для исследования"
+  },
+  "schema:research_plan:property:subqueries:items:query:title": {
+    "query": "Поисковый запрос"
+  },
+  "schema:research_plan:property:subqueries:items:query:description": {
+    "": "Текст поискового запроса"
+  },
+  "schema:research_task:title": {
+    "research_task.json": "research_task.json"
+  },
+  "schema:research_task:description": {
+    "Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности.": "Задание исследователю: поисковый запрос, цель, глубина и требуемые сущности."
+  },
+  "schema:research_task:property:query:title": {
+    "query": "Поисковый запрос"
+  },
+  "schema:research_task:property:query:description": {
+    "": "Текст поискового запроса"
+  },
+  "schema:research_task:property:research_objective:title": {
+    "research_objective": "Цель исследования"
+  },
+  "schema:research_task:property:research_objective:description": {
+    "": "Цель и ожидаемый результат исследования"
+  },
+  "schema:research_task:property:target_audience:title": {
+    "target_audience": "Целевая аудитория"
+  },
+  "schema:research_task:property:target_audience:description": {
+    "": "Целевая аудитория исследования"
+  },
+  "schema:research_task:property:target_audience:enum:executive": {
+    "executive": "Руководство"
+  },
+  "schema:research_task:property:target_audience:enum:technical": {
+    "technical": "Технические специалисты"
+  },
+  "schema:research_task:property:target_audience:enum:general": {
+    "general": "Общая"
+  },
+  "schema:research_task:property:depth_level:title": {
+    "depth_level": "Уровень глубины"
+  },
+  "schema:research_task:property:depth_level:description": {
+    "": "Глубина исследования"
+  },
+  "schema:research_task:property:depth_level:enum:fast_scan": {
+    "fast_scan": "Быстрый скан"
+  },
+  "schema:research_task:property:depth_level:enum:standard_deep": {
+    "standard_deep": "Стандартная глубина"
+  },
+  "schema:research_task:property:depth_level:enum:exhaustive": {
+    "exhaustive": "Исчерпывающее"
+  },
+  "schema:research_task:property:required_entities:title": {
+    "required_entities": "Требуемые сущности"
+  },
+  "schema:research_task:property:required_entities:description": {
+    "": "Список сущностей, которые должны быть найдены"
+  },
+  "schema:research_task:property:out_of_scope:title": {
+    "out_of_scope": "Вне области"
+  },
+  "schema:research_task:property:out_of_scope:description": {
+    "": "Темы, исключённые из исследования"
+  },
+  "schema:synthesist_output:title": {
+    "synthesist_output.json": "synthesist_output.json"
+  },
+  "schema:synthesist_output:description": {
+    "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски."
+  },
+  "schema:synthesist_output:property:deliverable_content:title": {
+    "deliverable_content": "Содержимое entregable"
+  },
+  "schema:synthesist_output:property:deliverable_content:description": {
+    "": "Разметка или код готового документа"
+  }
+}

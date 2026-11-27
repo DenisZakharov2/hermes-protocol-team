@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/research_output.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/research_output.schema.json#v4.2.0",
   "title": "research_output.json",
   "description": "Результат исследования: тезисы, метрики с source_id, конфликты и каталог источников.",
   "type": "object",

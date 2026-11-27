@@ -1,7 +1,7 @@
 ---
 name: legal-compliance-counsel
 description: "Старший юрисконсульт и комплаенс-офицер в финансовой отрасли РФ"
-version: 4.0.0
+version: 4.2.0
 ---
 
 # Legal & Compliance Counsel Agent skill (legal-compliance-counsel)

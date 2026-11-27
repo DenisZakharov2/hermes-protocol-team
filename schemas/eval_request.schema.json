@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/eval_request.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/eval_request.schema.json#v4.2.0",
   "title": "eval_request.json",
   "description": "Запрос на аудит качества: артефакт, контекст и целевой порог.",
   "type": "object",

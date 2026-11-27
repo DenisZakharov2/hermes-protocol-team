@@ -78,9 +78,9 @@ gh api repos/DenisZakharov2/hermes-protocol-team/commits/main/check-runs \
 
 ## 4. Релизы и версии
 
-- Версия команды — `4.0.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
+- Версия команды — `4.2.0` (README, Конституция, `docs/`, `skills/*/SKILL.md`).
 - Перед релизом: `npm run validate` должен завершиться без ошибок.
-- Тег: `git tag -a v4.0.0 -m "Hermes Protocol 4.0.0" && git push origin v4.0.0`.
+- Тег: `git tag -a v4.2.0 -m "Hermes Protocol 4.2.0" && git push origin v4.2.0`.
 - Изменения фиксируются в [`CHANGELOG.md`](../CHANGELOG.md).
 - Текущий релиз — [v4.0.0](https://github.com/DenisZakharov2/hermes-protocol-team/releases/tag/v4.0.0) от 2026-11-21. Тег `v4.0.0` указывает на коммит `7daa485`.
 - Команда создания тега выше — шаблон для следующего релиза: замените версию в теге и аннотации.

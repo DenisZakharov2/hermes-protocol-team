@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/project_aar.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/project_aar.schema.json#v4.2.0",
   "title": "project_aar.json",
   "description": "Постпроектная рефлексия: оценка Человека, уроки и патчи скиллов.",
   "type": "object",

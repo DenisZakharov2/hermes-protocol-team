@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/execution_plan.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/execution_plan.schema.json#v4.2.0",
   "title": "execution_plan.json",
   "description": "План исполнения проекта: этапы DAG, ответственные агенты и Stage-Gate.",
   "type": "object",

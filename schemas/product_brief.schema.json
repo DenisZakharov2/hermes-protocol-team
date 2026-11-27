@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/product_brief.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/product_brief.schema.json#v4.2.0",
   "title": "product_brief.json",
   "description": "Бриф для продуктового стратега: тип продукта, контекст банка и ссылка на исследование.",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/synthesist_output.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/synthesist_output.schema.json#v4.2.0",
   "title": "synthesist_output.json",
   "description": "Выходной контракт синтеза: разметка или код документа, диаграммы и сноски.",
   "type": "object",

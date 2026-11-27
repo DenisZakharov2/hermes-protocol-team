@@ -15,19 +15,27 @@
       "type": "string",
       "pattern": "^[A-Z0-9_]+$",
       "description": "Уникальный идентификатор проекта (UPPER_SNAKE_CASE)",
-      "examples": ["SAV_DEP_2026_01"]
+      "examples": [
+        "SAV_DEP_2026_01"
+      ]
     },
     "TaskId": {
       "type": "string",
       "pattern": "^[A-Z0-9_]+$",
       "description": "Уникальный идентификатор задачи (UPPER_SNAKE_CASE)",
-      "examples": ["REQ_RES_2026_01", "PM_2026_01", "BA_2026_01"]
+      "examples": [
+        "REQ_RES_2026_01",
+        "PM_2026_01",
+        "BA_2026_01"
+      ]
     },
     "EvalId": {
       "type": "string",
       "pattern": "^EVAL_[A-Z0-9_]+$",
       "description": "Идентификатор оценки качества",
-      "examples": ["EVAL_2026_01"]
+      "examples": [
+        "EVAL_2026_01"
+      ]
     },
     "AgentId": {
       "type": "string",
@@ -44,7 +52,11 @@
     },
     "DomainContext": {
       "type": "string",
-      "enum": ["RETAIL_BANKING", "INVESTMENT", "PAYMENTS"],
+      "enum": [
+        "RETAIL_BANKING",
+        "INVESTMENT",
+        "PAYMENTS"
+      ],
       "description": "Доменный контекст проекта (банковская сфера РФ)"
     },
     "QualityThreshold": {
@@ -52,7 +64,9 @@
       "minimum": 0,
       "maximum": 100,
       "description": "Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог.",
-      "examples": [85]
+      "examples": [
+        85
+      ]
     },
     "QualityWeights": {
       "type": "object",
@@ -103,13 +117,17 @@
       "type": "string",
       "format": "date-time",
       "description": "Временная метка в ISO 8601 (UTC)",
-      "examples": ["2026-10-17T10:00:00Z"]
+      "examples": [
+        "2026-10-17T10:00:00Z"
+      ]
     },
     "VersionString": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Семантическая версия (MAJOR.MINOR.PATCH)",
-      "examples": ["4.0.0"]
+      "examples": [
+        "4.2.0"
+      ]
     },
     "Percentage": {
       "type": "number",
@@ -120,43 +138,73 @@
     "BasisPoints": {
       "type": "number",
       "description": "Значение в базисных пунктах (1 bp = 0.01%)",
-      "examples": [100, 1800]
+      "examples": [
+        100,
+        1800
+      ]
     },
     "CurrencyAmount": {
       "type": "number",
       "minimum": 0,
       "description": "Денежная сумма в рублях",
-      "examples": [150000000]
+      "examples": [
+        150000000
+      ]
     },
     "SourceId": {
       "type": "string",
       "pattern": "^SRC_[A-Z0-9_]+$",
       "description": "Идентификатор первичного источника",
-      "examples": ["SRC_1", "SRC_CBR_2026_001"]
+      "examples": [
+        "SRC_1",
+        "SRC_CBR_2026_001"
+      ]
     },
     "RegulationRef": {
       "type": "string",
       "description": "Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)",
-      "examples": ["152-ФЗ", "353-ФЗ", "Указание ЦБ РФ № 5901-У"]
+      "examples": [
+        "152-ФЗ",
+        "353-ФЗ",
+        "Указание ЦБ РФ № 5901-У"
+      ]
     },
     "CourtRef": {
       "type": "string",
       "description": "Ссылка на судебную практику",
-      "examples": ["Постановление Пленума ВС РФ № 1"]
+      "examples": [
+        "Постановление Пленума ВС РФ № 1"
+      ]
     },
     "ImpactType": {
       "type": "string",
-      "enum": ["CREATE", "MODIFY", "DELETE", "NO_CHANGE"],
+      "enum": [
+        "CREATE",
+        "MODIFY",
+        "DELETE",
+        "NO_CHANGE"
+      ],
       "description": "Тип влияния на IT-систему"
     },
     "SystemType": {
       "type": "string",
-      "enum": ["CORE", "CHANNEL", "INTEGRATION", "REPORTING", "SECURITY"],
+      "enum": [
+        "CORE",
+        "CHANNEL",
+        "INTEGRATION",
+        "REPORTING",
+        "SECURITY"
+      ],
       "description": "Тип IT-системы"
     },
     "RiskLevel": {
       "type": "string",
-      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ],
       "description": "Уровень юридического/регуляторного риска"
     },
     "TargetWorker": {
@@ -172,22 +220,40 @@
     },
     "SourceTier": {
       "type": "string",
-      "enum": ["TIER_1", "TIER_2", "TIER_3"],
+      "enum": [
+        "TIER_1",
+        "TIER_2",
+        "TIER_3"
+      ],
       "description": "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный"
     },
     "LegalStatus": {
       "type": "string",
-      "enum": ["APPROVED", "APPROVED_WITH_RESERVATIONS", "REJECTED"],
+      "enum": [
+        "APPROVED",
+        "APPROVED_WITH_RESERVATIONS",
+        "REJECTED"
+      ],
       "description": "Статус правового заключения"
     },
     "ExecutionStatus": {
       "type": "string",
-      "enum": ["COMPLETED_APPROVED", "REJECTED", "ESCALATED", "STOPPED", "PENDING_HUMAN"],
+      "enum": [
+        "COMPLETED_APPROVED",
+        "REJECTED",
+        "ESCALATED",
+        "STOPPED",
+        "PENDING_HUMAN"
+      ],
       "description": "Статус исполнения проекта"
     },
     "StageGateVerdict": {
       "type": "string",
-      "enum": ["APPROVED", "REJECTED", "NEEDS_REWORK"],
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "NEEDS_REWORK"
+      ],
       "description": "Вердикт на Stage-Gate"
     },
     "OutputFormat": {
@@ -205,12 +271,193 @@
     },
     "ArtifactRef": {
       "type": "object",
-      "required": ["ref"],
+      "required": [
+        "ref"
+      ],
       "properties": {
-        "ref": { "type": "string", "minLength": 1, "description": "Ссылка на артефакт (путь или ID). Пустая строка недопустима." }
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ссылка на артефакт (путь или ID). Пустая строка недопустима."
+        }
       },
       "additionalProperties": false,
       "description": "Ссылка на связанный артефакт"
+    }
+  },
+  "x-i18n": {
+    "definitions": {
+      "ProjectId": {
+        "title_ru": "Идентификатор проекта",
+        "description_ru": "Уникальный идентификатор проекта (UPPER_SNAKE_CASE)"
+      },
+      "TaskId": {
+        "title_ru": "Идентификатор задачи",
+        "description_ru": "Уникальный идентификатор задачи (UPPER_SNAKE_CASE)"
+      },
+      "EvalId": {
+        "title_ru": "Идентификатор оценки",
+        "description_ru": "Идентификатор оценки качества"
+      },
+      "AgentId": {
+        "title_ru": "Идентификатор агента",
+        "description_ru": "Системный идентификатор агента",
+        "enum_labels_ru": [
+          "Оркестратор",
+          "Мульти-источник исследователь",
+          "Продуктовый менеджер",
+          "Бизнес-аналитик",
+          "Юридический консультант",
+          "Синтетик-исследователь",
+          "Оценщик качества"
+        ]
+      },
+      "DomainContext": {
+        "title_ru": "Доменный контекст",
+        "description_ru": "Доменный контекст проекта (банковская сфера РФ)",
+        "enum_labels_ru": [
+          "Розничное банкирование",
+          "Инвестиции",
+          "Платежи"
+        ]
+      },
+      "QualityThreshold": {
+        "title_ru": "Порог качества",
+        "description_ru": "Порог качества (0-100). Поле контракта: 85 — типовой пример значения, а не жёстко зашитый порог."
+      },
+      "QualityWeights": {
+        "title_ru": "Веса качества",
+        "description_ru": "Веса пяти осей качества для расчёта overall_score. Сумма должна быть равна 1."
+      },
+      "TimestampISO": {
+        "title_ru": "Временная метка ISO",
+        "description_ru": "Временная метка в ISO 8601 (UTC)"
+      },
+      "VersionString": {
+        "title_ru": "Строка версии",
+        "description_ru": "Семантическая версия (MAJOR.MINOR.PATCH)"
+      },
+      "Percentage": {
+        "title_ru": "Процент",
+        "description_ru": "Процентное значение (0-100)"
+      },
+      "BasisPoints": {
+        "title_ru": "Базисные пункты",
+        "description_ru": "Значение в базисных пунктах (1 bp = 0.01%)"
+      },
+      "CurrencyAmount": {
+        "title_ru": "Денежная сумма",
+        "description_ru": "Денежная сумма в рублях"
+      },
+      "SourceId": {
+        "title_ru": "Идентификатор источника",
+        "description_ru": "Идентификатор первичного источника"
+      },
+      "RegulationRef": {
+        "title_ru": "Ссылка на нормативный акт",
+        "description_ru": "Ссылка на нормативный акт (ФЗ, указание ЦБ РФ, ГОСТ)"
+      },
+      "CourtRef": {
+        "title_ru": "Судебная практика",
+        "description_ru": "Ссылка на судебную практику"
+      },
+      "ImpactType": {
+        "title_ru": "Тип влияния",
+        "description_ru": "Тип влияния на IT-систему",
+        "enum_labels_ru": [
+          "Создание",
+          "Модификация",
+          "Удаление",
+          "Без изменений"
+        ]
+      },
+      "SystemType": {
+        "title_ru": "Тип системы",
+        "description_ru": "Тип IT-системы",
+        "enum_labels_ru": [
+          "Ядро",
+          "Канал",
+          "Интеграция",
+          "Отчётность",
+          "Безопасность"
+        ]
+      },
+      "RiskLevel": {
+        "title_ru": "Уровень риска",
+        "description_ru": "Уровень юридического/регуляторного риска",
+        "enum_labels_ru": [
+          "Критический",
+          "Высокий",
+          "Средний",
+          "Низкий"
+        ]
+      },
+      "TargetWorker": {
+        "title_ru": "Целевой воркер",
+        "description_ru": "Агент, чей артефакт проверяет критик",
+        "enum_labels_ru": [
+          "Мульти-источник исследователь",
+          "Синтетик-исследователь",
+          "Бизнес-аналитик",
+          "Продуктовый менеджер",
+          "Юридический консультант"
+        ]
+      },
+      "SourceTier": {
+        "title_ru": "Уровень источника",
+        "description_ru": "Уровень достоверности источника: TIER_1 — первичный, TIER_2 — отраслевой, TIER_3 — вторичный",
+        "enum_labels_ru": [
+          "Первичный (TIER_1)",
+          "Отраслевой (TIER_2)",
+          "Вторичный (TIER_3)"
+        ]
+      },
+      "LegalStatus": {
+        "title_ru": "Юридический статус",
+        "description_ru": "Статус правового заключения",
+        "enum_labels_ru": [
+          "Утверждено",
+          "Утверждено с замечаниями",
+          "Отклонено"
+        ]
+      },
+      "ExecutionStatus": {
+        "title_ru": "Статус исполнения",
+        "description_ru": "Статус исполнения проекта",
+        "enum_labels_ru": [
+          "Завершено и утверждено",
+          "Отклонено",
+          "Эскалировано",
+          "Остановлено",
+          "Ожидает человека"
+        ]
+      },
+      "StageGateVerdict": {
+        "title_ru": "Вердикт Stage-Gate",
+        "description_ru": "Вердикт на Stage-Gate",
+        "enum_labels_ru": [
+          "Утверждено",
+          "Отклонено",
+          "Требуется доработка"
+        ]
+      },
+      "OutputFormat": {
+        "title_ru": "Формат вывода",
+        "description_ru": "Формат выходного документа синтеза",
+        "enum_labels_ru": [
+          "Markdown (Marp)",
+          "Python PPTX скрипт",
+          "HTML Tailwind Deck",
+          "Structured Slides JSON",
+          "Markdown Report",
+          "Python DOCX скрипт",
+          "Typst PDF разметка"
+        ]
+      },
+      "ArtifactRef": {
+        "title_ru": "Ссылка на артефакт",
+        "description_ru": "Ссылка на связанный артефакт"
+      }
     }
   }
 }

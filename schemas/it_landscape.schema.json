@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/it_landscape.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/it_landscape.schema.json#v4.2.0",
   "title": "it_landscape.json",
   "description": "Описание IT-ландшафта и влияния продукта на системы (АБС/ДБО).",
   "type": "object",

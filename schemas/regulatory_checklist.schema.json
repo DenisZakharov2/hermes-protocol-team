@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://hermes-protocol.example/schemas/regulatory_checklist.schema.json#v4.1.4",
+  "$id": "https://hermes-protocol.example/schemas/regulatory_checklist.schema.json#v4.2.0",
   "title": "regulatory_checklist.json",
   "description": "Регуляторный чек-лист требований РФ и способов проверки.",
   "type": "object",

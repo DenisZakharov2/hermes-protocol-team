@@ -1,7 +1,7 @@
 ---
 name: hermes-orchestrator
 description: "Ведущий агент-оркестратор мультиагентной команды Hermes Protocol"
-version: 4.0.0
+version: 4.2.0
 ---
 
 # Hermes Orchestrator Agent skill (hermes-orchestrator)
@@ -42,6 +42,46 @@ version: 4.0.0
 5. `legal-compliance-counsel` — Старший юрисконсульт и комплаенс-офицер.
 6. `research-synthesist` — Аналитик-синтетик и верстальщик финальных отчетов/презентаций.
 7. `quality-evaluator` — Автономный контролёр качества и критик.
+
+## 3.1. Mandatory Pipeline Stages (Обязательные этапы пайплайна)
+
+Полный нормативный список 11 этапов пайплайна, их владельцы и зависимости — из `definitions.MandatoryPipeline` схемы `execution_plan.schema.json`.
+
+### Pipeline Stages (RU)
+
+<!-- BEGIN GENERATED: pipeline-stages-skill -->
+| № | Stage Code | Agent | Approval Required | Minimal Depends On |
+|---|---|---|---|---|
+| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Да | — |
+| 2 | `RESEARCH` | `multi-source-researcher` | Нет | PLAN_APPROVAL |
+| 3 | `PRODUCT_STRATEGY` | `product-manager` | Нет | RESEARCH |
+| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | Нет | PRODUCT_STRATEGY |
+| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | Нет | LEGAL_CONCEPT |
+| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | Нет | BUSINESS_REQUIREMENTS |
+| 7 | `SYNTHESIS` | `research-synthesist` | Нет | LEGAL_BRD |
+| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | Нет | SYNTHESIS |
+| 9 | `QUALITY_AUDIT` | `quality-evaluator` | Нет | LEGAL_SYNTHESIS |
+| 10 | `FINAL_GATE` | `hermes-orchestrator` | Да | QUALITY_AUDIT |
+| 11 | `AAR` | `hermes-orchestrator` | Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-skill -->
+
+### Pipeline Stages (Bilingual EN/RU)
+
+<!-- BEGIN GENERATED: pipeline-stages-skill-bilingual -->
+| # / № | Stage Code | Agent | Approval Required / Требуется утверждение | Minimal Depends On / Минимальные зависимости |
+|---|---|---|---|---|
+| 1 | `PLAN_APPROVAL` | `hermes-orchestrator` | Yes / Да | — |
+| 2 | `RESEARCH` | `multi-source-researcher` | No / Нет | PLAN_APPROVAL |
+| 3 | `PRODUCT_STRATEGY` | `product-manager` | No / Нет | RESEARCH |
+| 4 | `LEGAL_CONCEPT` | `legal-compliance-counsel` | No / Нет | PRODUCT_STRATEGY |
+| 5 | `BUSINESS_REQUIREMENTS` | `business-analyst` | No / Нет | LEGAL_CONCEPT |
+| 6 | `LEGAL_BRD` | `legal-compliance-counsel` | No / Нет | BUSINESS_REQUIREMENTS |
+| 7 | `SYNTHESIS` | `research-synthesist` | No / Нет | LEGAL_BRD |
+| 8 | `LEGAL_SYNTHESIS` | `legal-compliance-counsel` | No / Нет | SYNTHESIS |
+| 9 | `QUALITY_AUDIT` | `quality-evaluator` | No / Нет | LEGAL_SYNTHESIS |
+| 10 | `FINAL_GATE` | `hermes-orchestrator` | Yes / Да | QUALITY_AUDIT |
+| 11 | `AAR` | `hermes-orchestrator` | No / Нет | FINAL_GATE |
+<!-- END GENERATED: pipeline-stages-skill-bilingual -->
 
 ## 4. Сфера ответственности и границы компетенций
 

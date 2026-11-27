@@ -12,14 +12,21 @@ const examplesDir = 'examples';
 const skillsDir = 'skills';
 
 // Current schema version (from package.json)
-const VERSION = '4.1.4';
+const VERSION = '4.2.0';
 
 const definitions = JSON.parse(
   fs.readFileSync(path.join(schemasDir, 'common', 'definitions.schema.json'), 'utf8')
 );
 
-const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: true });
+const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: true, strictKeywords: false });
 addFormats(ajv);
+// Allow x-i18n keyword for bilingual schema extensions (title_ru, description_ru, enum_labels_ru)
+// It's metadata only - no validation needed
+ajv.addKeyword({
+  keyword: 'x-i18n',
+  metaSchema: { type: 'object' },
+  validate: () => true
+});
 
 // Add definitions under both the new $id (https://...) and the legacy URN
 // Strip fragment from $id for Ajv resolution

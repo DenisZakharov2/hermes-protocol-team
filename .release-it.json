@@ -1,0 +1,38 @@
+{
+  "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "git": {
+    "requireBranch": "main",
+    "requireCommits": true,
+    "requireUpstream": true,
+    "commitMessage": "chore: release v${version}",
+    "tagName": "v${version}",
+    "tagAnnotation": "Release v${version}",
+    "push": true,
+    "pushArgs": "--follow-tags"
+  },
+  "dryRun": {
+    "requireBranch": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "assets": [],
+    "autoGenerate": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "conventionalcommits",
+      "infile": "CHANGELOG.md",
+      "ignoreRecommendedBump": false
+    }
+  },
+  "hooks": {
+    "before:init": [
+      "npm run validate"
+    ],
+    "after:bump": "npm run generate:docs && npm run generate:types && git add -A && git commit -m \"chore: update generated docs and types for v${version}\""
+  }
+}
